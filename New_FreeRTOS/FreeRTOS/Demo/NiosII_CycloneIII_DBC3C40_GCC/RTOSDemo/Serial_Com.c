@@ -25,8 +25,8 @@
 
 int serial_main(void)
 {
-    char* msg = "hello world";
     FILE* fp;
+    char* msg = "hello world";
     int i = 0;
         
     fp = fopen ("/dev/uart", "w");

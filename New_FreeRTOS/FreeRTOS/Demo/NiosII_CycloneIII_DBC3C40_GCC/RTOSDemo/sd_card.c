@@ -1,9 +1,9 @@
-#include <stdio.h>
+/*#include <stdio.h>
 #include <string.h>
 #include <altera_up_sd_card_avalon_interface.h>
-/*
+*//*
 #include "altera_up_sd_card_avalon_interface.h"
-*/
+*//*
 #include "system.h"
 #include "sys/alt_irq.h"
 #include "alt_types.h"
@@ -45,7 +45,7 @@ int sd_card_main(void)
     }
     
     len  = strlen(SD_CARD_INTERFACE_NAME) + 1;
-      
+    */  
 /*
     handler = alt_up_sd_card_find_first("HELLO/.", buffer_name);
     printf("%d,  %s \n", handler, buffer_name);
@@ -65,8 +65,38 @@ int sd_card_main(void)
      handler = alt_up_sd_card_fopen("hello.txt", false);
     while ((read = alt_up_sd_card_read(handler)) != -1) printf("%c \n", read);
     alt_up_sd_card_fclose(handler); 
-*/ 
+*/ /*
   return len;   
 }
+*/
 
+#include <stdio.h>
+#include <altera_up_sd_card_avalon_interface.h>
 
+int sd_card_main(void) {
+  alt_up_sd_card_dev *device_reference = NULL;
+  int connected = 0;
+  
+  device_reference = alt_up_sd_card_open_dev(SD_CARD_INTERFACE_NAME);
+  if (device_reference != NULL) {
+    while(1) {
+      if ((connected == 0) && (alt_up_sd_card_is_Present())) {
+        printf("Card connected.\n");
+        if (alt_up_sd_card_is_FAT16()) {
+          printf("FAT16 file system detected.\n");
+        } else {
+          printf("Unknown file system.\n");
+        }
+        connected = 1;
+      } else if ((connected == 1) && (alt_up_sd_card_is_Present() == false)) {
+        printf("Card disconnected.\n");
+        connected = 0;
+      }
+    }
+  }
+  else
+  {
+      printf("device_reference = NULL\n");
+  }
+  return 0;
+}
