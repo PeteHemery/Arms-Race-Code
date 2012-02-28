@@ -22,7 +22,6 @@
 #include "altera_avalon_uart_regs.h"
 #include "altera_avalon_uart.h"
 
-
 int serial_main(void)
 {
     FILE* fp;
@@ -56,3 +55,23 @@ int serial_main(void)
     fclose (fp);
     return 0;
 }
+
+void vTaskSerial(void *pvParameters)
+{
+  unsigned int status = 0;
+  const char *pcTaskName = "Serial test\n";
+  printf(pcTaskName);
+  
+  status = serial_main();
+  printf("status = %d\n",status);
+/*  
+  for (;;)
+  {
+      status = IORD_ALTERA_AVALON_PIO_DATA(UART_BASE);
+      vTaskDelay(200 / portTICK_RATE_MS);
+      printf("%c\n",status);
+  }
+*/
+   vTaskDelete(NULL);   
+}
+

@@ -101,3 +101,16 @@ int sd_card_main(void) {
   return 0;
 }
 */
+
+void vTaskSDCard(void *pvParameters)
+{
+  unsigned int status = 0;
+  const char *pcTaskName = "SD Card\n";
+  printf(pcTaskName);
+  
+  status = sd_card_main();
+  printf("SD card status = %d\n",status);
+
+   vTaskDelete(NULL);   
+}
+
