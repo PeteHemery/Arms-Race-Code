@@ -69,7 +69,7 @@ int sd_card_main(void)
   return len;   
 }
 */
-
+/*
 #include <stdio.h>
 #include <altera_up_sd_card_avalon_interface.h>
 
@@ -100,3 +100,4 @@ int sd_card_main(void) {
   }
   return 0;
 }
+*/

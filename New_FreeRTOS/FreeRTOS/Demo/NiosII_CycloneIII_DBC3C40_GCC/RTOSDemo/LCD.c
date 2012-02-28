@@ -111,11 +111,16 @@ void vTaskLCD(void *pvParameters)
  c = 0x40; 
 
   lcd_clear_screen(sp);
-  vTaskDelay(100 / portTICK_RATE_MS);
  for (i = 0; i < 240;i++)
  {
-//  printf("%x ",c);
-  lcd_write_data(sp, c++);
+  //printf("%x ",c);
+  if ((i % 13) == 0){
+    altera_avalon_lcd_16207_write(sp, "\n", 1, 0);
+  }
+  altera_avalon_lcd_16207_write(sp, (char)c++, 1, 0);
+  //lcd_write_data(sp, c++);
+  
+  vTaskDelay(100 / portTICK_RATE_MS);
   
   for (u1=0; u1 < 3000; u1++)
   {

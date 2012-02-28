@@ -71,8 +71,6 @@
 #include "altera_avalon_pio_regs.h"
 #include "alt_types.h"
 
-
-
 /*
 void vTask1(void *pvParameters);
 void vTask2(void *pvParameters);
@@ -81,13 +79,13 @@ void vTask2(void *pvParameters);
 void vTaskLED(void *pvParameters);
 void vTaskLEDControl(void *pvParameters);
 */
-//void vTaskKeyPad(void *pvParameters);
+void vTaskKeyPad(void *pvParameters);
 void vTaskSerial(void *pvParameters);
 extern void vTaskLCD(void *pvParameters);
 extern int serial_main(void);
 
 /* SD Card Stuff */
-extern int sd_card_main(void);
+//extern int sd_card_main(void);
 void vTaskSDCard(void *pvParameters);
 
 unsigned int uLED_Mask = 0x03;
@@ -96,15 +94,18 @@ int main( void )
 {
 // alt_u16 led = 0x4;
 // IOWR_ALTERA_AVALON_PIO_DATA(LED_BASE, led);
+
 /* xTaskCreate(vTaskLED, "task 1", 1000, (void *) 100, 1, NULL);  
  xTaskCreate(vTaskLED, "task 2", 1000, (void *) 200, 1, NULL);
  xTaskCreate(vTaskLED, "task 3", 1000, (void *) 50, 1, NULL);
 */
  //xTaskCreate(vTaskSerial, "UART", 1000, NULL, 1, NULL);
- xTaskCreate(vTaskSDCard, "UART", 1000, NULL, 1, NULL); 
-/*
- xTaskCreate(vTaskLCD, "Keypad", 1000, NULL, 1, NULL);
+ //xTaskCreate(vTaskSDCard, "UART", 1000, NULL, 1, NULL); 
+
+ xTaskCreate(vTaskKeyPad, "Keypad", 1000, NULL, 1, NULL);
+ xTaskCreate(vTaskLCD, "LCD", 1000, NULL, 1, NULL);
  
+/* 
  xTaskCreate(vTaskLED, "task 1", 1000, (void *) 100, 1, NULL);
  xTaskCreate(vTaskLED, "task 2", 1000, (void *) 200, 1, NULL);
  xTaskCreate(vTaskLED, "task 3", 1000, (void *) 50, 1, NULL);
@@ -153,22 +154,31 @@ void vTask1(void *pvParameters)
 */
 
 
-/*
+
 void vTaskKeyPad(void *pvParameters)
 {
   unsigned int status = 0;
+  unsigned int prev_status = 0;
   const char *pcTaskName = "Control\n";
   printf(pcTaskName);
   
   for (;;)
   {
-      status = IORD_ALTERA_AVALON_PIO_DATA(KEYPAD_0_BASE);
-      vTaskDelay(200 / portTICK_RATE_MS);
-      printf("%d\n",status);
+      status = IORD_ALTERA_AVALON_PIO_DATA(KEYPAD_COUNTER_0_BASE);
+      vTaskDelay(10 / portTICK_RATE_MS);
+      if (status != prev_status){
+        if (status < 16){
+          printf("%d\n",status);
+        }
+        else{
+          //printf("no key pressed\n");
+        }
+      }
+      prev_status = status;
   }
     
 }
-*/
+
 
 /*
 void vTaskLEDControl(void *pvParameters)
@@ -240,7 +250,7 @@ void vTaskLED(void *pvParameters)
  }
 }
 
-
+/*
 void vTaskSDCard(void *pvParameters)
 {
   unsigned int status = 0;
@@ -252,3 +262,4 @@ void vTaskSDCard(void *pvParameters)
 
    vTaskDelete(NULL);   
 }
+*/

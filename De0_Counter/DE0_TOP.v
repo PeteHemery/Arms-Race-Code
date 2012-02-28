@@ -96,15 +96,15 @@ module DE0_TOP
 		LCD_RS,							//	LCD Command/Data Select, 0 = Command, 1 = Data
 		LCD_DATA,						//	LCD Data bus 8 bits
 		////////////////////	SD_Card Interface	////////////////
-//		SD_DAT,							//	SD Card Data
-//		SD_CMD,							//	SD Card Command Signal
-//		SD_CLK,							//	SD Card Clock
-//		SD_WP_N,						//	SD Card Write Protect
-
-		SD_DAT,							//	SD Card Data Out
-		SD_CMD,							//	SD Card Data In
+		SD_DAT,							//	SD Card Data
+		SD_CMD,							//	SD Card Command Signal
 		SD_CLK,							//	SD Card Clock
-		SD_DAT3, 						//	SD Card Chip Select
+		SD_WP_N,						//	SD Card Write Protect
+		////////////////////	University IP ////////////////////	
+//		SD_DAT,							//	SD Card Data Out
+//		SD_CMD,							//	SD Card Data In
+//		SD_CLK,							//	SD Card Clock
+//		SD_DAT3, 						//	SD Card Chip Select
 
 		////////////////////	PS2		////////////////////////////
 		PS2_KBDAT,						//	PS2 Keyboard Data
@@ -123,10 +123,10 @@ module DE0_TOP
 		GPIO0_D,						//	GPIO Connection 0 Data Bus
 		GPIO1_CLKIN,					//	GPIO Connection 1 Clock In Bus
 		GPIO1_CLKOUT,					//	GPIO Connection 1 Clock Out Bus
-		GPIO1_D							//	GPIO Connection 1 Data Bus
+		GPIO1_D,							//	GPIO Connection 1 Data Bus
 		//keypad//
-		//COL_OUT,
-		//ROW_IN
+		COL_OUT,
+		ROW_IN
 	);
 
 ////////////////////////	Clock Input	 	////////////////////////
@@ -182,16 +182,16 @@ output			LCD_RW;					//	LCD Read/Write Select, 0 = Write, 1 = Read
 output			LCD_EN;					//	LCD Enable
 output			LCD_RS;					//	LCD Command/Data Select, 0 = Command, 1 = Data
 ////////////////////	SD Card Interface	////////////////////////
-//inout			SD_DAT;				    //	SD Card Data 0
-//inout			SD_CMD;					//	SD Card Command Signal
-//output			SD_CLK;					//	SD Card Clock
-//input			SD_WP_N;				//	SD Card Write Protect
+inout			SD_DAT;				    //	SD Card Data 0
+inout			SD_CMD;					//	SD Card Command Signal
+output			SD_CLK;					//	SD Card Clock
+input			SD_WP_N;				//	SD Card Write Protect
 ////////////////////	SD Card Interface	////////////////////////
 ////////////////////	Uni IP          	////////////////////////
-inout	   	SD_DAT;				    //	SD Card Data Out
-inout			SD_CMD;					//	SD Card Data IN
-output		SD_CLK;					//	SD Card Clock
-inout			SD_DAT3;  				//	SD Card Chip Select
+//inout	   	SD_DAT;				    //	SD Card Data Out
+//inout			SD_CMD;					//	SD Card Data IN
+//output		SD_CLK;					//	SD Card Clock
+//inout			SD_DAT3;  				//	SD Card Chip Select
 
 ////////////////////////	PS2		////////////////////////////////
 inout		 	PS2_KBDAT;				//	PS2 Keyboard Data
@@ -212,8 +212,8 @@ input	[1:0]	GPIO1_CLKIN;			//	GPIO Connection 1 Clock In Bus
 output	[1:0]	GPIO1_CLKOUT;			//	GPIO Connection 1 Clock Out Bus
 inout	[31:0]	GPIO1_D;				//	GPIO Connection 1 Data Bus
 //KEYPAD
-//output  [3:0] COL_OUT;	//keypad column out
-//input	  [3:0] ROW_IN;	//keypad row in 
+output  [3:0] COL_OUT;	//keypad column out
+input	  [3:0] ROW_IN;	//keypad row in 
 
 //=======================================================
 //  REG/WIRE declarations
@@ -266,21 +266,22 @@ DE0_SOPC DE0_SOPC_inst(
 
 
                   // the_sd_clk
-//                   .out_port_from_the_sd_clk(SD_CLK),
+                   .out_port_from_the_sd_clk(SD_CLK),
 
                   // the_sd_cmd
-//                   .bidir_port_to_and_from_the_sd_cmd(SD_CMD),
+                   .bidir_port_to_and_from_the_sd_cmd(SD_CMD),
 
                   // the_sd_dat
-//                   .bidir_port_to_and_from_the_sd_dat(SD_DAT),
+                   .bidir_port_to_and_from_the_sd_dat(SD_DAT),
 
                   // the_sd_wp_n
-//                   .in_port_to_the_sd_wp_n(SD_WP_N),
-
-                   .b_SD_cmd_to_and_from_the_SD_CARD_Interface(SD_CMD),
-                   .b_SD_dat3_to_and_from_the_SD_CARD_Interface(SD_DAT3),
-                   .b_SD_dat_to_and_from_the_SD_CARD_Interface(SD_DAT),
-						 .o_SD_clock_from_the_SD_CARD_Interface(SD_CLK),
+                   .in_port_to_the_sd_wp_n(SD_WP_N),
+						 
+////////////////////	University IP ////////////////////	
+//                   .b_SD_cmd_to_and_from_the_SD_CARD_Interface(SD_CMD),
+//                   .b_SD_dat3_to_and_from_the_SD_CARD_Interface(SD_DAT3),
+//                   .b_SD_dat_to_and_from_the_SD_CARD_Interface(SD_DAT),
+//						 .o_SD_clock_from_the_SD_CARD_Interface(SD_CLK),
 
                   // the_sdram
                    .zs_addr_from_the_sdram(DRAM_ADDR),
@@ -308,8 +309,8 @@ DE0_SOPC DE0_SOPC_inst(
                    .txd_from_the_uart(UART_TXD),
                   
 						// the keypad
-						// .col_from_the_keypad_0(COL_OUT),
-						// .row_to_the_keypad_0(ROW_IN)
+						 .col_from_the_keypad_counter_0(COL_OUT),
+						 .row_to_the_keypad_counter_0(ROW_IN)
                   
                 );
 
