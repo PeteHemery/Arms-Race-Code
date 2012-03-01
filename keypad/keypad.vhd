@@ -23,7 +23,7 @@ entity keypad is
   port (
     sys_clk : in  std_logic;                      -- Clock source and
     resetn  : in  std_logic;                      -- Reset on global inputs
---    strobe : out    std_logic;                  -- key pressed
+    strobe : out    std_logic;                  -- key pressed
     row     : in  std_logic_vector (3 downto 0);  -- Sense keypad rows
     col     : out std_logic_vector (3 downto 0);  -- Drive columns
     shift   : out std_logic_vector (31 downto 0));
@@ -67,25 +67,27 @@ begin
   -- Sense keyboard rows with a multiplexer
   -- double inversion ughh
   -- keypad gives 0 when key pressed
+  
+  -- PH modded the matrix so keypad can be upside down
 
 with d select
-  mat <=
-  "0001"      when "0000",
-  "0100"      when "0001",
-  "0111"      when "0010",
-  "1111"      when "0011",
-  "0010"      when "0100",
-  "0101"      when "0101",
-  "1000"      when "0110",
-  "0000"      when "0111",
-  "0011"      when "1000",
-  "0110"      when "1001",
-  "1001"      when "1010",
-  "1110"      when "1011",
-  "1010"      when "1100",
-  "1011"      when "1101",
-  "1100"      when "1110",
-  "1101"      when "1111", 
+  mat <=                -- button, col, row
+  "1111"      when "0000", -- 15 -- 0,  0
+  "1011"      when "0001", -- 11 -- 0,  1
+  "0111"      when "0010", -- 7  -- 0,  2
+  "0011"      when "0011", -- 3  -- 0,  3
+  "1110"      when "0100", -- 14 -- 1,  0
+  "1010"      when "0101", -- 10 -- 1,  1
+  "0110"      when "0110", -- 6  -- 1,  2
+  "0010"      when "0111", -- 2  -- 1,  3
+  "1101"      when "1000", -- 13 -- 2,  0
+  "1001"      when "1001", -- 9  -- 2,  1
+  "0101"      when "1010", -- 5  -- 2,  2
+  "0001"      when "1011", -- 1  -- 2,  3
+  "1100"      when "1100", -- 12 -- 3,  0
+  "1000"      when "1101", -- 8  -- 3,  1
+  "0100"      when "1110", -- 4  -- 3,  2
+  "0000"      when "1111", -- 0  -- 3,  3
   "0000"      when others;
   
   with d(1 downto 0) select
@@ -100,19 +102,19 @@ with d select
   -- st : debounce port map(clk, NKP, strobe);
   -- below is hacked process from debounce module
 
-  process (Clk, nkp)
+  process (clk, NKP)
   begin
     if NKP = '1' then
       cnt      <= to_unsigned(0, 2);
     else
-      if (clk'event and Clk = '1') then
+      if (clk'event and clk = '1') then
         if (cnt /= to_unsigned(3, 2)) then
           cnt    <= cnt + to_unsigned(1, 2);
         end if;
       end if;
       if (cnt = to_unsigned(2, 2)) and (NKP = '0') then
-        pulse    <= '1';
-      else pulse <= '0';
+        pulse   <= '1';
+      else pulse   <= '0';
       end if;
     end if;
   end process;
@@ -138,7 +140,12 @@ with d select
   -- NKP indicates when no key is pressed
   -- pulse indicates that inp0 is the latched value
   
-  shift <= "00000000000000000000000000"&NKP&pulse&inp0;
+--  shift <= "00000000000000000000000000"&NKP&pulse&inp0;
+
+  -- PH 29/02/2012 keeping as just inp0 for strobe interrupt
+  shift <= "0000000000000000000000000000"&inp0;
+  -- PH added strobe to drive interrupt line
+  strobe  <= pulse;
  --shift <= inp0;
 
 --end;

@@ -1,3 +1,24 @@
+/* *
+ * Pete Hemery
+ * SD Card Functions
+ * */
+ 
+/* Standard includes. */
+#include <stddef.h>
+#include <stdio.h>
+#include <string.h>
+#include <unistd.h>
+
+/* Scheduler includes. */
+#include "FreeRTOS.h"
+#include "task.h"
+#include "queue.h"
+
+/* Altera specific */
+#include "altera_avalon_pio_regs.h"
+#include "alt_types.h"
+
+
 /*#include <stdio.h>
 #include <string.h>
 #include <altera_up_sd_card_avalon_interface.h>
@@ -108,7 +129,7 @@ void vTaskSDCard(void *pvParameters)
   const char *pcTaskName = "SD Card\n";
   printf(pcTaskName);
   
-  status = sd_card_main();
+//  status = sd_card_main();
   printf("SD card status = %d\n",status);
 
    vTaskDelete(NULL);   
