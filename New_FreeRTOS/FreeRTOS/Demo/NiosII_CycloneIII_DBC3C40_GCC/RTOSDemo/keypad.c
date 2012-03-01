@@ -18,6 +18,8 @@
 #include "altera_avalon_pio_regs.h"
 #include "alt_types.h"
 
+extern xQueueHandle xKeyPadQueue;
+
 void vTaskKeyPad(void *pvParameters)
 {
   unsigned int status = 0;

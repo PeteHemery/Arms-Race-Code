@@ -71,11 +71,18 @@
 #include "altera_avalon_pio_regs.h"
 #include "alt_types.h"
 
+/* Pete written */
+#include "waypoints.h"
+
 extern void vTaskKeyPad(void *pvParameters);
 extern void vTaskLCD(void *pvParameters);
 extern void vTaskSerial(void *pvParameters);
 extern void vTaskSDCard(void *pvParameters);
 
+extern void vSenderTask( void *pvParameters );
+extern void vReceiverTask( void *pvParameters );
+
+extern void vTaskWayPointCreate(void *pvParameters);
 
 /*
 alt_ic_isr_register(
@@ -96,6 +103,8 @@ static void __interrupt __far vKeypadInterruptHandler( void )
   }  
 }
 */
+xQueueHandle xQueue;
+xQueueHandle xKeyPadQueue;
 
 int main( void )
 {
@@ -110,16 +119,32 @@ int main( void )
 //  {
     //xTaskCreate(vTaskSerial, "UART", 1000, NULL, 1, NULL);
     //xTaskCreate(vTaskSDCard, "UART", 1000, NULL, 1, NULL); 
-  
-    xTaskCreate(vTaskKeyPad, "Keypad", 1000, NULL, 1, NULL);
-    xTaskCreate(vTaskLCD, "LCD", 1000, NULL, 1, NULL);
-   
-     /* Finally start the scheduler. */
-     vTaskStartScheduler();
-     printf("Scheduler Went Wrong\n");
-     /* Will only reach here if there is insufficient heap available to start
-     the scheduler. */
-     for( ;; );
+    
+    xQueue = xQueueCreate ( 5, sizeof (long) );
+    if (xQueue != NULL)
+    {
+      xTaskCreate(vTaskKeyPad, "Keypad", 1000, NULL, 1, NULL);
+      xTaskCreate(vTaskLCD, "LCD", 1000, NULL, 1, NULL);
+      
+      /* Create two instances of the sender tasks */
+      //xTaskCreate( vSenderTask, "Sender1", 1000, ( void * ) 100, 1, NULL );
+      //xTaskCreate( vSenderTask, "Sender2", 1000, ( void * ) 200, 1, NULL );
+      /* Create the task to read from the queue */
+      //xTaskCreate( vReceiverTask, "Receiver", 1000, NULL, 2, NULL );
+      xTaskCreate( vTaskWayPointCreate, "WayPoints", 1000, NULL, 1, NULL );
+     
+      /* Finally start the scheduler. */
+      vTaskStartScheduler();
+      printf("Scheduler Went Wrong\n");
+      
+      /* Will only reach here if there is insufficient heap available to start
+      the scheduler. */
+      for( ;; );
+    }
+    else
+    {
+      printf("Queue could not be created\n");
+    }
 //  }
 }
 
