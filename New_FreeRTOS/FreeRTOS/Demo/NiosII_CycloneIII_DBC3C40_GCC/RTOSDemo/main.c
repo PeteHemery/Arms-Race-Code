@@ -131,7 +131,7 @@ int main( void )
       //xTaskCreate( vSenderTask, "Sender2", 1000, ( void * ) 200, 1, NULL );
       /* Create the task to read from the queue */
       //xTaskCreate( vReceiverTask, "Receiver", 1000, NULL, 2, NULL );
-      xTaskCreate( vTaskWayPointCreate, "WayPoints", 1000, NULL, 1, NULL );
+      xTaskCreate( vTaskWayPointCreate, "WayPoints", 100, NULL, 1, NULL );
      
       /* Finally start the scheduler. */
       vTaskStartScheduler();

@@ -1,6 +1,23 @@
+/*
+ * Pete Hemery
+ * Waypoints Functions
+ * */
+ 
+/* Standard includes. */
+#include <stddef.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <unistd.h>
+
+/* Scheduler includes. */
+#include "FreeRTOS.h"
+#include "task.h"
+#include "queue.h"
+
+/* Altera specific */
+#include "altera_avalon_pio_regs.h"
+#include "alt_types.h"
 #include "waypoints.h"
 
 /***
@@ -204,10 +221,10 @@ void print_struct(struct waypoint_t * wp){
   printf("Servos set:\n");
   for(i=0;i<6;i++){
     if((unsigned char)((wp->flag.servo_set.servo_flags >> i) & 0x01)){
-      printf("#%d %d ",i,wp->servos[i].position);
+      printf("#%d P%d ",i,wp->servos[i].position);
     }
     if((wp->servos[i].speed) != 0){
-      printf("S %d ",wp->servos[i].speed);
+      printf("S%d ",wp->servos[i].speed);
     }
   }
   printf("\n");  
