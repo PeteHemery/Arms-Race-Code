@@ -29,14 +29,15 @@ void vTaskKeyPad(void *pvParameters)
   for (;;)
   {
       vTaskDelay(50 / portTICK_RATE_MS); // Chill out the for loop a bit
-      status = IORD_ALTERA_AVALON_PIO_DATA(KEYPAD_WITH_IRQ_0_BASE); // Read HW
+      status = IORD_ALTERA_AVALON_PIO_DATA(KEYPAD_0_BASE); // Read HW
       
+      //printf("status: %02x\n",status);
       if (status != prev_status){ //Only do something if there's a chance
-        if (status & 0x20){ // NKP bit (No Key Pressed)
-          press = 0;
+        
+        if ((status >> 5) == 1){ // NKP set (No Key Pressed)
           printf("no key pressed\n");
         }
-        if (status & 0x10){ // pulse bit set - value latched
+        if ((status >> 4) == 0){ // pulse bit set - value latched
           press = status & 0x0F;
           printf("%d\n",press);
         }
