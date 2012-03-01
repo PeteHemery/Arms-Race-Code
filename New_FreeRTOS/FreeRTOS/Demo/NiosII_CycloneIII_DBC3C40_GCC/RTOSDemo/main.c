@@ -77,13 +77,16 @@ extern void vTaskSerial(void *pvParameters);
 extern void vTaskSDCard(void *pvParameters);
 
 
+/*
+alt_ic_isr_register(
+
 static void __interrupt __far vKeypadInterruptHandler( void )
 {
   static portBASE_TYPE xHigherPriorityTaskWoken;
 
   xHigherPriorityTaskWoken = pdFALSE;
   
-  /* 'Give' the semaphore to unlock the task. */
+ /* 'Give' the semaphore to unlock the task. *//*
   xSemaphoreGiveFromISR( xBinarySemaphore, &xHigherPriorityTaskWoken );
   printf("here\n");
   
@@ -92,19 +95,19 @@ static void __interrupt __far vKeypadInterruptHandler( void )
     portSWITCH_CONTEXT();
   }  
 }
-
+*/
 
 int main( void )
 {
   /* Before a semphore is used it must be explicitly created. */
-  vSemaphoreCreateBinary( xBinarySemaphore );
+//  vSemaphoreCreateBinary( xBinarySemaphore );
   
   /* Install the interrupt handler */
-  _dos_setvect( KEYPAD_WITH_IRQ_0_IRQ, vKeypadInterruptHandler);
+//  _dos_setvect( KEYPAD_WITH_IRQ_0_IRQ, vKeypadInterruptHandler);
   
   /* Check the semaphore was created successfully */
-  if( xBinarySemaphore != NULL)
-  {
+//  if( xBinarySemaphore != NULL)
+//  {
     //xTaskCreate(vTaskSerial, "UART", 1000, NULL, 1, NULL);
     //xTaskCreate(vTaskSDCard, "UART", 1000, NULL, 1, NULL); 
   
@@ -117,7 +120,7 @@ int main( void )
      /* Will only reach here if there is insufficient heap available to start
      the scheduler. */
      for( ;; );
-  }
+//  }
 }
 
 

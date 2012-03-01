@@ -309,8 +309,10 @@ DE0_SOPC DE0_SOPC_inst(
                    .txd_from_the_uart(UART_TXD),
                   
 						// the keypad
-						 .col_from_the_keypad_with_irq_0(COL_OUT),
-						 .row_to_the_keypad_with_irq_0(ROW_IN)
+						 //.col_from_the_keypad_with_irq_0(COL_OUT),
+						 //.row_to_the_keypad_with_irq_0(ROW_IN)
+						 .col_from_the_keypad_0(COL_OUT),
+						 .row_to_the_keypad_0(ROW_IN)
                   
                 );
 

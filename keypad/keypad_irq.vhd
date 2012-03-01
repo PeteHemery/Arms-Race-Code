@@ -23,7 +23,7 @@ entity keypad is
   port (
     sys_clk : in  std_logic;                      -- Clock source and
     resetn  : in  std_logic;                      -- Reset on global inputs
---    strobe : out    std_logic;                  -- key pressed
+    strobe : out    std_logic;                  -- key pressed
     row     : in  std_logic_vector (3 downto 0);  -- Sense keypad rows
     col     : out std_logic_vector (3 downto 0);  -- Drive columns
     shift   : out std_logic_vector (31 downto 0));
@@ -113,8 +113,8 @@ with d select
         end if;
       end if;
       if (cnt = to_unsigned(2, 2)) and (NKP = '0') then
-        pulse     <= '1';
-      else pulse  <= '0';
+        pulse   <= '1';
+      else pulse   <= '0';
       end if;
     end if;
   end process;
@@ -140,12 +140,12 @@ with d select
   -- NKP indicates when no key is pressed
   -- pulse indicates that inp0 is the latched value
   
-  shift <= "000000000000000000000000000"&pulse&inp0;
+--  shift <= "00000000000000000000000000"&NKP&pulse&inp0;
 
   -- PH 29/02/2012 keeping as just inp0 for strobe interrupt
---  shift <= "0000000000000000000000000000"&inp0;
+  shift <= "0000000000000000000000000000"&inp0;
   -- PH added strobe to drive interrupt line
---  strobe  <= pulse;
+  strobe  <= pulse;
  --shift <= inp0;
 
 --end;
