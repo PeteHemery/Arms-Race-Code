@@ -19,18 +19,15 @@
 #include "alt_types.h"
 
 
-/*#include <stdio.h>
-#include <string.h>
-#include <altera_up_sd_card_avalon_interface.h>
-*//*
+
 #include "altera_up_sd_card_avalon_interface.h"
-*//*
+/*
 #include "system.h"
 #include "sys/alt_irq.h"
 #include "alt_types.h"
 #include "altera_avalon_pio_regs.h"
 #include "sys/alt_sys_init.h"
-
+*/
 
 int sd_card_main(void)
 {
@@ -66,7 +63,7 @@ int sd_card_main(void)
     }
     
     len  = strlen(SD_CARD_INTERFACE_NAME) + 1;
-    */  
+
 /*
     handler = alt_up_sd_card_find_first("HELLO/.", buffer_name);
     printf("%d,  %s \n", handler, buffer_name);
@@ -80,16 +77,16 @@ int sd_card_main(void)
     while ((read = alt_up_sd_card_read(handler)) != -1) printf("%c \n", read);
     alt_up_sd_card_fclose(handler);
   */
-/*  handler = alt_up_sd_card_find_first("/.", buffer_name);
+  handler = alt_up_sd_card_find_first("/.", buffer_name);
     printf("%d,  %s \n", handler, buffer_name);
     while ((handler = alt_up_sd_card_find_next(buffer_name)) != -1) printf("%d,  %s \n", handler, buffer_name);
      handler = alt_up_sd_card_fopen("hello.txt", false);
     while ((read = alt_up_sd_card_read(handler)) != -1) printf("%c \n", read);
     alt_up_sd_card_fclose(handler); 
-*/ /*
+ 
   return len;   
 }
-*/
+
 /*
 #include <stdio.h>
 #include <altera_up_sd_card_avalon_interface.h>
@@ -129,7 +126,7 @@ void vTaskSDCard(void *pvParameters)
   const char *pcTaskName = "SD Card\n";
   printf(pcTaskName);
   
-//  status = sd_card_main();
+  status = sd_card_main();
   printf("SD card status = %d\n",status);
 
    vTaskDelete(NULL);   

@@ -90,11 +90,11 @@ int main( void )
 {
 
     //xTaskCreate(vTaskSerial, "UART", 1000, NULL, 1, NULL);
-    //xTaskCreate(vTaskSDCard, "UART", 1000, NULL, 1, NULL); 
+    xTaskCreate(vTaskSDCard, "UART", 1000, NULL, 1, NULL); 
     
     /* hacksy test of the functions in heap_2.c */
-    size_t test;
-    test = xPortGetFreeHeapSize();
+    //size_t test;
+    //test = xPortGetFreeHeapSize();
     
     xQueue = xQueueCreate ( 5, sizeof (long) );
     if (xQueue != NULL)
