@@ -1,7 +1,13 @@
-/**
- * Created 29/02/2012
+/****
  * Pete Hemery
- */
+ * 29/02/2012
+ * 
+ * waypoints.h
+ ****/
+ 
+#ifndef WAYPOINTS_H_
+#define WAYPOINTS_H_
+ 
 
 #define BUFFER_SIZE 10
 typedef unsigned char BYTE;
@@ -73,3 +79,8 @@ struct waypoint_t {
   struct waypoint_t *prev;
 };
 
+
+
+extern void vTaskWayPointCreate(void *pvParameters);
+
+#endif /*WAYPOINTS_H_*/

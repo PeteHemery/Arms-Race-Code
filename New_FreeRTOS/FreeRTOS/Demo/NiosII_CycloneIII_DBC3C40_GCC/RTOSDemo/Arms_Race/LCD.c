@@ -18,111 +18,47 @@
 #include "altera_avalon_pio_regs.h"
 #include "alt_types.h"
 
-/* LCD */
-#include "altera_avalon_lcd_16207_regs.h"
-#include "altera_avalon_lcd_16207.h"
+/* Arms Race */
+#include "LCD.h"
 
-extern int altera_avalon_lcd_16207_write(altera_avalon_lcd_16207_state* sp, const char* ptr, int len, int flags);
-static void lcd_clear_screen(altera_avalon_lcd_16207_state* sp);
-static void lcd_write_data(altera_avalon_lcd_16207_state* sp, unsigned char data);
-static void lcd_write_command(altera_avalon_lcd_16207_state* sp, unsigned char command);
-static void lcd_scroll_up(altera_avalon_lcd_16207_state* sp);
-
-void vTaskLCD(void *pvParameters);
-/* --------------------------------------------------------------------- */
-
-/* Commands which can be written to the COMMAND register */
-
-enum /* Write to character RAM */
-{
-  LCD_CMD_WRITE_DATA    = 0x80
-  /* Bits 6:0 hold character RAM address */
-};
-
-enum /* Write to character generator RAM */
-{
-  LCD_CMD_WRITE_CGR     = 0x40
-  /* Bits 5:0 hold character generator RAM address */
-};
-
-enum /* Function Set command */
-{
-  LCD_CMD_FUNCTION_SET  = 0x20,
-  LCD_CMD_8BIT          = 0x10,
-  LCD_CMD_TWO_LINE      = 0x08,
-  LCD_CMD_BIGFONT       = 0x04
-};
-
-enum /* Shift command */
-{
-  LCD_CMD_SHIFT         = 0x10,
-  LCD_CMD_SHIFT_DISPLAY = 0x08,
-  LCD_CMD_SHIFT_RIGHT   = 0x04
-};
-
-enum /* On/Off command */
-{
-  LCD_CMD_ONOFF         = 0x08,
-  LCD_CMD_ENABLE_DISP   = 0x04,
-  LCD_CMD_ENABLE_CURSOR = 0x02,
-  LCD_CMD_ENABLE_BLINK  = 0x01
-};
-
-enum /* Entry Mode command */
-{
-  LCD_CMD_MODES         = 0x04,
-  LCD_CMD_MODE_INC      = 0x02,
-  LCD_CMD_MODE_SHIFT    = 0x01
-};
-
-enum /* Home command */
-{
-  LCD_CMD_HOME          = 0x02
-};
-
-enum /* Clear command */
-{
-  LCD_CMD_CLEAR         = 0x01
-};
 
 
 void vTaskLCD(void *pvParameters)
 {
   int i;
-  const char *pcTaskName = "Test\nArms Race\n";
+  const char *pcTaskName = "LCD Task\n";
 
-  char topLine[18] = {0};
-  char botLine[18] = {0};
+  long lReceivedValue;
+  portBASE_TYPE xStatus;
+  const portTickType xTicksToWait = 200 / portTICK_RATE_MS;
 
-  altera_avalon_lcd_16207_state state_pointer;
-  altera_avalon_lcd_16207_state* sp;
+  char topLine[18];
+  char botLine[18] = {'\0'};
+
+  altera_avalon_lcd_16207_state state_struct;
+  altera_avalon_lcd_16207_state* state_ptr;
   
-  sp = &state_pointer;
-  
-  
-  sp->base = LCD_BASE;
+  state_ptr = &state_struct;
+    
+  state_ptr->base = LCD_BASE;
    
-  altera_avalon_lcd_16207_init(sp);
+  altera_avalon_lcd_16207_init(state_ptr);
    
-  lcd_clear_screen(sp);
-  sprintf(topLine,"Main Menu\n");
-  sprintf(botLine,"1234123412341234\n");
-  for (i = 0; i < 240;i++)
+  lcd_clear_screen(state_ptr);
+  
+  for (;;)
   {
+    
     sprintf(botLine,"        i = %d\n",i);
-    altera_avalon_lcd_16207_write(sp, topLine, strlen(topLine), 0);
-    altera_avalon_lcd_16207_write(sp, botLine, strlen(botLine), 0);
-    //lcd_write_data(sp, c++);
+    altera_avalon_lcd_16207_write(state_ptr, topLine, strlen(topLine), 0);
+    altera_avalon_lcd_16207_write(state_ptr, botLine, strlen(botLine), 0);
+    //lcd_write_data(state_ptr, c++);
     
     vTaskDelay(100 / portTICK_RATE_MS);
   } 
-  lcd_clear_screen(sp); 
   
-     
-  altera_avalon_lcd_16207_write(sp, pcTaskName, 15, 0); 
-  vTaskDelay(2000 / portTICK_RATE_MS);   
-
-  altera_avalon_lcd_16207_write(sp, "Well Hello\nAgain\n", 17, 0);  
+  lcd_clear_screen(state_ptr); 
+  
   
   vTaskDelete(NULL);
 

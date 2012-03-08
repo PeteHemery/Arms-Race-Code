@@ -51,7 +51,7 @@ struct waypoint_t * create_waypoint(int wp_num, BYTE control){
   }
   
   /* Give me some memory */
-  wp = (struct waypoint_t *) malloc(sizeof(struct waypoint_t));
+  wp = (struct waypoint_t *) pvPortMalloc(sizeof(struct waypoint_t));
   wp->waypoint_number = wp_num; /* Remember your number! */
   wp->flag.keypad_mode = KEYPAD_MODE;
   wp->flag.servo_set.servo_flags = (unsigned char) 0x00; /* clear the flags */

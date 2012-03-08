@@ -73,52 +73,28 @@
 
 /* Pete written */
 #include "waypoints.h"
+#include "keypad.h"
+#include "LCD.h"
 
-extern void vTaskKeyPad(void *pvParameters);
-extern void vTaskLCD(void *pvParameters);
 extern void vTaskSerial(void *pvParameters);
 extern void vTaskSDCard(void *pvParameters);
 
 extern void vSenderTask( void *pvParameters );
 extern void vReceiverTask( void *pvParameters );
 
-extern void vTaskWayPointCreate(void *pvParameters);
 
-/*
-alt_ic_isr_register(
 
-static void __interrupt __far vKeypadInterruptHandler( void )
-{
-  static portBASE_TYPE xHigherPriorityTaskWoken;
-
-  xHigherPriorityTaskWoken = pdFALSE;
-  
- /* 'Give' the semaphore to unlock the task. *//*
-  xSemaphoreGiveFromISR( xBinarySemaphore, &xHigherPriorityTaskWoken );
-  printf("here\n");
-  
-  if ( xHigherPriorityTaskWoken == pdTRUE )
-  {
-    portSWITCH_CONTEXT();
-  }  
-}
-*/
 xQueueHandle xQueue;
-xQueueHandle xKeyPadQueue;
 
 int main( void )
 {
-  /* Before a semphore is used it must be explicitly created. */
-//  vSemaphoreCreateBinary( xBinarySemaphore );
-  
-  /* Install the interrupt handler */
-//  _dos_setvect( KEYPAD_WITH_IRQ_0_IRQ, vKeypadInterruptHandler);
-  
-  /* Check the semaphore was created successfully */
-//  if( xBinarySemaphore != NULL)
-//  {
+
     //xTaskCreate(vTaskSerial, "UART", 1000, NULL, 1, NULL);
     //xTaskCreate(vTaskSDCard, "UART", 1000, NULL, 1, NULL); 
+    
+    /* hacksy test of the functions in heap_2.c */
+    size_t test;
+    test = xPortGetFreeHeapSize();
     
     xQueue = xQueueCreate ( 5, sizeof (long) );
     if (xQueue != NULL)
@@ -131,6 +107,7 @@ int main( void )
       //xTaskCreate( vSenderTask, "Sender2", 1000, ( void * ) 200, 1, NULL );
       /* Create the task to read from the queue */
       //xTaskCreate( vReceiverTask, "Receiver", 1000, NULL, 2, NULL );
+      
       xTaskCreate( vTaskWayPointCreate, "WayPoints", 100, NULL, 1, NULL );
      
       /* Finally start the scheduler. */

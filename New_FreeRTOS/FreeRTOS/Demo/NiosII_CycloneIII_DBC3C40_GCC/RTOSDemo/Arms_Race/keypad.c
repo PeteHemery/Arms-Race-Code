@@ -18,9 +18,11 @@
 #include "altera_avalon_pio_regs.h"
 #include "alt_types.h"
 
-extern xQueueHandle xKeyPadQueue;
+/* Arms Race */
+#include "keypad.h"
 
-#define THRESHOLD 15
+xQueueHandle xKeyPadQueue;
+
 
 void vTaskKeyPad(void *pvParameters)
 {
@@ -49,6 +51,7 @@ void vTaskKeyPad(void *pvParameters)
         if(hold == 0 || hold >= THRESHOLD){
           press = status & 0x0F;
           printf("%d\n",press);
+          
         }
         if(++hold == 0){
           hold = THRESHOLD;
