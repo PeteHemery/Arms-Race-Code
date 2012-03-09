@@ -62,6 +62,7 @@
 #include <string.h>
 #include <unistd.h>
 
+#include "altera_avalon_lcd_16207_mod.h"
 /* Scheduler includes. */
 #include "FreeRTOS.h"
 #include "task.h"
@@ -90,7 +91,8 @@ int main( void )
 {
 
     //xTaskCreate(vTaskSerial, "UART", 1000, NULL, 1, NULL);
-    xTaskCreate(vTaskSDCard, "UART", 1000, NULL, 1, NULL); 
+    xTaskCreate(vTaskSDCard, "SD Card", 1000, NULL, 1, NULL); 
+    xTaskCreate(vTaskLCDTimeOut, "LCD Timer", 1000, NULL, 1, NULL);
     
     /* hacksy test of the functions in heap_2.c */
     //size_t test;
@@ -99,16 +101,16 @@ int main( void )
     xQueue = xQueueCreate ( 5, sizeof (long) );
     if (xQueue != NULL)
     {
-      xTaskCreate(vTaskKeyPad, "Keypad", 1000, NULL, 1, NULL);
+      //xTaskCreate(vTaskKeyPad, "Keypad", 1000, NULL, 1, NULL);
       xTaskCreate(vTaskLCD, "LCD", 1000, NULL, 1, NULL);
       
       /* Create two instances of the sender tasks */
       //xTaskCreate( vSenderTask, "Sender1", 1000, ( void * ) 100, 1, NULL );
       //xTaskCreate( vSenderTask, "Sender2", 1000, ( void * ) 200, 1, NULL );
       /* Create the task to read from the queue */
-      //xTaskCreate( vReceiverTask, "Receiver", 1000, NULL, 2, NULL );
+      //xTaskCreate( vReceive rTask, "Receiver", 1000, NULL, 2, NULL );
       
-      xTaskCreate( vTaskWayPointCreate, "WayPoints", 100, NULL, 1, NULL );
+      //xTaskCreate( vTaskWayPointCreate, "WayPoints", 100, NULL, 1, NULL );
      
       /* Finally start the scheduler. */
       vTaskStartScheduler();

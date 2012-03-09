@@ -278,10 +278,10 @@ DE0_SOPC DE0_SOPC_inst(
 //                   .in_port_to_the_sd_wp_n(SD_WP_N),
 						 
 ////////////////////	University IP ////////////////////	
-                   .b_SD_cmd_to_and_from_the_SD_CARD_Interface(SD_CMD),
-                   .b_SD_dat3_to_and_from_the_SD_CARD_Interface(SD_DAT3),
-                   .b_SD_dat_to_and_from_the_SD_CARD_Interface(SD_DAT),
-						 .o_SD_clock_from_the_SD_CARD_Interface(SD_CLK),
+                   .b_SD_cmd_to_and_from_the_Altera_UP_SD_Card(SD_CMD),
+                   .b_SD_dat3_to_and_from_the_Altera_UP_SD_Card(SD_DAT3),
+                   .b_SD_dat_to_and_from_the_Altera_UP_SD_Card(SD_DAT),
+						 .o_SD_clock_from_the_Altera_UP_SD_Card(SD_CLK),
 
                   // the_sdram
                    .zs_addr_from_the_sdram(DRAM_ADDR),

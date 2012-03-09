@@ -23,6 +23,303 @@
 // altera message_level Level1 
 // altera message_off 10034 10035 10036 10037 10230 10240 10030 
 
+module Altera_UP_SD_Card_avalon_sdcard_slave_arbitrator (
+                                                          // inputs:
+                                                           Altera_UP_SD_Card_avalon_sdcard_slave_readdata,
+                                                           Altera_UP_SD_Card_avalon_sdcard_slave_waitrequest,
+                                                           clk,
+                                                           clock_crossing_bridge_m1_address_to_slave,
+                                                           clock_crossing_bridge_m1_byteenable,
+                                                           clock_crossing_bridge_m1_latency_counter,
+                                                           clock_crossing_bridge_m1_read,
+                                                           clock_crossing_bridge_m1_write,
+                                                           clock_crossing_bridge_m1_writedata,
+                                                           reset_n,
+
+                                                          // outputs:
+                                                           Altera_UP_SD_Card_avalon_sdcard_slave_address,
+                                                           Altera_UP_SD_Card_avalon_sdcard_slave_byteenable,
+                                                           Altera_UP_SD_Card_avalon_sdcard_slave_chipselect,
+                                                           Altera_UP_SD_Card_avalon_sdcard_slave_read,
+                                                           Altera_UP_SD_Card_avalon_sdcard_slave_readdata_from_sa,
+                                                           Altera_UP_SD_Card_avalon_sdcard_slave_reset_n,
+                                                           Altera_UP_SD_Card_avalon_sdcard_slave_waitrequest_from_sa,
+                                                           Altera_UP_SD_Card_avalon_sdcard_slave_write,
+                                                           Altera_UP_SD_Card_avalon_sdcard_slave_writedata,
+                                                           clock_crossing_bridge_m1_granted_Altera_UP_SD_Card_avalon_sdcard_slave,
+                                                           clock_crossing_bridge_m1_qualified_request_Altera_UP_SD_Card_avalon_sdcard_slave,
+                                                           clock_crossing_bridge_m1_read_data_valid_Altera_UP_SD_Card_avalon_sdcard_slave,
+                                                           clock_crossing_bridge_m1_requests_Altera_UP_SD_Card_avalon_sdcard_slave,
+                                                           d1_Altera_UP_SD_Card_avalon_sdcard_slave_end_xfer
+                                                        )
+;
+
+  output  [  7: 0] Altera_UP_SD_Card_avalon_sdcard_slave_address;
+  output  [  3: 0] Altera_UP_SD_Card_avalon_sdcard_slave_byteenable;
+  output           Altera_UP_SD_Card_avalon_sdcard_slave_chipselect;
+  output           Altera_UP_SD_Card_avalon_sdcard_slave_read;
+  output  [ 31: 0] Altera_UP_SD_Card_avalon_sdcard_slave_readdata_from_sa;
+  output           Altera_UP_SD_Card_avalon_sdcard_slave_reset_n;
+  output           Altera_UP_SD_Card_avalon_sdcard_slave_waitrequest_from_sa;
+  output           Altera_UP_SD_Card_avalon_sdcard_slave_write;
+  output  [ 31: 0] Altera_UP_SD_Card_avalon_sdcard_slave_writedata;
+  output           clock_crossing_bridge_m1_granted_Altera_UP_SD_Card_avalon_sdcard_slave;
+  output           clock_crossing_bridge_m1_qualified_request_Altera_UP_SD_Card_avalon_sdcard_slave;
+  output           clock_crossing_bridge_m1_read_data_valid_Altera_UP_SD_Card_avalon_sdcard_slave;
+  output           clock_crossing_bridge_m1_requests_Altera_UP_SD_Card_avalon_sdcard_slave;
+  output           d1_Altera_UP_SD_Card_avalon_sdcard_slave_end_xfer;
+  input   [ 31: 0] Altera_UP_SD_Card_avalon_sdcard_slave_readdata;
+  input            Altera_UP_SD_Card_avalon_sdcard_slave_waitrequest;
+  input            clk;
+  input   [ 10: 0] clock_crossing_bridge_m1_address_to_slave;
+  input   [  3: 0] clock_crossing_bridge_m1_byteenable;
+  input            clock_crossing_bridge_m1_latency_counter;
+  input            clock_crossing_bridge_m1_read;
+  input            clock_crossing_bridge_m1_write;
+  input   [ 31: 0] clock_crossing_bridge_m1_writedata;
+  input            reset_n;
+
+  wire    [  7: 0] Altera_UP_SD_Card_avalon_sdcard_slave_address;
+  wire             Altera_UP_SD_Card_avalon_sdcard_slave_allgrants;
+  wire             Altera_UP_SD_Card_avalon_sdcard_slave_allow_new_arb_cycle;
+  wire             Altera_UP_SD_Card_avalon_sdcard_slave_any_bursting_master_saved_grant;
+  wire             Altera_UP_SD_Card_avalon_sdcard_slave_any_continuerequest;
+  wire             Altera_UP_SD_Card_avalon_sdcard_slave_arb_counter_enable;
+  reg              Altera_UP_SD_Card_avalon_sdcard_slave_arb_share_counter;
+  wire             Altera_UP_SD_Card_avalon_sdcard_slave_arb_share_counter_next_value;
+  wire             Altera_UP_SD_Card_avalon_sdcard_slave_arb_share_set_values;
+  wire             Altera_UP_SD_Card_avalon_sdcard_slave_beginbursttransfer_internal;
+  wire             Altera_UP_SD_Card_avalon_sdcard_slave_begins_xfer;
+  wire    [  3: 0] Altera_UP_SD_Card_avalon_sdcard_slave_byteenable;
+  wire             Altera_UP_SD_Card_avalon_sdcard_slave_chipselect;
+  wire             Altera_UP_SD_Card_avalon_sdcard_slave_end_xfer;
+  wire             Altera_UP_SD_Card_avalon_sdcard_slave_firsttransfer;
+  wire             Altera_UP_SD_Card_avalon_sdcard_slave_grant_vector;
+  wire             Altera_UP_SD_Card_avalon_sdcard_slave_in_a_read_cycle;
+  wire             Altera_UP_SD_Card_avalon_sdcard_slave_in_a_write_cycle;
+  wire             Altera_UP_SD_Card_avalon_sdcard_slave_master_qreq_vector;
+  wire             Altera_UP_SD_Card_avalon_sdcard_slave_non_bursting_master_requests;
+  wire             Altera_UP_SD_Card_avalon_sdcard_slave_read;
+  wire    [ 31: 0] Altera_UP_SD_Card_avalon_sdcard_slave_readdata_from_sa;
+  reg              Altera_UP_SD_Card_avalon_sdcard_slave_reg_firsttransfer;
+  wire             Altera_UP_SD_Card_avalon_sdcard_slave_reset_n;
+  reg              Altera_UP_SD_Card_avalon_sdcard_slave_slavearbiterlockenable;
+  wire             Altera_UP_SD_Card_avalon_sdcard_slave_slavearbiterlockenable2;
+  wire             Altera_UP_SD_Card_avalon_sdcard_slave_unreg_firsttransfer;
+  wire             Altera_UP_SD_Card_avalon_sdcard_slave_waitrequest_from_sa;
+  wire             Altera_UP_SD_Card_avalon_sdcard_slave_waits_for_read;
+  wire             Altera_UP_SD_Card_avalon_sdcard_slave_waits_for_write;
+  wire             Altera_UP_SD_Card_avalon_sdcard_slave_write;
+  wire    [ 31: 0] Altera_UP_SD_Card_avalon_sdcard_slave_writedata;
+  wire             clock_crossing_bridge_m1_arbiterlock;
+  wire             clock_crossing_bridge_m1_arbiterlock2;
+  wire             clock_crossing_bridge_m1_continuerequest;
+  wire             clock_crossing_bridge_m1_granted_Altera_UP_SD_Card_avalon_sdcard_slave;
+  wire             clock_crossing_bridge_m1_qualified_request_Altera_UP_SD_Card_avalon_sdcard_slave;
+  wire             clock_crossing_bridge_m1_read_data_valid_Altera_UP_SD_Card_avalon_sdcard_slave;
+  wire             clock_crossing_bridge_m1_requests_Altera_UP_SD_Card_avalon_sdcard_slave;
+  wire             clock_crossing_bridge_m1_saved_grant_Altera_UP_SD_Card_avalon_sdcard_slave;
+  reg              d1_Altera_UP_SD_Card_avalon_sdcard_slave_end_xfer;
+  reg              d1_reasons_to_wait;
+  reg              enable_nonzero_assertions;
+  wire             end_xfer_arb_share_counter_term_Altera_UP_SD_Card_avalon_sdcard_slave;
+  wire             in_a_read_cycle;
+  wire             in_a_write_cycle;
+  wire    [ 10: 0] shifted_address_to_Altera_UP_SD_Card_avalon_sdcard_slave_from_clock_crossing_bridge_m1;
+  wire             wait_for_Altera_UP_SD_Card_avalon_sdcard_slave_counter;
+  always @(posedge clk or negedge reset_n)
+    begin
+      if (reset_n == 0)
+          d1_reasons_to_wait <= 0;
+      else 
+        d1_reasons_to_wait <= ~Altera_UP_SD_Card_avalon_sdcard_slave_end_xfer;
+    end
+
+
+  assign Altera_UP_SD_Card_avalon_sdcard_slave_begins_xfer = ~d1_reasons_to_wait & ((clock_crossing_bridge_m1_qualified_request_Altera_UP_SD_Card_avalon_sdcard_slave));
+  //assign Altera_UP_SD_Card_avalon_sdcard_slave_readdata_from_sa = Altera_UP_SD_Card_avalon_sdcard_slave_readdata so that symbol knows where to group signals which may go to master only, which is an e_assign
+  assign Altera_UP_SD_Card_avalon_sdcard_slave_readdata_from_sa = Altera_UP_SD_Card_avalon_sdcard_slave_readdata;
+
+  assign clock_crossing_bridge_m1_requests_Altera_UP_SD_Card_avalon_sdcard_slave = ({clock_crossing_bridge_m1_address_to_slave[10] , 10'b0} == 11'h0) & (clock_crossing_bridge_m1_read | clock_crossing_bridge_m1_write);
+  //assign Altera_UP_SD_Card_avalon_sdcard_slave_waitrequest_from_sa = Altera_UP_SD_Card_avalon_sdcard_slave_waitrequest so that symbol knows where to group signals which may go to master only, which is an e_assign
+  assign Altera_UP_SD_Card_avalon_sdcard_slave_waitrequest_from_sa = Altera_UP_SD_Card_avalon_sdcard_slave_waitrequest;
+
+  //Altera_UP_SD_Card_avalon_sdcard_slave_arb_share_counter set values, which is an e_mux
+  assign Altera_UP_SD_Card_avalon_sdcard_slave_arb_share_set_values = 1;
+
+  //Altera_UP_SD_Card_avalon_sdcard_slave_non_bursting_master_requests mux, which is an e_mux
+  assign Altera_UP_SD_Card_avalon_sdcard_slave_non_bursting_master_requests = clock_crossing_bridge_m1_requests_Altera_UP_SD_Card_avalon_sdcard_slave;
+
+  //Altera_UP_SD_Card_avalon_sdcard_slave_any_bursting_master_saved_grant mux, which is an e_mux
+  assign Altera_UP_SD_Card_avalon_sdcard_slave_any_bursting_master_saved_grant = 0;
+
+  //Altera_UP_SD_Card_avalon_sdcard_slave_arb_share_counter_next_value assignment, which is an e_assign
+  assign Altera_UP_SD_Card_avalon_sdcard_slave_arb_share_counter_next_value = Altera_UP_SD_Card_avalon_sdcard_slave_firsttransfer ? (Altera_UP_SD_Card_avalon_sdcard_slave_arb_share_set_values - 1) : |Altera_UP_SD_Card_avalon_sdcard_slave_arb_share_counter ? (Altera_UP_SD_Card_avalon_sdcard_slave_arb_share_counter - 1) : 0;
+
+  //Altera_UP_SD_Card_avalon_sdcard_slave_allgrants all slave grants, which is an e_mux
+  assign Altera_UP_SD_Card_avalon_sdcard_slave_allgrants = |Altera_UP_SD_Card_avalon_sdcard_slave_grant_vector;
+
+  //Altera_UP_SD_Card_avalon_sdcard_slave_end_xfer assignment, which is an e_assign
+  assign Altera_UP_SD_Card_avalon_sdcard_slave_end_xfer = ~(Altera_UP_SD_Card_avalon_sdcard_slave_waits_for_read | Altera_UP_SD_Card_avalon_sdcard_slave_waits_for_write);
+
+  //end_xfer_arb_share_counter_term_Altera_UP_SD_Card_avalon_sdcard_slave arb share counter enable term, which is an e_assign
+  assign end_xfer_arb_share_counter_term_Altera_UP_SD_Card_avalon_sdcard_slave = Altera_UP_SD_Card_avalon_sdcard_slave_end_xfer & (~Altera_UP_SD_Card_avalon_sdcard_slave_any_bursting_master_saved_grant | in_a_read_cycle | in_a_write_cycle);
+
+  //Altera_UP_SD_Card_avalon_sdcard_slave_arb_share_counter arbitration counter enable, which is an e_assign
+  assign Altera_UP_SD_Card_avalon_sdcard_slave_arb_counter_enable = (end_xfer_arb_share_counter_term_Altera_UP_SD_Card_avalon_sdcard_slave & Altera_UP_SD_Card_avalon_sdcard_slave_allgrants) | (end_xfer_arb_share_counter_term_Altera_UP_SD_Card_avalon_sdcard_slave & ~Altera_UP_SD_Card_avalon_sdcard_slave_non_bursting_master_requests);
+
+  //Altera_UP_SD_Card_avalon_sdcard_slave_arb_share_counter counter, which is an e_register
+  always @(posedge clk or negedge reset_n)
+    begin
+      if (reset_n == 0)
+          Altera_UP_SD_Card_avalon_sdcard_slave_arb_share_counter <= 0;
+      else if (Altera_UP_SD_Card_avalon_sdcard_slave_arb_counter_enable)
+          Altera_UP_SD_Card_avalon_sdcard_slave_arb_share_counter <= Altera_UP_SD_Card_avalon_sdcard_slave_arb_share_counter_next_value;
+    end
+
+
+  //Altera_UP_SD_Card_avalon_sdcard_slave_slavearbiterlockenable slave enables arbiterlock, which is an e_register
+  always @(posedge clk or negedge reset_n)
+    begin
+      if (reset_n == 0)
+          Altera_UP_SD_Card_avalon_sdcard_slave_slavearbiterlockenable <= 0;
+      else if ((|Altera_UP_SD_Card_avalon_sdcard_slave_master_qreq_vector & end_xfer_arb_share_counter_term_Altera_UP_SD_Card_avalon_sdcard_slave) | (end_xfer_arb_share_counter_term_Altera_UP_SD_Card_avalon_sdcard_slave & ~Altera_UP_SD_Card_avalon_sdcard_slave_non_bursting_master_requests))
+          Altera_UP_SD_Card_avalon_sdcard_slave_slavearbiterlockenable <= |Altera_UP_SD_Card_avalon_sdcard_slave_arb_share_counter_next_value;
+    end
+
+
+  //clock_crossing_bridge/m1 Altera_UP_SD_Card/avalon_sdcard_slave arbiterlock, which is an e_assign
+  assign clock_crossing_bridge_m1_arbiterlock = Altera_UP_SD_Card_avalon_sdcard_slave_slavearbiterlockenable & clock_crossing_bridge_m1_continuerequest;
+
+  //Altera_UP_SD_Card_avalon_sdcard_slave_slavearbiterlockenable2 slave enables arbiterlock2, which is an e_assign
+  assign Altera_UP_SD_Card_avalon_sdcard_slave_slavearbiterlockenable2 = |Altera_UP_SD_Card_avalon_sdcard_slave_arb_share_counter_next_value;
+
+  //clock_crossing_bridge/m1 Altera_UP_SD_Card/avalon_sdcard_slave arbiterlock2, which is an e_assign
+  assign clock_crossing_bridge_m1_arbiterlock2 = Altera_UP_SD_Card_avalon_sdcard_slave_slavearbiterlockenable2 & clock_crossing_bridge_m1_continuerequest;
+
+  //Altera_UP_SD_Card_avalon_sdcard_slave_any_continuerequest at least one master continues requesting, which is an e_assign
+  assign Altera_UP_SD_Card_avalon_sdcard_slave_any_continuerequest = 1;
+
+  //clock_crossing_bridge_m1_continuerequest continued request, which is an e_assign
+  assign clock_crossing_bridge_m1_continuerequest = 1;
+
+  assign clock_crossing_bridge_m1_qualified_request_Altera_UP_SD_Card_avalon_sdcard_slave = clock_crossing_bridge_m1_requests_Altera_UP_SD_Card_avalon_sdcard_slave & ~((clock_crossing_bridge_m1_read & ((clock_crossing_bridge_m1_latency_counter != 0))));
+  //local readdatavalid clock_crossing_bridge_m1_read_data_valid_Altera_UP_SD_Card_avalon_sdcard_slave, which is an e_mux
+  assign clock_crossing_bridge_m1_read_data_valid_Altera_UP_SD_Card_avalon_sdcard_slave = clock_crossing_bridge_m1_granted_Altera_UP_SD_Card_avalon_sdcard_slave & clock_crossing_bridge_m1_read & ~Altera_UP_SD_Card_avalon_sdcard_slave_waits_for_read;
+
+  //Altera_UP_SD_Card_avalon_sdcard_slave_writedata mux, which is an e_mux
+  assign Altera_UP_SD_Card_avalon_sdcard_slave_writedata = clock_crossing_bridge_m1_writedata;
+
+  //master is always granted when requested
+  assign clock_crossing_bridge_m1_granted_Altera_UP_SD_Card_avalon_sdcard_slave = clock_crossing_bridge_m1_qualified_request_Altera_UP_SD_Card_avalon_sdcard_slave;
+
+  //clock_crossing_bridge/m1 saved-grant Altera_UP_SD_Card/avalon_sdcard_slave, which is an e_assign
+  assign clock_crossing_bridge_m1_saved_grant_Altera_UP_SD_Card_avalon_sdcard_slave = clock_crossing_bridge_m1_requests_Altera_UP_SD_Card_avalon_sdcard_slave;
+
+  //allow new arb cycle for Altera_UP_SD_Card/avalon_sdcard_slave, which is an e_assign
+  assign Altera_UP_SD_Card_avalon_sdcard_slave_allow_new_arb_cycle = 1;
+
+  //placeholder chosen master
+  assign Altera_UP_SD_Card_avalon_sdcard_slave_grant_vector = 1;
+
+  //placeholder vector of master qualified-requests
+  assign Altera_UP_SD_Card_avalon_sdcard_slave_master_qreq_vector = 1;
+
+  //Altera_UP_SD_Card_avalon_sdcard_slave_reset_n assignment, which is an e_assign
+  assign Altera_UP_SD_Card_avalon_sdcard_slave_reset_n = reset_n;
+
+  assign Altera_UP_SD_Card_avalon_sdcard_slave_chipselect = clock_crossing_bridge_m1_granted_Altera_UP_SD_Card_avalon_sdcard_slave;
+  //Altera_UP_SD_Card_avalon_sdcard_slave_firsttransfer first transaction, which is an e_assign
+  assign Altera_UP_SD_Card_avalon_sdcard_slave_firsttransfer = Altera_UP_SD_Card_avalon_sdcard_slave_begins_xfer ? Altera_UP_SD_Card_avalon_sdcard_slave_unreg_firsttransfer : Altera_UP_SD_Card_avalon_sdcard_slave_reg_firsttransfer;
+
+  //Altera_UP_SD_Card_avalon_sdcard_slave_unreg_firsttransfer first transaction, which is an e_assign
+  assign Altera_UP_SD_Card_avalon_sdcard_slave_unreg_firsttransfer = ~(Altera_UP_SD_Card_avalon_sdcard_slave_slavearbiterlockenable & Altera_UP_SD_Card_avalon_sdcard_slave_any_continuerequest);
+
+  //Altera_UP_SD_Card_avalon_sdcard_slave_reg_firsttransfer first transaction, which is an e_register
+  always @(posedge clk or negedge reset_n)
+    begin
+      if (reset_n == 0)
+          Altera_UP_SD_Card_avalon_sdcard_slave_reg_firsttransfer <= 1'b1;
+      else if (Altera_UP_SD_Card_avalon_sdcard_slave_begins_xfer)
+          Altera_UP_SD_Card_avalon_sdcard_slave_reg_firsttransfer <= Altera_UP_SD_Card_avalon_sdcard_slave_unreg_firsttransfer;
+    end
+
+
+  //Altera_UP_SD_Card_avalon_sdcard_slave_beginbursttransfer_internal begin burst transfer, which is an e_assign
+  assign Altera_UP_SD_Card_avalon_sdcard_slave_beginbursttransfer_internal = Altera_UP_SD_Card_avalon_sdcard_slave_begins_xfer;
+
+  //Altera_UP_SD_Card_avalon_sdcard_slave_read assignment, which is an e_mux
+  assign Altera_UP_SD_Card_avalon_sdcard_slave_read = clock_crossing_bridge_m1_granted_Altera_UP_SD_Card_avalon_sdcard_slave & clock_crossing_bridge_m1_read;
+
+  //Altera_UP_SD_Card_avalon_sdcard_slave_write assignment, which is an e_mux
+  assign Altera_UP_SD_Card_avalon_sdcard_slave_write = clock_crossing_bridge_m1_granted_Altera_UP_SD_Card_avalon_sdcard_slave & clock_crossing_bridge_m1_write;
+
+  assign shifted_address_to_Altera_UP_SD_Card_avalon_sdcard_slave_from_clock_crossing_bridge_m1 = clock_crossing_bridge_m1_address_to_slave;
+  //Altera_UP_SD_Card_avalon_sdcard_slave_address mux, which is an e_mux
+  assign Altera_UP_SD_Card_avalon_sdcard_slave_address = shifted_address_to_Altera_UP_SD_Card_avalon_sdcard_slave_from_clock_crossing_bridge_m1 >> 2;
+
+  //d1_Altera_UP_SD_Card_avalon_sdcard_slave_end_xfer register, which is an e_register
+  always @(posedge clk or negedge reset_n)
+    begin
+      if (reset_n == 0)
+          d1_Altera_UP_SD_Card_avalon_sdcard_slave_end_xfer <= 1;
+      else 
+        d1_Altera_UP_SD_Card_avalon_sdcard_slave_end_xfer <= Altera_UP_SD_Card_avalon_sdcard_slave_end_xfer;
+    end
+
+
+  //Altera_UP_SD_Card_avalon_sdcard_slave_waits_for_read in a cycle, which is an e_mux
+  assign Altera_UP_SD_Card_avalon_sdcard_slave_waits_for_read = Altera_UP_SD_Card_avalon_sdcard_slave_in_a_read_cycle & Altera_UP_SD_Card_avalon_sdcard_slave_waitrequest_from_sa;
+
+  //Altera_UP_SD_Card_avalon_sdcard_slave_in_a_read_cycle assignment, which is an e_assign
+  assign Altera_UP_SD_Card_avalon_sdcard_slave_in_a_read_cycle = clock_crossing_bridge_m1_granted_Altera_UP_SD_Card_avalon_sdcard_slave & clock_crossing_bridge_m1_read;
+
+  //in_a_read_cycle assignment, which is an e_mux
+  assign in_a_read_cycle = Altera_UP_SD_Card_avalon_sdcard_slave_in_a_read_cycle;
+
+  //Altera_UP_SD_Card_avalon_sdcard_slave_waits_for_write in a cycle, which is an e_mux
+  assign Altera_UP_SD_Card_avalon_sdcard_slave_waits_for_write = Altera_UP_SD_Card_avalon_sdcard_slave_in_a_write_cycle & Altera_UP_SD_Card_avalon_sdcard_slave_waitrequest_from_sa;
+
+  //Altera_UP_SD_Card_avalon_sdcard_slave_in_a_write_cycle assignment, which is an e_assign
+  assign Altera_UP_SD_Card_avalon_sdcard_slave_in_a_write_cycle = clock_crossing_bridge_m1_granted_Altera_UP_SD_Card_avalon_sdcard_slave & clock_crossing_bridge_m1_write;
+
+  //in_a_write_cycle assignment, which is an e_mux
+  assign in_a_write_cycle = Altera_UP_SD_Card_avalon_sdcard_slave_in_a_write_cycle;
+
+  assign wait_for_Altera_UP_SD_Card_avalon_sdcard_slave_counter = 0;
+  //Altera_UP_SD_Card_avalon_sdcard_slave_byteenable byte enable port mux, which is an e_mux
+  assign Altera_UP_SD_Card_avalon_sdcard_slave_byteenable = (clock_crossing_bridge_m1_granted_Altera_UP_SD_Card_avalon_sdcard_slave)? clock_crossing_bridge_m1_byteenable :
+    -1;
+
+
+//synthesis translate_off
+//////////////// SIMULATION-ONLY CONTENTS
+  //Altera_UP_SD_Card/avalon_sdcard_slave enable non-zero assertions, which is an e_register
+  always @(posedge clk or negedge reset_n)
+    begin
+      if (reset_n == 0)
+          enable_nonzero_assertions <= 0;
+      else 
+        enable_nonzero_assertions <= 1'b1;
+    end
+
+
+
+//////////////// END SIMULATION-ONLY CONTENTS
+
+//synthesis translate_on
+
+endmodule
+
+
+// synthesis translate_off
+`timescale 1ns / 1ps
+// synthesis translate_on
+
+// turn off superfluous verilog processor warnings 
+// altera message_level Level1 
+// altera message_off 10034 10035 10036 10037 10230 10240 10030 
+
 module DE0_SOPC_clock_0_in_arbitrator (
                                         // inputs:
                                          DE0_SOPC_clock_0_in_endofpacket,
@@ -533,1839 +830,6 @@ endmodule
 // altera message_level Level1 
 // altera message_off 10034 10035 10036 10037 10230 10240 10030 
 
-module DE0_SOPC_clock_1_in_arbitrator (
-                                        // inputs:
-                                         DE0_SOPC_clock_1_in_endofpacket,
-                                         DE0_SOPC_clock_1_in_readdata,
-                                         DE0_SOPC_clock_1_in_waitrequest,
-                                         clk,
-                                         clock_crossing_bridge_m1_address_to_slave,
-                                         clock_crossing_bridge_m1_byteenable,
-                                         clock_crossing_bridge_m1_latency_counter,
-                                         clock_crossing_bridge_m1_nativeaddress,
-                                         clock_crossing_bridge_m1_read,
-                                         clock_crossing_bridge_m1_write,
-                                         clock_crossing_bridge_m1_writedata,
-                                         reset_n,
-
-                                        // outputs:
-                                         DE0_SOPC_clock_1_in_address,
-                                         DE0_SOPC_clock_1_in_byteenable,
-                                         DE0_SOPC_clock_1_in_endofpacket_from_sa,
-                                         DE0_SOPC_clock_1_in_nativeaddress,
-                                         DE0_SOPC_clock_1_in_read,
-                                         DE0_SOPC_clock_1_in_readdata_from_sa,
-                                         DE0_SOPC_clock_1_in_reset_n,
-                                         DE0_SOPC_clock_1_in_waitrequest_from_sa,
-                                         DE0_SOPC_clock_1_in_write,
-                                         DE0_SOPC_clock_1_in_writedata,
-                                         clock_crossing_bridge_m1_granted_DE0_SOPC_clock_1_in,
-                                         clock_crossing_bridge_m1_qualified_request_DE0_SOPC_clock_1_in,
-                                         clock_crossing_bridge_m1_read_data_valid_DE0_SOPC_clock_1_in,
-                                         clock_crossing_bridge_m1_requests_DE0_SOPC_clock_1_in,
-                                         d1_DE0_SOPC_clock_1_in_end_xfer
-                                      )
-;
-
-  output  [  3: 0] DE0_SOPC_clock_1_in_address;
-  output  [  1: 0] DE0_SOPC_clock_1_in_byteenable;
-  output           DE0_SOPC_clock_1_in_endofpacket_from_sa;
-  output  [  2: 0] DE0_SOPC_clock_1_in_nativeaddress;
-  output           DE0_SOPC_clock_1_in_read;
-  output  [ 15: 0] DE0_SOPC_clock_1_in_readdata_from_sa;
-  output           DE0_SOPC_clock_1_in_reset_n;
-  output           DE0_SOPC_clock_1_in_waitrequest_from_sa;
-  output           DE0_SOPC_clock_1_in_write;
-  output  [ 15: 0] DE0_SOPC_clock_1_in_writedata;
-  output           clock_crossing_bridge_m1_granted_DE0_SOPC_clock_1_in;
-  output           clock_crossing_bridge_m1_qualified_request_DE0_SOPC_clock_1_in;
-  output           clock_crossing_bridge_m1_read_data_valid_DE0_SOPC_clock_1_in;
-  output           clock_crossing_bridge_m1_requests_DE0_SOPC_clock_1_in;
-  output           d1_DE0_SOPC_clock_1_in_end_xfer;
-  input            DE0_SOPC_clock_1_in_endofpacket;
-  input   [ 15: 0] DE0_SOPC_clock_1_in_readdata;
-  input            DE0_SOPC_clock_1_in_waitrequest;
-  input            clk;
-  input   [ 10: 0] clock_crossing_bridge_m1_address_to_slave;
-  input   [  3: 0] clock_crossing_bridge_m1_byteenable;
-  input            clock_crossing_bridge_m1_latency_counter;
-  input   [  8: 0] clock_crossing_bridge_m1_nativeaddress;
-  input            clock_crossing_bridge_m1_read;
-  input            clock_crossing_bridge_m1_write;
-  input   [ 31: 0] clock_crossing_bridge_m1_writedata;
-  input            reset_n;
-
-  wire    [  3: 0] DE0_SOPC_clock_1_in_address;
-  wire             DE0_SOPC_clock_1_in_allgrants;
-  wire             DE0_SOPC_clock_1_in_allow_new_arb_cycle;
-  wire             DE0_SOPC_clock_1_in_any_bursting_master_saved_grant;
-  wire             DE0_SOPC_clock_1_in_any_continuerequest;
-  wire             DE0_SOPC_clock_1_in_arb_counter_enable;
-  reg              DE0_SOPC_clock_1_in_arb_share_counter;
-  wire             DE0_SOPC_clock_1_in_arb_share_counter_next_value;
-  wire             DE0_SOPC_clock_1_in_arb_share_set_values;
-  wire             DE0_SOPC_clock_1_in_beginbursttransfer_internal;
-  wire             DE0_SOPC_clock_1_in_begins_xfer;
-  wire    [  1: 0] DE0_SOPC_clock_1_in_byteenable;
-  wire             DE0_SOPC_clock_1_in_end_xfer;
-  wire             DE0_SOPC_clock_1_in_endofpacket_from_sa;
-  wire             DE0_SOPC_clock_1_in_firsttransfer;
-  wire             DE0_SOPC_clock_1_in_grant_vector;
-  wire             DE0_SOPC_clock_1_in_in_a_read_cycle;
-  wire             DE0_SOPC_clock_1_in_in_a_write_cycle;
-  wire             DE0_SOPC_clock_1_in_master_qreq_vector;
-  wire    [  2: 0] DE0_SOPC_clock_1_in_nativeaddress;
-  wire             DE0_SOPC_clock_1_in_non_bursting_master_requests;
-  wire             DE0_SOPC_clock_1_in_read;
-  wire    [ 15: 0] DE0_SOPC_clock_1_in_readdata_from_sa;
-  reg              DE0_SOPC_clock_1_in_reg_firsttransfer;
-  wire             DE0_SOPC_clock_1_in_reset_n;
-  reg              DE0_SOPC_clock_1_in_slavearbiterlockenable;
-  wire             DE0_SOPC_clock_1_in_slavearbiterlockenable2;
-  wire             DE0_SOPC_clock_1_in_unreg_firsttransfer;
-  wire             DE0_SOPC_clock_1_in_waitrequest_from_sa;
-  wire             DE0_SOPC_clock_1_in_waits_for_read;
-  wire             DE0_SOPC_clock_1_in_waits_for_write;
-  wire             DE0_SOPC_clock_1_in_write;
-  wire    [ 15: 0] DE0_SOPC_clock_1_in_writedata;
-  wire             clock_crossing_bridge_m1_arbiterlock;
-  wire             clock_crossing_bridge_m1_arbiterlock2;
-  wire             clock_crossing_bridge_m1_continuerequest;
-  wire             clock_crossing_bridge_m1_granted_DE0_SOPC_clock_1_in;
-  wire             clock_crossing_bridge_m1_qualified_request_DE0_SOPC_clock_1_in;
-  wire             clock_crossing_bridge_m1_read_data_valid_DE0_SOPC_clock_1_in;
-  wire             clock_crossing_bridge_m1_requests_DE0_SOPC_clock_1_in;
-  wire             clock_crossing_bridge_m1_saved_grant_DE0_SOPC_clock_1_in;
-  reg              d1_DE0_SOPC_clock_1_in_end_xfer;
-  reg              d1_reasons_to_wait;
-  reg              enable_nonzero_assertions;
-  wire             end_xfer_arb_share_counter_term_DE0_SOPC_clock_1_in;
-  wire             in_a_read_cycle;
-  wire             in_a_write_cycle;
-  wire             wait_for_DE0_SOPC_clock_1_in_counter;
-  always @(posedge clk or negedge reset_n)
-    begin
-      if (reset_n == 0)
-          d1_reasons_to_wait <= 0;
-      else 
-        d1_reasons_to_wait <= ~DE0_SOPC_clock_1_in_end_xfer;
-    end
-
-
-  assign DE0_SOPC_clock_1_in_begins_xfer = ~d1_reasons_to_wait & ((clock_crossing_bridge_m1_qualified_request_DE0_SOPC_clock_1_in));
-  //assign DE0_SOPC_clock_1_in_readdata_from_sa = DE0_SOPC_clock_1_in_readdata so that symbol knows where to group signals which may go to master only, which is an e_assign
-  assign DE0_SOPC_clock_1_in_readdata_from_sa = DE0_SOPC_clock_1_in_readdata;
-
-  assign clock_crossing_bridge_m1_requests_DE0_SOPC_clock_1_in = ({clock_crossing_bridge_m1_address_to_slave[10 : 5] , 5'b0} == 11'h440) & (clock_crossing_bridge_m1_read | clock_crossing_bridge_m1_write);
-  //assign DE0_SOPC_clock_1_in_waitrequest_from_sa = DE0_SOPC_clock_1_in_waitrequest so that symbol knows where to group signals which may go to master only, which is an e_assign
-  assign DE0_SOPC_clock_1_in_waitrequest_from_sa = DE0_SOPC_clock_1_in_waitrequest;
-
-  //DE0_SOPC_clock_1_in_arb_share_counter set values, which is an e_mux
-  assign DE0_SOPC_clock_1_in_arb_share_set_values = 1;
-
-  //DE0_SOPC_clock_1_in_non_bursting_master_requests mux, which is an e_mux
-  assign DE0_SOPC_clock_1_in_non_bursting_master_requests = clock_crossing_bridge_m1_requests_DE0_SOPC_clock_1_in;
-
-  //DE0_SOPC_clock_1_in_any_bursting_master_saved_grant mux, which is an e_mux
-  assign DE0_SOPC_clock_1_in_any_bursting_master_saved_grant = 0;
-
-  //DE0_SOPC_clock_1_in_arb_share_counter_next_value assignment, which is an e_assign
-  assign DE0_SOPC_clock_1_in_arb_share_counter_next_value = DE0_SOPC_clock_1_in_firsttransfer ? (DE0_SOPC_clock_1_in_arb_share_set_values - 1) : |DE0_SOPC_clock_1_in_arb_share_counter ? (DE0_SOPC_clock_1_in_arb_share_counter - 1) : 0;
-
-  //DE0_SOPC_clock_1_in_allgrants all slave grants, which is an e_mux
-  assign DE0_SOPC_clock_1_in_allgrants = |DE0_SOPC_clock_1_in_grant_vector;
-
-  //DE0_SOPC_clock_1_in_end_xfer assignment, which is an e_assign
-  assign DE0_SOPC_clock_1_in_end_xfer = ~(DE0_SOPC_clock_1_in_waits_for_read | DE0_SOPC_clock_1_in_waits_for_write);
-
-  //end_xfer_arb_share_counter_term_DE0_SOPC_clock_1_in arb share counter enable term, which is an e_assign
-  assign end_xfer_arb_share_counter_term_DE0_SOPC_clock_1_in = DE0_SOPC_clock_1_in_end_xfer & (~DE0_SOPC_clock_1_in_any_bursting_master_saved_grant | in_a_read_cycle | in_a_write_cycle);
-
-  //DE0_SOPC_clock_1_in_arb_share_counter arbitration counter enable, which is an e_assign
-  assign DE0_SOPC_clock_1_in_arb_counter_enable = (end_xfer_arb_share_counter_term_DE0_SOPC_clock_1_in & DE0_SOPC_clock_1_in_allgrants) | (end_xfer_arb_share_counter_term_DE0_SOPC_clock_1_in & ~DE0_SOPC_clock_1_in_non_bursting_master_requests);
-
-  //DE0_SOPC_clock_1_in_arb_share_counter counter, which is an e_register
-  always @(posedge clk or negedge reset_n)
-    begin
-      if (reset_n == 0)
-          DE0_SOPC_clock_1_in_arb_share_counter <= 0;
-      else if (DE0_SOPC_clock_1_in_arb_counter_enable)
-          DE0_SOPC_clock_1_in_arb_share_counter <= DE0_SOPC_clock_1_in_arb_share_counter_next_value;
-    end
-
-
-  //DE0_SOPC_clock_1_in_slavearbiterlockenable slave enables arbiterlock, which is an e_register
-  always @(posedge clk or negedge reset_n)
-    begin
-      if (reset_n == 0)
-          DE0_SOPC_clock_1_in_slavearbiterlockenable <= 0;
-      else if ((|DE0_SOPC_clock_1_in_master_qreq_vector & end_xfer_arb_share_counter_term_DE0_SOPC_clock_1_in) | (end_xfer_arb_share_counter_term_DE0_SOPC_clock_1_in & ~DE0_SOPC_clock_1_in_non_bursting_master_requests))
-          DE0_SOPC_clock_1_in_slavearbiterlockenable <= |DE0_SOPC_clock_1_in_arb_share_counter_next_value;
-    end
-
-
-  //clock_crossing_bridge/m1 DE0_SOPC_clock_1/in arbiterlock, which is an e_assign
-  assign clock_crossing_bridge_m1_arbiterlock = DE0_SOPC_clock_1_in_slavearbiterlockenable & clock_crossing_bridge_m1_continuerequest;
-
-  //DE0_SOPC_clock_1_in_slavearbiterlockenable2 slave enables arbiterlock2, which is an e_assign
-  assign DE0_SOPC_clock_1_in_slavearbiterlockenable2 = |DE0_SOPC_clock_1_in_arb_share_counter_next_value;
-
-  //clock_crossing_bridge/m1 DE0_SOPC_clock_1/in arbiterlock2, which is an e_assign
-  assign clock_crossing_bridge_m1_arbiterlock2 = DE0_SOPC_clock_1_in_slavearbiterlockenable2 & clock_crossing_bridge_m1_continuerequest;
-
-  //DE0_SOPC_clock_1_in_any_continuerequest at least one master continues requesting, which is an e_assign
-  assign DE0_SOPC_clock_1_in_any_continuerequest = 1;
-
-  //clock_crossing_bridge_m1_continuerequest continued request, which is an e_assign
-  assign clock_crossing_bridge_m1_continuerequest = 1;
-
-  assign clock_crossing_bridge_m1_qualified_request_DE0_SOPC_clock_1_in = clock_crossing_bridge_m1_requests_DE0_SOPC_clock_1_in & ~((clock_crossing_bridge_m1_read & ((clock_crossing_bridge_m1_latency_counter != 0))));
-  //local readdatavalid clock_crossing_bridge_m1_read_data_valid_DE0_SOPC_clock_1_in, which is an e_mux
-  assign clock_crossing_bridge_m1_read_data_valid_DE0_SOPC_clock_1_in = clock_crossing_bridge_m1_granted_DE0_SOPC_clock_1_in & clock_crossing_bridge_m1_read & ~DE0_SOPC_clock_1_in_waits_for_read;
-
-  //DE0_SOPC_clock_1_in_writedata mux, which is an e_mux
-  assign DE0_SOPC_clock_1_in_writedata = clock_crossing_bridge_m1_writedata;
-
-  //assign DE0_SOPC_clock_1_in_endofpacket_from_sa = DE0_SOPC_clock_1_in_endofpacket so that symbol knows where to group signals which may go to master only, which is an e_assign
-  assign DE0_SOPC_clock_1_in_endofpacket_from_sa = DE0_SOPC_clock_1_in_endofpacket;
-
-  //master is always granted when requested
-  assign clock_crossing_bridge_m1_granted_DE0_SOPC_clock_1_in = clock_crossing_bridge_m1_qualified_request_DE0_SOPC_clock_1_in;
-
-  //clock_crossing_bridge/m1 saved-grant DE0_SOPC_clock_1/in, which is an e_assign
-  assign clock_crossing_bridge_m1_saved_grant_DE0_SOPC_clock_1_in = clock_crossing_bridge_m1_requests_DE0_SOPC_clock_1_in;
-
-  //allow new arb cycle for DE0_SOPC_clock_1/in, which is an e_assign
-  assign DE0_SOPC_clock_1_in_allow_new_arb_cycle = 1;
-
-  //placeholder chosen master
-  assign DE0_SOPC_clock_1_in_grant_vector = 1;
-
-  //placeholder vector of master qualified-requests
-  assign DE0_SOPC_clock_1_in_master_qreq_vector = 1;
-
-  //DE0_SOPC_clock_1_in_reset_n assignment, which is an e_assign
-  assign DE0_SOPC_clock_1_in_reset_n = reset_n;
-
-  //DE0_SOPC_clock_1_in_firsttransfer first transaction, which is an e_assign
-  assign DE0_SOPC_clock_1_in_firsttransfer = DE0_SOPC_clock_1_in_begins_xfer ? DE0_SOPC_clock_1_in_unreg_firsttransfer : DE0_SOPC_clock_1_in_reg_firsttransfer;
-
-  //DE0_SOPC_clock_1_in_unreg_firsttransfer first transaction, which is an e_assign
-  assign DE0_SOPC_clock_1_in_unreg_firsttransfer = ~(DE0_SOPC_clock_1_in_slavearbiterlockenable & DE0_SOPC_clock_1_in_any_continuerequest);
-
-  //DE0_SOPC_clock_1_in_reg_firsttransfer first transaction, which is an e_register
-  always @(posedge clk or negedge reset_n)
-    begin
-      if (reset_n == 0)
-          DE0_SOPC_clock_1_in_reg_firsttransfer <= 1'b1;
-      else if (DE0_SOPC_clock_1_in_begins_xfer)
-          DE0_SOPC_clock_1_in_reg_firsttransfer <= DE0_SOPC_clock_1_in_unreg_firsttransfer;
-    end
-
-
-  //DE0_SOPC_clock_1_in_beginbursttransfer_internal begin burst transfer, which is an e_assign
-  assign DE0_SOPC_clock_1_in_beginbursttransfer_internal = DE0_SOPC_clock_1_in_begins_xfer;
-
-  //DE0_SOPC_clock_1_in_read assignment, which is an e_mux
-  assign DE0_SOPC_clock_1_in_read = clock_crossing_bridge_m1_granted_DE0_SOPC_clock_1_in & clock_crossing_bridge_m1_read;
-
-  //DE0_SOPC_clock_1_in_write assignment, which is an e_mux
-  assign DE0_SOPC_clock_1_in_write = clock_crossing_bridge_m1_granted_DE0_SOPC_clock_1_in & clock_crossing_bridge_m1_write;
-
-  //DE0_SOPC_clock_1_in_address mux, which is an e_mux
-  assign DE0_SOPC_clock_1_in_address = clock_crossing_bridge_m1_address_to_slave;
-
-  //slaveid DE0_SOPC_clock_1_in_nativeaddress nativeaddress mux, which is an e_mux
-  assign DE0_SOPC_clock_1_in_nativeaddress = clock_crossing_bridge_m1_nativeaddress;
-
-  //d1_DE0_SOPC_clock_1_in_end_xfer register, which is an e_register
-  always @(posedge clk or negedge reset_n)
-    begin
-      if (reset_n == 0)
-          d1_DE0_SOPC_clock_1_in_end_xfer <= 1;
-      else 
-        d1_DE0_SOPC_clock_1_in_end_xfer <= DE0_SOPC_clock_1_in_end_xfer;
-    end
-
-
-  //DE0_SOPC_clock_1_in_waits_for_read in a cycle, which is an e_mux
-  assign DE0_SOPC_clock_1_in_waits_for_read = DE0_SOPC_clock_1_in_in_a_read_cycle & DE0_SOPC_clock_1_in_waitrequest_from_sa;
-
-  //DE0_SOPC_clock_1_in_in_a_read_cycle assignment, which is an e_assign
-  assign DE0_SOPC_clock_1_in_in_a_read_cycle = clock_crossing_bridge_m1_granted_DE0_SOPC_clock_1_in & clock_crossing_bridge_m1_read;
-
-  //in_a_read_cycle assignment, which is an e_mux
-  assign in_a_read_cycle = DE0_SOPC_clock_1_in_in_a_read_cycle;
-
-  //DE0_SOPC_clock_1_in_waits_for_write in a cycle, which is an e_mux
-  assign DE0_SOPC_clock_1_in_waits_for_write = DE0_SOPC_clock_1_in_in_a_write_cycle & DE0_SOPC_clock_1_in_waitrequest_from_sa;
-
-  //DE0_SOPC_clock_1_in_in_a_write_cycle assignment, which is an e_assign
-  assign DE0_SOPC_clock_1_in_in_a_write_cycle = clock_crossing_bridge_m1_granted_DE0_SOPC_clock_1_in & clock_crossing_bridge_m1_write;
-
-  //in_a_write_cycle assignment, which is an e_mux
-  assign in_a_write_cycle = DE0_SOPC_clock_1_in_in_a_write_cycle;
-
-  assign wait_for_DE0_SOPC_clock_1_in_counter = 0;
-  //DE0_SOPC_clock_1_in_byteenable byte enable port mux, which is an e_mux
-  assign DE0_SOPC_clock_1_in_byteenable = (clock_crossing_bridge_m1_granted_DE0_SOPC_clock_1_in)? clock_crossing_bridge_m1_byteenable :
-    -1;
-
-
-//synthesis translate_off
-//////////////// SIMULATION-ONLY CONTENTS
-  //DE0_SOPC_clock_1/in enable non-zero assertions, which is an e_register
-  always @(posedge clk or negedge reset_n)
-    begin
-      if (reset_n == 0)
-          enable_nonzero_assertions <= 0;
-      else 
-        enable_nonzero_assertions <= 1'b1;
-    end
-
-
-
-//////////////// END SIMULATION-ONLY CONTENTS
-
-//synthesis translate_on
-
-endmodule
-
-
-// synthesis translate_off
-`timescale 1ns / 1ps
-// synthesis translate_on
-
-// turn off superfluous verilog processor warnings 
-// altera message_level Level1 
-// altera message_off 10034 10035 10036 10037 10230 10240 10030 
-
-module DE0_SOPC_clock_1_out_arbitrator (
-                                         // inputs:
-                                          DE0_SOPC_clock_1_out_address,
-                                          DE0_SOPC_clock_1_out_byteenable,
-                                          DE0_SOPC_clock_1_out_granted_timer_0_s1,
-                                          DE0_SOPC_clock_1_out_qualified_request_timer_0_s1,
-                                          DE0_SOPC_clock_1_out_read,
-                                          DE0_SOPC_clock_1_out_read_data_valid_timer_0_s1,
-                                          DE0_SOPC_clock_1_out_requests_timer_0_s1,
-                                          DE0_SOPC_clock_1_out_write,
-                                          DE0_SOPC_clock_1_out_writedata,
-                                          clk,
-                                          d1_timer_0_s1_end_xfer,
-                                          reset_n,
-                                          timer_0_s1_readdata_from_sa,
-
-                                         // outputs:
-                                          DE0_SOPC_clock_1_out_address_to_slave,
-                                          DE0_SOPC_clock_1_out_readdata,
-                                          DE0_SOPC_clock_1_out_reset_n,
-                                          DE0_SOPC_clock_1_out_waitrequest
-                                       )
-;
-
-  output  [  3: 0] DE0_SOPC_clock_1_out_address_to_slave;
-  output  [ 15: 0] DE0_SOPC_clock_1_out_readdata;
-  output           DE0_SOPC_clock_1_out_reset_n;
-  output           DE0_SOPC_clock_1_out_waitrequest;
-  input   [  3: 0] DE0_SOPC_clock_1_out_address;
-  input   [  1: 0] DE0_SOPC_clock_1_out_byteenable;
-  input            DE0_SOPC_clock_1_out_granted_timer_0_s1;
-  input            DE0_SOPC_clock_1_out_qualified_request_timer_0_s1;
-  input            DE0_SOPC_clock_1_out_read;
-  input            DE0_SOPC_clock_1_out_read_data_valid_timer_0_s1;
-  input            DE0_SOPC_clock_1_out_requests_timer_0_s1;
-  input            DE0_SOPC_clock_1_out_write;
-  input   [ 15: 0] DE0_SOPC_clock_1_out_writedata;
-  input            clk;
-  input            d1_timer_0_s1_end_xfer;
-  input            reset_n;
-  input   [ 15: 0] timer_0_s1_readdata_from_sa;
-
-  reg     [  3: 0] DE0_SOPC_clock_1_out_address_last_time;
-  wire    [  3: 0] DE0_SOPC_clock_1_out_address_to_slave;
-  reg     [  1: 0] DE0_SOPC_clock_1_out_byteenable_last_time;
-  reg              DE0_SOPC_clock_1_out_read_last_time;
-  wire    [ 15: 0] DE0_SOPC_clock_1_out_readdata;
-  wire             DE0_SOPC_clock_1_out_reset_n;
-  wire             DE0_SOPC_clock_1_out_run;
-  wire             DE0_SOPC_clock_1_out_waitrequest;
-  reg              DE0_SOPC_clock_1_out_write_last_time;
-  reg     [ 15: 0] DE0_SOPC_clock_1_out_writedata_last_time;
-  reg              active_and_waiting_last_time;
-  wire             r_2;
-  //r_2 master_run cascaded wait assignment, which is an e_assign
-  assign r_2 = 1 & ((~DE0_SOPC_clock_1_out_qualified_request_timer_0_s1 | ~DE0_SOPC_clock_1_out_read | (1 & ~d1_timer_0_s1_end_xfer & DE0_SOPC_clock_1_out_read))) & ((~DE0_SOPC_clock_1_out_qualified_request_timer_0_s1 | ~DE0_SOPC_clock_1_out_write | (1 & DE0_SOPC_clock_1_out_write)));
-
-  //cascaded wait assignment, which is an e_assign
-  assign DE0_SOPC_clock_1_out_run = r_2;
-
-  //optimize select-logic by passing only those address bits which matter.
-  assign DE0_SOPC_clock_1_out_address_to_slave = DE0_SOPC_clock_1_out_address;
-
-  //DE0_SOPC_clock_1/out readdata mux, which is an e_mux
-  assign DE0_SOPC_clock_1_out_readdata = timer_0_s1_readdata_from_sa;
-
-  //actual waitrequest port, which is an e_assign
-  assign DE0_SOPC_clock_1_out_waitrequest = ~DE0_SOPC_clock_1_out_run;
-
-  //DE0_SOPC_clock_1_out_reset_n assignment, which is an e_assign
-  assign DE0_SOPC_clock_1_out_reset_n = reset_n;
-
-
-//synthesis translate_off
-//////////////// SIMULATION-ONLY CONTENTS
-  //DE0_SOPC_clock_1_out_address check against wait, which is an e_register
-  always @(posedge clk or negedge reset_n)
-    begin
-      if (reset_n == 0)
-          DE0_SOPC_clock_1_out_address_last_time <= 0;
-      else 
-        DE0_SOPC_clock_1_out_address_last_time <= DE0_SOPC_clock_1_out_address;
-    end
-
-
-  //DE0_SOPC_clock_1/out waited last time, which is an e_register
-  always @(posedge clk or negedge reset_n)
-    begin
-      if (reset_n == 0)
-          active_and_waiting_last_time <= 0;
-      else 
-        active_and_waiting_last_time <= DE0_SOPC_clock_1_out_waitrequest & (DE0_SOPC_clock_1_out_read | DE0_SOPC_clock_1_out_write);
-    end
-
-
-  //DE0_SOPC_clock_1_out_address matches last port_name, which is an e_process
-  always @(posedge clk)
-    begin
-      if (active_and_waiting_last_time & (DE0_SOPC_clock_1_out_address != DE0_SOPC_clock_1_out_address_last_time))
-        begin
-          $write("%0d ns: DE0_SOPC_clock_1_out_address did not heed wait!!!", $time);
-          $stop;
-        end
-    end
-
-
-  //DE0_SOPC_clock_1_out_byteenable check against wait, which is an e_register
-  always @(posedge clk or negedge reset_n)
-    begin
-      if (reset_n == 0)
-          DE0_SOPC_clock_1_out_byteenable_last_time <= 0;
-      else 
-        DE0_SOPC_clock_1_out_byteenable_last_time <= DE0_SOPC_clock_1_out_byteenable;
-    end
-
-
-  //DE0_SOPC_clock_1_out_byteenable matches last port_name, which is an e_process
-  always @(posedge clk)
-    begin
-      if (active_and_waiting_last_time & (DE0_SOPC_clock_1_out_byteenable != DE0_SOPC_clock_1_out_byteenable_last_time))
-        begin
-          $write("%0d ns: DE0_SOPC_clock_1_out_byteenable did not heed wait!!!", $time);
-          $stop;
-        end
-    end
-
-
-  //DE0_SOPC_clock_1_out_read check against wait, which is an e_register
-  always @(posedge clk or negedge reset_n)
-    begin
-      if (reset_n == 0)
-          DE0_SOPC_clock_1_out_read_last_time <= 0;
-      else 
-        DE0_SOPC_clock_1_out_read_last_time <= DE0_SOPC_clock_1_out_read;
-    end
-
-
-  //DE0_SOPC_clock_1_out_read matches last port_name, which is an e_process
-  always @(posedge clk)
-    begin
-      if (active_and_waiting_last_time & (DE0_SOPC_clock_1_out_read != DE0_SOPC_clock_1_out_read_last_time))
-        begin
-          $write("%0d ns: DE0_SOPC_clock_1_out_read did not heed wait!!!", $time);
-          $stop;
-        end
-    end
-
-
-  //DE0_SOPC_clock_1_out_write check against wait, which is an e_register
-  always @(posedge clk or negedge reset_n)
-    begin
-      if (reset_n == 0)
-          DE0_SOPC_clock_1_out_write_last_time <= 0;
-      else 
-        DE0_SOPC_clock_1_out_write_last_time <= DE0_SOPC_clock_1_out_write;
-    end
-
-
-  //DE0_SOPC_clock_1_out_write matches last port_name, which is an e_process
-  always @(posedge clk)
-    begin
-      if (active_and_waiting_last_time & (DE0_SOPC_clock_1_out_write != DE0_SOPC_clock_1_out_write_last_time))
-        begin
-          $write("%0d ns: DE0_SOPC_clock_1_out_write did not heed wait!!!", $time);
-          $stop;
-        end
-    end
-
-
-  //DE0_SOPC_clock_1_out_writedata check against wait, which is an e_register
-  always @(posedge clk or negedge reset_n)
-    begin
-      if (reset_n == 0)
-          DE0_SOPC_clock_1_out_writedata_last_time <= 0;
-      else 
-        DE0_SOPC_clock_1_out_writedata_last_time <= DE0_SOPC_clock_1_out_writedata;
-    end
-
-
-  //DE0_SOPC_clock_1_out_writedata matches last port_name, which is an e_process
-  always @(posedge clk)
-    begin
-      if (active_and_waiting_last_time & (DE0_SOPC_clock_1_out_writedata != DE0_SOPC_clock_1_out_writedata_last_time) & DE0_SOPC_clock_1_out_write)
-        begin
-          $write("%0d ns: DE0_SOPC_clock_1_out_writedata did not heed wait!!!", $time);
-          $stop;
-        end
-    end
-
-
-
-//////////////// END SIMULATION-ONLY CONTENTS
-
-//synthesis translate_on
-
-endmodule
-
-
-// synthesis translate_off
-`timescale 1ns / 1ps
-// synthesis translate_on
-
-// turn off superfluous verilog processor warnings 
-// altera message_level Level1 
-// altera message_off 10034 10035 10036 10037 10230 10240 10030 
-
-module DE0_SOPC_clock_2_in_arbitrator (
-                                        // inputs:
-                                         DE0_SOPC_clock_2_in_endofpacket,
-                                         DE0_SOPC_clock_2_in_readdata,
-                                         DE0_SOPC_clock_2_in_waitrequest,
-                                         clk,
-                                         clock_crossing_bridge_m1_address_to_slave,
-                                         clock_crossing_bridge_m1_byteenable,
-                                         clock_crossing_bridge_m1_latency_counter,
-                                         clock_crossing_bridge_m1_nativeaddress,
-                                         clock_crossing_bridge_m1_read,
-                                         clock_crossing_bridge_m1_write,
-                                         clock_crossing_bridge_m1_writedata,
-                                         reset_n,
-
-                                        // outputs:
-                                         DE0_SOPC_clock_2_in_address,
-                                         DE0_SOPC_clock_2_in_byteenable,
-                                         DE0_SOPC_clock_2_in_endofpacket_from_sa,
-                                         DE0_SOPC_clock_2_in_nativeaddress,
-                                         DE0_SOPC_clock_2_in_read,
-                                         DE0_SOPC_clock_2_in_readdata_from_sa,
-                                         DE0_SOPC_clock_2_in_reset_n,
-                                         DE0_SOPC_clock_2_in_waitrequest_from_sa,
-                                         DE0_SOPC_clock_2_in_write,
-                                         DE0_SOPC_clock_2_in_writedata,
-                                         clock_crossing_bridge_m1_granted_DE0_SOPC_clock_2_in,
-                                         clock_crossing_bridge_m1_qualified_request_DE0_SOPC_clock_2_in,
-                                         clock_crossing_bridge_m1_read_data_valid_DE0_SOPC_clock_2_in,
-                                         clock_crossing_bridge_m1_requests_DE0_SOPC_clock_2_in,
-                                         d1_DE0_SOPC_clock_2_in_end_xfer
-                                      )
-;
-
-  output  [  9: 0] DE0_SOPC_clock_2_in_address;
-  output  [  3: 0] DE0_SOPC_clock_2_in_byteenable;
-  output           DE0_SOPC_clock_2_in_endofpacket_from_sa;
-  output  [  7: 0] DE0_SOPC_clock_2_in_nativeaddress;
-  output           DE0_SOPC_clock_2_in_read;
-  output  [ 31: 0] DE0_SOPC_clock_2_in_readdata_from_sa;
-  output           DE0_SOPC_clock_2_in_reset_n;
-  output           DE0_SOPC_clock_2_in_waitrequest_from_sa;
-  output           DE0_SOPC_clock_2_in_write;
-  output  [ 31: 0] DE0_SOPC_clock_2_in_writedata;
-  output           clock_crossing_bridge_m1_granted_DE0_SOPC_clock_2_in;
-  output           clock_crossing_bridge_m1_qualified_request_DE0_SOPC_clock_2_in;
-  output           clock_crossing_bridge_m1_read_data_valid_DE0_SOPC_clock_2_in;
-  output           clock_crossing_bridge_m1_requests_DE0_SOPC_clock_2_in;
-  output           d1_DE0_SOPC_clock_2_in_end_xfer;
-  input            DE0_SOPC_clock_2_in_endofpacket;
-  input   [ 31: 0] DE0_SOPC_clock_2_in_readdata;
-  input            DE0_SOPC_clock_2_in_waitrequest;
-  input            clk;
-  input   [ 10: 0] clock_crossing_bridge_m1_address_to_slave;
-  input   [  3: 0] clock_crossing_bridge_m1_byteenable;
-  input            clock_crossing_bridge_m1_latency_counter;
-  input   [  8: 0] clock_crossing_bridge_m1_nativeaddress;
-  input            clock_crossing_bridge_m1_read;
-  input            clock_crossing_bridge_m1_write;
-  input   [ 31: 0] clock_crossing_bridge_m1_writedata;
-  input            reset_n;
-
-  wire    [  9: 0] DE0_SOPC_clock_2_in_address;
-  wire             DE0_SOPC_clock_2_in_allgrants;
-  wire             DE0_SOPC_clock_2_in_allow_new_arb_cycle;
-  wire             DE0_SOPC_clock_2_in_any_bursting_master_saved_grant;
-  wire             DE0_SOPC_clock_2_in_any_continuerequest;
-  wire             DE0_SOPC_clock_2_in_arb_counter_enable;
-  reg              DE0_SOPC_clock_2_in_arb_share_counter;
-  wire             DE0_SOPC_clock_2_in_arb_share_counter_next_value;
-  wire             DE0_SOPC_clock_2_in_arb_share_set_values;
-  wire             DE0_SOPC_clock_2_in_beginbursttransfer_internal;
-  wire             DE0_SOPC_clock_2_in_begins_xfer;
-  wire    [  3: 0] DE0_SOPC_clock_2_in_byteenable;
-  wire             DE0_SOPC_clock_2_in_end_xfer;
-  wire             DE0_SOPC_clock_2_in_endofpacket_from_sa;
-  wire             DE0_SOPC_clock_2_in_firsttransfer;
-  wire             DE0_SOPC_clock_2_in_grant_vector;
-  wire             DE0_SOPC_clock_2_in_in_a_read_cycle;
-  wire             DE0_SOPC_clock_2_in_in_a_write_cycle;
-  wire             DE0_SOPC_clock_2_in_master_qreq_vector;
-  wire    [  7: 0] DE0_SOPC_clock_2_in_nativeaddress;
-  wire             DE0_SOPC_clock_2_in_non_bursting_master_requests;
-  wire             DE0_SOPC_clock_2_in_read;
-  wire    [ 31: 0] DE0_SOPC_clock_2_in_readdata_from_sa;
-  reg              DE0_SOPC_clock_2_in_reg_firsttransfer;
-  wire             DE0_SOPC_clock_2_in_reset_n;
-  reg              DE0_SOPC_clock_2_in_slavearbiterlockenable;
-  wire             DE0_SOPC_clock_2_in_slavearbiterlockenable2;
-  wire             DE0_SOPC_clock_2_in_unreg_firsttransfer;
-  wire             DE0_SOPC_clock_2_in_waitrequest_from_sa;
-  wire             DE0_SOPC_clock_2_in_waits_for_read;
-  wire             DE0_SOPC_clock_2_in_waits_for_write;
-  wire             DE0_SOPC_clock_2_in_write;
-  wire    [ 31: 0] DE0_SOPC_clock_2_in_writedata;
-  wire             clock_crossing_bridge_m1_arbiterlock;
-  wire             clock_crossing_bridge_m1_arbiterlock2;
-  wire             clock_crossing_bridge_m1_continuerequest;
-  wire             clock_crossing_bridge_m1_granted_DE0_SOPC_clock_2_in;
-  wire             clock_crossing_bridge_m1_qualified_request_DE0_SOPC_clock_2_in;
-  wire             clock_crossing_bridge_m1_read_data_valid_DE0_SOPC_clock_2_in;
-  wire             clock_crossing_bridge_m1_requests_DE0_SOPC_clock_2_in;
-  wire             clock_crossing_bridge_m1_saved_grant_DE0_SOPC_clock_2_in;
-  reg              d1_DE0_SOPC_clock_2_in_end_xfer;
-  reg              d1_reasons_to_wait;
-  reg              enable_nonzero_assertions;
-  wire             end_xfer_arb_share_counter_term_DE0_SOPC_clock_2_in;
-  wire             in_a_read_cycle;
-  wire             in_a_write_cycle;
-  wire             wait_for_DE0_SOPC_clock_2_in_counter;
-  always @(posedge clk or negedge reset_n)
-    begin
-      if (reset_n == 0)
-          d1_reasons_to_wait <= 0;
-      else 
-        d1_reasons_to_wait <= ~DE0_SOPC_clock_2_in_end_xfer;
-    end
-
-
-  assign DE0_SOPC_clock_2_in_begins_xfer = ~d1_reasons_to_wait & ((clock_crossing_bridge_m1_qualified_request_DE0_SOPC_clock_2_in));
-  //assign DE0_SOPC_clock_2_in_readdata_from_sa = DE0_SOPC_clock_2_in_readdata so that symbol knows where to group signals which may go to master only, which is an e_assign
-  assign DE0_SOPC_clock_2_in_readdata_from_sa = DE0_SOPC_clock_2_in_readdata;
-
-  assign clock_crossing_bridge_m1_requests_DE0_SOPC_clock_2_in = ({clock_crossing_bridge_m1_address_to_slave[10] , 10'b0} == 11'h0) & (clock_crossing_bridge_m1_read | clock_crossing_bridge_m1_write);
-  //assign DE0_SOPC_clock_2_in_waitrequest_from_sa = DE0_SOPC_clock_2_in_waitrequest so that symbol knows where to group signals which may go to master only, which is an e_assign
-  assign DE0_SOPC_clock_2_in_waitrequest_from_sa = DE0_SOPC_clock_2_in_waitrequest;
-
-  //DE0_SOPC_clock_2_in_arb_share_counter set values, which is an e_mux
-  assign DE0_SOPC_clock_2_in_arb_share_set_values = 1;
-
-  //DE0_SOPC_clock_2_in_non_bursting_master_requests mux, which is an e_mux
-  assign DE0_SOPC_clock_2_in_non_bursting_master_requests = clock_crossing_bridge_m1_requests_DE0_SOPC_clock_2_in;
-
-  //DE0_SOPC_clock_2_in_any_bursting_master_saved_grant mux, which is an e_mux
-  assign DE0_SOPC_clock_2_in_any_bursting_master_saved_grant = 0;
-
-  //DE0_SOPC_clock_2_in_arb_share_counter_next_value assignment, which is an e_assign
-  assign DE0_SOPC_clock_2_in_arb_share_counter_next_value = DE0_SOPC_clock_2_in_firsttransfer ? (DE0_SOPC_clock_2_in_arb_share_set_values - 1) : |DE0_SOPC_clock_2_in_arb_share_counter ? (DE0_SOPC_clock_2_in_arb_share_counter - 1) : 0;
-
-  //DE0_SOPC_clock_2_in_allgrants all slave grants, which is an e_mux
-  assign DE0_SOPC_clock_2_in_allgrants = |DE0_SOPC_clock_2_in_grant_vector;
-
-  //DE0_SOPC_clock_2_in_end_xfer assignment, which is an e_assign
-  assign DE0_SOPC_clock_2_in_end_xfer = ~(DE0_SOPC_clock_2_in_waits_for_read | DE0_SOPC_clock_2_in_waits_for_write);
-
-  //end_xfer_arb_share_counter_term_DE0_SOPC_clock_2_in arb share counter enable term, which is an e_assign
-  assign end_xfer_arb_share_counter_term_DE0_SOPC_clock_2_in = DE0_SOPC_clock_2_in_end_xfer & (~DE0_SOPC_clock_2_in_any_bursting_master_saved_grant | in_a_read_cycle | in_a_write_cycle);
-
-  //DE0_SOPC_clock_2_in_arb_share_counter arbitration counter enable, which is an e_assign
-  assign DE0_SOPC_clock_2_in_arb_counter_enable = (end_xfer_arb_share_counter_term_DE0_SOPC_clock_2_in & DE0_SOPC_clock_2_in_allgrants) | (end_xfer_arb_share_counter_term_DE0_SOPC_clock_2_in & ~DE0_SOPC_clock_2_in_non_bursting_master_requests);
-
-  //DE0_SOPC_clock_2_in_arb_share_counter counter, which is an e_register
-  always @(posedge clk or negedge reset_n)
-    begin
-      if (reset_n == 0)
-          DE0_SOPC_clock_2_in_arb_share_counter <= 0;
-      else if (DE0_SOPC_clock_2_in_arb_counter_enable)
-          DE0_SOPC_clock_2_in_arb_share_counter <= DE0_SOPC_clock_2_in_arb_share_counter_next_value;
-    end
-
-
-  //DE0_SOPC_clock_2_in_slavearbiterlockenable slave enables arbiterlock, which is an e_register
-  always @(posedge clk or negedge reset_n)
-    begin
-      if (reset_n == 0)
-          DE0_SOPC_clock_2_in_slavearbiterlockenable <= 0;
-      else if ((|DE0_SOPC_clock_2_in_master_qreq_vector & end_xfer_arb_share_counter_term_DE0_SOPC_clock_2_in) | (end_xfer_arb_share_counter_term_DE0_SOPC_clock_2_in & ~DE0_SOPC_clock_2_in_non_bursting_master_requests))
-          DE0_SOPC_clock_2_in_slavearbiterlockenable <= |DE0_SOPC_clock_2_in_arb_share_counter_next_value;
-    end
-
-
-  //clock_crossing_bridge/m1 DE0_SOPC_clock_2/in arbiterlock, which is an e_assign
-  assign clock_crossing_bridge_m1_arbiterlock = DE0_SOPC_clock_2_in_slavearbiterlockenable & clock_crossing_bridge_m1_continuerequest;
-
-  //DE0_SOPC_clock_2_in_slavearbiterlockenable2 slave enables arbiterlock2, which is an e_assign
-  assign DE0_SOPC_clock_2_in_slavearbiterlockenable2 = |DE0_SOPC_clock_2_in_arb_share_counter_next_value;
-
-  //clock_crossing_bridge/m1 DE0_SOPC_clock_2/in arbiterlock2, which is an e_assign
-  assign clock_crossing_bridge_m1_arbiterlock2 = DE0_SOPC_clock_2_in_slavearbiterlockenable2 & clock_crossing_bridge_m1_continuerequest;
-
-  //DE0_SOPC_clock_2_in_any_continuerequest at least one master continues requesting, which is an e_assign
-  assign DE0_SOPC_clock_2_in_any_continuerequest = 1;
-
-  //clock_crossing_bridge_m1_continuerequest continued request, which is an e_assign
-  assign clock_crossing_bridge_m1_continuerequest = 1;
-
-  assign clock_crossing_bridge_m1_qualified_request_DE0_SOPC_clock_2_in = clock_crossing_bridge_m1_requests_DE0_SOPC_clock_2_in & ~((clock_crossing_bridge_m1_read & ((clock_crossing_bridge_m1_latency_counter != 0))));
-  //local readdatavalid clock_crossing_bridge_m1_read_data_valid_DE0_SOPC_clock_2_in, which is an e_mux
-  assign clock_crossing_bridge_m1_read_data_valid_DE0_SOPC_clock_2_in = clock_crossing_bridge_m1_granted_DE0_SOPC_clock_2_in & clock_crossing_bridge_m1_read & ~DE0_SOPC_clock_2_in_waits_for_read;
-
-  //DE0_SOPC_clock_2_in_writedata mux, which is an e_mux
-  assign DE0_SOPC_clock_2_in_writedata = clock_crossing_bridge_m1_writedata;
-
-  //assign DE0_SOPC_clock_2_in_endofpacket_from_sa = DE0_SOPC_clock_2_in_endofpacket so that symbol knows where to group signals which may go to master only, which is an e_assign
-  assign DE0_SOPC_clock_2_in_endofpacket_from_sa = DE0_SOPC_clock_2_in_endofpacket;
-
-  //master is always granted when requested
-  assign clock_crossing_bridge_m1_granted_DE0_SOPC_clock_2_in = clock_crossing_bridge_m1_qualified_request_DE0_SOPC_clock_2_in;
-
-  //clock_crossing_bridge/m1 saved-grant DE0_SOPC_clock_2/in, which is an e_assign
-  assign clock_crossing_bridge_m1_saved_grant_DE0_SOPC_clock_2_in = clock_crossing_bridge_m1_requests_DE0_SOPC_clock_2_in;
-
-  //allow new arb cycle for DE0_SOPC_clock_2/in, which is an e_assign
-  assign DE0_SOPC_clock_2_in_allow_new_arb_cycle = 1;
-
-  //placeholder chosen master
-  assign DE0_SOPC_clock_2_in_grant_vector = 1;
-
-  //placeholder vector of master qualified-requests
-  assign DE0_SOPC_clock_2_in_master_qreq_vector = 1;
-
-  //DE0_SOPC_clock_2_in_reset_n assignment, which is an e_assign
-  assign DE0_SOPC_clock_2_in_reset_n = reset_n;
-
-  //DE0_SOPC_clock_2_in_firsttransfer first transaction, which is an e_assign
-  assign DE0_SOPC_clock_2_in_firsttransfer = DE0_SOPC_clock_2_in_begins_xfer ? DE0_SOPC_clock_2_in_unreg_firsttransfer : DE0_SOPC_clock_2_in_reg_firsttransfer;
-
-  //DE0_SOPC_clock_2_in_unreg_firsttransfer first transaction, which is an e_assign
-  assign DE0_SOPC_clock_2_in_unreg_firsttransfer = ~(DE0_SOPC_clock_2_in_slavearbiterlockenable & DE0_SOPC_clock_2_in_any_continuerequest);
-
-  //DE0_SOPC_clock_2_in_reg_firsttransfer first transaction, which is an e_register
-  always @(posedge clk or negedge reset_n)
-    begin
-      if (reset_n == 0)
-          DE0_SOPC_clock_2_in_reg_firsttransfer <= 1'b1;
-      else if (DE0_SOPC_clock_2_in_begins_xfer)
-          DE0_SOPC_clock_2_in_reg_firsttransfer <= DE0_SOPC_clock_2_in_unreg_firsttransfer;
-    end
-
-
-  //DE0_SOPC_clock_2_in_beginbursttransfer_internal begin burst transfer, which is an e_assign
-  assign DE0_SOPC_clock_2_in_beginbursttransfer_internal = DE0_SOPC_clock_2_in_begins_xfer;
-
-  //DE0_SOPC_clock_2_in_read assignment, which is an e_mux
-  assign DE0_SOPC_clock_2_in_read = clock_crossing_bridge_m1_granted_DE0_SOPC_clock_2_in & clock_crossing_bridge_m1_read;
-
-  //DE0_SOPC_clock_2_in_write assignment, which is an e_mux
-  assign DE0_SOPC_clock_2_in_write = clock_crossing_bridge_m1_granted_DE0_SOPC_clock_2_in & clock_crossing_bridge_m1_write;
-
-  //DE0_SOPC_clock_2_in_address mux, which is an e_mux
-  assign DE0_SOPC_clock_2_in_address = clock_crossing_bridge_m1_address_to_slave;
-
-  //slaveid DE0_SOPC_clock_2_in_nativeaddress nativeaddress mux, which is an e_mux
-  assign DE0_SOPC_clock_2_in_nativeaddress = clock_crossing_bridge_m1_nativeaddress;
-
-  //d1_DE0_SOPC_clock_2_in_end_xfer register, which is an e_register
-  always @(posedge clk or negedge reset_n)
-    begin
-      if (reset_n == 0)
-          d1_DE0_SOPC_clock_2_in_end_xfer <= 1;
-      else 
-        d1_DE0_SOPC_clock_2_in_end_xfer <= DE0_SOPC_clock_2_in_end_xfer;
-    end
-
-
-  //DE0_SOPC_clock_2_in_waits_for_read in a cycle, which is an e_mux
-  assign DE0_SOPC_clock_2_in_waits_for_read = DE0_SOPC_clock_2_in_in_a_read_cycle & DE0_SOPC_clock_2_in_waitrequest_from_sa;
-
-  //DE0_SOPC_clock_2_in_in_a_read_cycle assignment, which is an e_assign
-  assign DE0_SOPC_clock_2_in_in_a_read_cycle = clock_crossing_bridge_m1_granted_DE0_SOPC_clock_2_in & clock_crossing_bridge_m1_read;
-
-  //in_a_read_cycle assignment, which is an e_mux
-  assign in_a_read_cycle = DE0_SOPC_clock_2_in_in_a_read_cycle;
-
-  //DE0_SOPC_clock_2_in_waits_for_write in a cycle, which is an e_mux
-  assign DE0_SOPC_clock_2_in_waits_for_write = DE0_SOPC_clock_2_in_in_a_write_cycle & DE0_SOPC_clock_2_in_waitrequest_from_sa;
-
-  //DE0_SOPC_clock_2_in_in_a_write_cycle assignment, which is an e_assign
-  assign DE0_SOPC_clock_2_in_in_a_write_cycle = clock_crossing_bridge_m1_granted_DE0_SOPC_clock_2_in & clock_crossing_bridge_m1_write;
-
-  //in_a_write_cycle assignment, which is an e_mux
-  assign in_a_write_cycle = DE0_SOPC_clock_2_in_in_a_write_cycle;
-
-  assign wait_for_DE0_SOPC_clock_2_in_counter = 0;
-  //DE0_SOPC_clock_2_in_byteenable byte enable port mux, which is an e_mux
-  assign DE0_SOPC_clock_2_in_byteenable = (clock_crossing_bridge_m1_granted_DE0_SOPC_clock_2_in)? clock_crossing_bridge_m1_byteenable :
-    -1;
-
-
-//synthesis translate_off
-//////////////// SIMULATION-ONLY CONTENTS
-  //DE0_SOPC_clock_2/in enable non-zero assertions, which is an e_register
-  always @(posedge clk or negedge reset_n)
-    begin
-      if (reset_n == 0)
-          enable_nonzero_assertions <= 0;
-      else 
-        enable_nonzero_assertions <= 1'b1;
-    end
-
-
-
-//////////////// END SIMULATION-ONLY CONTENTS
-
-//synthesis translate_on
-
-endmodule
-
-
-// synthesis translate_off
-`timescale 1ns / 1ps
-// synthesis translate_on
-
-// turn off superfluous verilog processor warnings 
-// altera message_level Level1 
-// altera message_off 10034 10035 10036 10037 10230 10240 10030 
-
-module DE0_SOPC_clock_2_out_arbitrator (
-                                         // inputs:
-                                          DE0_SOPC_clock_2_out_address,
-                                          DE0_SOPC_clock_2_out_byteenable,
-                                          DE0_SOPC_clock_2_out_granted_SD_CARD_Interface_avalon_slave,
-                                          DE0_SOPC_clock_2_out_qualified_request_SD_CARD_Interface_avalon_slave,
-                                          DE0_SOPC_clock_2_out_read,
-                                          DE0_SOPC_clock_2_out_read_data_valid_SD_CARD_Interface_avalon_slave,
-                                          DE0_SOPC_clock_2_out_requests_SD_CARD_Interface_avalon_slave,
-                                          DE0_SOPC_clock_2_out_write,
-                                          DE0_SOPC_clock_2_out_writedata,
-                                          SD_CARD_Interface_avalon_slave_readdata_from_sa,
-                                          SD_CARD_Interface_avalon_slave_waitrequest_from_sa,
-                                          clk,
-                                          d1_SD_CARD_Interface_avalon_slave_end_xfer,
-                                          reset_n,
-
-                                         // outputs:
-                                          DE0_SOPC_clock_2_out_address_to_slave,
-                                          DE0_SOPC_clock_2_out_readdata,
-                                          DE0_SOPC_clock_2_out_reset_n,
-                                          DE0_SOPC_clock_2_out_waitrequest
-                                       )
-;
-
-  output  [  9: 0] DE0_SOPC_clock_2_out_address_to_slave;
-  output  [ 31: 0] DE0_SOPC_clock_2_out_readdata;
-  output           DE0_SOPC_clock_2_out_reset_n;
-  output           DE0_SOPC_clock_2_out_waitrequest;
-  input   [  9: 0] DE0_SOPC_clock_2_out_address;
-  input   [  3: 0] DE0_SOPC_clock_2_out_byteenable;
-  input            DE0_SOPC_clock_2_out_granted_SD_CARD_Interface_avalon_slave;
-  input            DE0_SOPC_clock_2_out_qualified_request_SD_CARD_Interface_avalon_slave;
-  input            DE0_SOPC_clock_2_out_read;
-  input            DE0_SOPC_clock_2_out_read_data_valid_SD_CARD_Interface_avalon_slave;
-  input            DE0_SOPC_clock_2_out_requests_SD_CARD_Interface_avalon_slave;
-  input            DE0_SOPC_clock_2_out_write;
-  input   [ 31: 0] DE0_SOPC_clock_2_out_writedata;
-  input   [ 31: 0] SD_CARD_Interface_avalon_slave_readdata_from_sa;
-  input            SD_CARD_Interface_avalon_slave_waitrequest_from_sa;
-  input            clk;
-  input            d1_SD_CARD_Interface_avalon_slave_end_xfer;
-  input            reset_n;
-
-  reg     [  9: 0] DE0_SOPC_clock_2_out_address_last_time;
-  wire    [  9: 0] DE0_SOPC_clock_2_out_address_to_slave;
-  reg     [  3: 0] DE0_SOPC_clock_2_out_byteenable_last_time;
-  reg              DE0_SOPC_clock_2_out_read_last_time;
-  wire    [ 31: 0] DE0_SOPC_clock_2_out_readdata;
-  wire             DE0_SOPC_clock_2_out_reset_n;
-  wire             DE0_SOPC_clock_2_out_run;
-  wire             DE0_SOPC_clock_2_out_waitrequest;
-  reg              DE0_SOPC_clock_2_out_write_last_time;
-  reg     [ 31: 0] DE0_SOPC_clock_2_out_writedata_last_time;
-  reg              active_and_waiting_last_time;
-  wire             r_0;
-  //r_0 master_run cascaded wait assignment, which is an e_assign
-  assign r_0 = 1 & ((~DE0_SOPC_clock_2_out_qualified_request_SD_CARD_Interface_avalon_slave | ~(DE0_SOPC_clock_2_out_read | DE0_SOPC_clock_2_out_write) | (1 & ~SD_CARD_Interface_avalon_slave_waitrequest_from_sa & (DE0_SOPC_clock_2_out_read | DE0_SOPC_clock_2_out_write)))) & ((~DE0_SOPC_clock_2_out_qualified_request_SD_CARD_Interface_avalon_slave | ~(DE0_SOPC_clock_2_out_read | DE0_SOPC_clock_2_out_write) | (1 & ~SD_CARD_Interface_avalon_slave_waitrequest_from_sa & (DE0_SOPC_clock_2_out_read | DE0_SOPC_clock_2_out_write))));
-
-  //cascaded wait assignment, which is an e_assign
-  assign DE0_SOPC_clock_2_out_run = r_0;
-
-  //optimize select-logic by passing only those address bits which matter.
-  assign DE0_SOPC_clock_2_out_address_to_slave = DE0_SOPC_clock_2_out_address;
-
-  //DE0_SOPC_clock_2/out readdata mux, which is an e_mux
-  assign DE0_SOPC_clock_2_out_readdata = SD_CARD_Interface_avalon_slave_readdata_from_sa;
-
-  //actual waitrequest port, which is an e_assign
-  assign DE0_SOPC_clock_2_out_waitrequest = ~DE0_SOPC_clock_2_out_run;
-
-  //DE0_SOPC_clock_2_out_reset_n assignment, which is an e_assign
-  assign DE0_SOPC_clock_2_out_reset_n = reset_n;
-
-
-//synthesis translate_off
-//////////////// SIMULATION-ONLY CONTENTS
-  //DE0_SOPC_clock_2_out_address check against wait, which is an e_register
-  always @(posedge clk or negedge reset_n)
-    begin
-      if (reset_n == 0)
-          DE0_SOPC_clock_2_out_address_last_time <= 0;
-      else 
-        DE0_SOPC_clock_2_out_address_last_time <= DE0_SOPC_clock_2_out_address;
-    end
-
-
-  //DE0_SOPC_clock_2/out waited last time, which is an e_register
-  always @(posedge clk or negedge reset_n)
-    begin
-      if (reset_n == 0)
-          active_and_waiting_last_time <= 0;
-      else 
-        active_and_waiting_last_time <= DE0_SOPC_clock_2_out_waitrequest & (DE0_SOPC_clock_2_out_read | DE0_SOPC_clock_2_out_write);
-    end
-
-
-  //DE0_SOPC_clock_2_out_address matches last port_name, which is an e_process
-  always @(posedge clk)
-    begin
-      if (active_and_waiting_last_time & (DE0_SOPC_clock_2_out_address != DE0_SOPC_clock_2_out_address_last_time))
-        begin
-          $write("%0d ns: DE0_SOPC_clock_2_out_address did not heed wait!!!", $time);
-          $stop;
-        end
-    end
-
-
-  //DE0_SOPC_clock_2_out_byteenable check against wait, which is an e_register
-  always @(posedge clk or negedge reset_n)
-    begin
-      if (reset_n == 0)
-          DE0_SOPC_clock_2_out_byteenable_last_time <= 0;
-      else 
-        DE0_SOPC_clock_2_out_byteenable_last_time <= DE0_SOPC_clock_2_out_byteenable;
-    end
-
-
-  //DE0_SOPC_clock_2_out_byteenable matches last port_name, which is an e_process
-  always @(posedge clk)
-    begin
-      if (active_and_waiting_last_time & (DE0_SOPC_clock_2_out_byteenable != DE0_SOPC_clock_2_out_byteenable_last_time))
-        begin
-          $write("%0d ns: DE0_SOPC_clock_2_out_byteenable did not heed wait!!!", $time);
-          $stop;
-        end
-    end
-
-
-  //DE0_SOPC_clock_2_out_read check against wait, which is an e_register
-  always @(posedge clk or negedge reset_n)
-    begin
-      if (reset_n == 0)
-          DE0_SOPC_clock_2_out_read_last_time <= 0;
-      else 
-        DE0_SOPC_clock_2_out_read_last_time <= DE0_SOPC_clock_2_out_read;
-    end
-
-
-  //DE0_SOPC_clock_2_out_read matches last port_name, which is an e_process
-  always @(posedge clk)
-    begin
-      if (active_and_waiting_last_time & (DE0_SOPC_clock_2_out_read != DE0_SOPC_clock_2_out_read_last_time))
-        begin
-          $write("%0d ns: DE0_SOPC_clock_2_out_read did not heed wait!!!", $time);
-          $stop;
-        end
-    end
-
-
-  //DE0_SOPC_clock_2_out_write check against wait, which is an e_register
-  always @(posedge clk or negedge reset_n)
-    begin
-      if (reset_n == 0)
-          DE0_SOPC_clock_2_out_write_last_time <= 0;
-      else 
-        DE0_SOPC_clock_2_out_write_last_time <= DE0_SOPC_clock_2_out_write;
-    end
-
-
-  //DE0_SOPC_clock_2_out_write matches last port_name, which is an e_process
-  always @(posedge clk)
-    begin
-      if (active_and_waiting_last_time & (DE0_SOPC_clock_2_out_write != DE0_SOPC_clock_2_out_write_last_time))
-        begin
-          $write("%0d ns: DE0_SOPC_clock_2_out_write did not heed wait!!!", $time);
-          $stop;
-        end
-    end
-
-
-  //DE0_SOPC_clock_2_out_writedata check against wait, which is an e_register
-  always @(posedge clk or negedge reset_n)
-    begin
-      if (reset_n == 0)
-          DE0_SOPC_clock_2_out_writedata_last_time <= 0;
-      else 
-        DE0_SOPC_clock_2_out_writedata_last_time <= DE0_SOPC_clock_2_out_writedata;
-    end
-
-
-  //DE0_SOPC_clock_2_out_writedata matches last port_name, which is an e_process
-  always @(posedge clk)
-    begin
-      if (active_and_waiting_last_time & (DE0_SOPC_clock_2_out_writedata != DE0_SOPC_clock_2_out_writedata_last_time) & DE0_SOPC_clock_2_out_write)
-        begin
-          $write("%0d ns: DE0_SOPC_clock_2_out_writedata did not heed wait!!!", $time);
-          $stop;
-        end
-    end
-
-
-
-//////////////// END SIMULATION-ONLY CONTENTS
-
-//synthesis translate_on
-
-endmodule
-
-
-// synthesis translate_off
-`timescale 1ns / 1ps
-// synthesis translate_on
-
-// turn off superfluous verilog processor warnings 
-// altera message_level Level1 
-// altera message_off 10034 10035 10036 10037 10230 10240 10030 
-
-module DE0_SOPC_clock_3_in_arbitrator (
-                                        // inputs:
-                                         DE0_SOPC_clock_3_in_endofpacket,
-                                         DE0_SOPC_clock_3_in_readdata,
-                                         DE0_SOPC_clock_3_in_waitrequest,
-                                         clk,
-                                         clock_crossing_bridge_m1_address_to_slave,
-                                         clock_crossing_bridge_m1_byteenable,
-                                         clock_crossing_bridge_m1_latency_counter,
-                                         clock_crossing_bridge_m1_nativeaddress,
-                                         clock_crossing_bridge_m1_read,
-                                         clock_crossing_bridge_m1_write,
-                                         clock_crossing_bridge_m1_writedata,
-                                         reset_n,
-
-                                        // outputs:
-                                         DE0_SOPC_clock_3_in_address,
-                                         DE0_SOPC_clock_3_in_byteenable,
-                                         DE0_SOPC_clock_3_in_endofpacket_from_sa,
-                                         DE0_SOPC_clock_3_in_nativeaddress,
-                                         DE0_SOPC_clock_3_in_read,
-                                         DE0_SOPC_clock_3_in_readdata_from_sa,
-                                         DE0_SOPC_clock_3_in_reset_n,
-                                         DE0_SOPC_clock_3_in_waitrequest_from_sa,
-                                         DE0_SOPC_clock_3_in_write,
-                                         DE0_SOPC_clock_3_in_writedata,
-                                         clock_crossing_bridge_m1_granted_DE0_SOPC_clock_3_in,
-                                         clock_crossing_bridge_m1_qualified_request_DE0_SOPC_clock_3_in,
-                                         clock_crossing_bridge_m1_read_data_valid_DE0_SOPC_clock_3_in,
-                                         clock_crossing_bridge_m1_requests_DE0_SOPC_clock_3_in,
-                                         d1_DE0_SOPC_clock_3_in_end_xfer
-                                      )
-;
-
-  output  [  1: 0] DE0_SOPC_clock_3_in_address;
-  output  [  3: 0] DE0_SOPC_clock_3_in_byteenable;
-  output           DE0_SOPC_clock_3_in_endofpacket_from_sa;
-  output           DE0_SOPC_clock_3_in_nativeaddress;
-  output           DE0_SOPC_clock_3_in_read;
-  output  [ 31: 0] DE0_SOPC_clock_3_in_readdata_from_sa;
-  output           DE0_SOPC_clock_3_in_reset_n;
-  output           DE0_SOPC_clock_3_in_waitrequest_from_sa;
-  output           DE0_SOPC_clock_3_in_write;
-  output  [ 31: 0] DE0_SOPC_clock_3_in_writedata;
-  output           clock_crossing_bridge_m1_granted_DE0_SOPC_clock_3_in;
-  output           clock_crossing_bridge_m1_qualified_request_DE0_SOPC_clock_3_in;
-  output           clock_crossing_bridge_m1_read_data_valid_DE0_SOPC_clock_3_in;
-  output           clock_crossing_bridge_m1_requests_DE0_SOPC_clock_3_in;
-  output           d1_DE0_SOPC_clock_3_in_end_xfer;
-  input            DE0_SOPC_clock_3_in_endofpacket;
-  input   [ 31: 0] DE0_SOPC_clock_3_in_readdata;
-  input            DE0_SOPC_clock_3_in_waitrequest;
-  input            clk;
-  input   [ 10: 0] clock_crossing_bridge_m1_address_to_slave;
-  input   [  3: 0] clock_crossing_bridge_m1_byteenable;
-  input            clock_crossing_bridge_m1_latency_counter;
-  input   [  8: 0] clock_crossing_bridge_m1_nativeaddress;
-  input            clock_crossing_bridge_m1_read;
-  input            clock_crossing_bridge_m1_write;
-  input   [ 31: 0] clock_crossing_bridge_m1_writedata;
-  input            reset_n;
-
-  wire    [  1: 0] DE0_SOPC_clock_3_in_address;
-  wire             DE0_SOPC_clock_3_in_allgrants;
-  wire             DE0_SOPC_clock_3_in_allow_new_arb_cycle;
-  wire             DE0_SOPC_clock_3_in_any_bursting_master_saved_grant;
-  wire             DE0_SOPC_clock_3_in_any_continuerequest;
-  wire             DE0_SOPC_clock_3_in_arb_counter_enable;
-  reg              DE0_SOPC_clock_3_in_arb_share_counter;
-  wire             DE0_SOPC_clock_3_in_arb_share_counter_next_value;
-  wire             DE0_SOPC_clock_3_in_arb_share_set_values;
-  wire             DE0_SOPC_clock_3_in_beginbursttransfer_internal;
-  wire             DE0_SOPC_clock_3_in_begins_xfer;
-  wire    [  3: 0] DE0_SOPC_clock_3_in_byteenable;
-  wire             DE0_SOPC_clock_3_in_end_xfer;
-  wire             DE0_SOPC_clock_3_in_endofpacket_from_sa;
-  wire             DE0_SOPC_clock_3_in_firsttransfer;
-  wire             DE0_SOPC_clock_3_in_grant_vector;
-  wire             DE0_SOPC_clock_3_in_in_a_read_cycle;
-  wire             DE0_SOPC_clock_3_in_in_a_write_cycle;
-  wire             DE0_SOPC_clock_3_in_master_qreq_vector;
-  wire             DE0_SOPC_clock_3_in_nativeaddress;
-  wire             DE0_SOPC_clock_3_in_non_bursting_master_requests;
-  wire             DE0_SOPC_clock_3_in_read;
-  wire    [ 31: 0] DE0_SOPC_clock_3_in_readdata_from_sa;
-  reg              DE0_SOPC_clock_3_in_reg_firsttransfer;
-  wire             DE0_SOPC_clock_3_in_reset_n;
-  reg              DE0_SOPC_clock_3_in_slavearbiterlockenable;
-  wire             DE0_SOPC_clock_3_in_slavearbiterlockenable2;
-  wire             DE0_SOPC_clock_3_in_unreg_firsttransfer;
-  wire             DE0_SOPC_clock_3_in_waitrequest_from_sa;
-  wire             DE0_SOPC_clock_3_in_waits_for_read;
-  wire             DE0_SOPC_clock_3_in_waits_for_write;
-  wire             DE0_SOPC_clock_3_in_write;
-  wire    [ 31: 0] DE0_SOPC_clock_3_in_writedata;
-  wire             clock_crossing_bridge_m1_arbiterlock;
-  wire             clock_crossing_bridge_m1_arbiterlock2;
-  wire             clock_crossing_bridge_m1_continuerequest;
-  wire             clock_crossing_bridge_m1_granted_DE0_SOPC_clock_3_in;
-  wire             clock_crossing_bridge_m1_qualified_request_DE0_SOPC_clock_3_in;
-  wire             clock_crossing_bridge_m1_read_data_valid_DE0_SOPC_clock_3_in;
-  wire             clock_crossing_bridge_m1_requests_DE0_SOPC_clock_3_in;
-  wire             clock_crossing_bridge_m1_saved_grant_DE0_SOPC_clock_3_in;
-  reg              d1_DE0_SOPC_clock_3_in_end_xfer;
-  reg              d1_reasons_to_wait;
-  reg              enable_nonzero_assertions;
-  wire             end_xfer_arb_share_counter_term_DE0_SOPC_clock_3_in;
-  wire             in_a_read_cycle;
-  wire             in_a_write_cycle;
-  wire             wait_for_DE0_SOPC_clock_3_in_counter;
-  always @(posedge clk or negedge reset_n)
-    begin
-      if (reset_n == 0)
-          d1_reasons_to_wait <= 0;
-      else 
-        d1_reasons_to_wait <= ~DE0_SOPC_clock_3_in_end_xfer;
-    end
-
-
-  assign DE0_SOPC_clock_3_in_begins_xfer = ~d1_reasons_to_wait & ((clock_crossing_bridge_m1_qualified_request_DE0_SOPC_clock_3_in));
-  //assign DE0_SOPC_clock_3_in_readdata_from_sa = DE0_SOPC_clock_3_in_readdata so that symbol knows where to group signals which may go to master only, which is an e_assign
-  assign DE0_SOPC_clock_3_in_readdata_from_sa = DE0_SOPC_clock_3_in_readdata;
-
-  assign clock_crossing_bridge_m1_requests_DE0_SOPC_clock_3_in = ({clock_crossing_bridge_m1_address_to_slave[10 : 2] , 2'b0} == 11'h4c8) & (clock_crossing_bridge_m1_read | clock_crossing_bridge_m1_write);
-  //assign DE0_SOPC_clock_3_in_waitrequest_from_sa = DE0_SOPC_clock_3_in_waitrequest so that symbol knows where to group signals which may go to master only, which is an e_assign
-  assign DE0_SOPC_clock_3_in_waitrequest_from_sa = DE0_SOPC_clock_3_in_waitrequest;
-
-  //DE0_SOPC_clock_3_in_arb_share_counter set values, which is an e_mux
-  assign DE0_SOPC_clock_3_in_arb_share_set_values = 1;
-
-  //DE0_SOPC_clock_3_in_non_bursting_master_requests mux, which is an e_mux
-  assign DE0_SOPC_clock_3_in_non_bursting_master_requests = clock_crossing_bridge_m1_requests_DE0_SOPC_clock_3_in;
-
-  //DE0_SOPC_clock_3_in_any_bursting_master_saved_grant mux, which is an e_mux
-  assign DE0_SOPC_clock_3_in_any_bursting_master_saved_grant = 0;
-
-  //DE0_SOPC_clock_3_in_arb_share_counter_next_value assignment, which is an e_assign
-  assign DE0_SOPC_clock_3_in_arb_share_counter_next_value = DE0_SOPC_clock_3_in_firsttransfer ? (DE0_SOPC_clock_3_in_arb_share_set_values - 1) : |DE0_SOPC_clock_3_in_arb_share_counter ? (DE0_SOPC_clock_3_in_arb_share_counter - 1) : 0;
-
-  //DE0_SOPC_clock_3_in_allgrants all slave grants, which is an e_mux
-  assign DE0_SOPC_clock_3_in_allgrants = |DE0_SOPC_clock_3_in_grant_vector;
-
-  //DE0_SOPC_clock_3_in_end_xfer assignment, which is an e_assign
-  assign DE0_SOPC_clock_3_in_end_xfer = ~(DE0_SOPC_clock_3_in_waits_for_read | DE0_SOPC_clock_3_in_waits_for_write);
-
-  //end_xfer_arb_share_counter_term_DE0_SOPC_clock_3_in arb share counter enable term, which is an e_assign
-  assign end_xfer_arb_share_counter_term_DE0_SOPC_clock_3_in = DE0_SOPC_clock_3_in_end_xfer & (~DE0_SOPC_clock_3_in_any_bursting_master_saved_grant | in_a_read_cycle | in_a_write_cycle);
-
-  //DE0_SOPC_clock_3_in_arb_share_counter arbitration counter enable, which is an e_assign
-  assign DE0_SOPC_clock_3_in_arb_counter_enable = (end_xfer_arb_share_counter_term_DE0_SOPC_clock_3_in & DE0_SOPC_clock_3_in_allgrants) | (end_xfer_arb_share_counter_term_DE0_SOPC_clock_3_in & ~DE0_SOPC_clock_3_in_non_bursting_master_requests);
-
-  //DE0_SOPC_clock_3_in_arb_share_counter counter, which is an e_register
-  always @(posedge clk or negedge reset_n)
-    begin
-      if (reset_n == 0)
-          DE0_SOPC_clock_3_in_arb_share_counter <= 0;
-      else if (DE0_SOPC_clock_3_in_arb_counter_enable)
-          DE0_SOPC_clock_3_in_arb_share_counter <= DE0_SOPC_clock_3_in_arb_share_counter_next_value;
-    end
-
-
-  //DE0_SOPC_clock_3_in_slavearbiterlockenable slave enables arbiterlock, which is an e_register
-  always @(posedge clk or negedge reset_n)
-    begin
-      if (reset_n == 0)
-          DE0_SOPC_clock_3_in_slavearbiterlockenable <= 0;
-      else if ((|DE0_SOPC_clock_3_in_master_qreq_vector & end_xfer_arb_share_counter_term_DE0_SOPC_clock_3_in) | (end_xfer_arb_share_counter_term_DE0_SOPC_clock_3_in & ~DE0_SOPC_clock_3_in_non_bursting_master_requests))
-          DE0_SOPC_clock_3_in_slavearbiterlockenable <= |DE0_SOPC_clock_3_in_arb_share_counter_next_value;
-    end
-
-
-  //clock_crossing_bridge/m1 DE0_SOPC_clock_3/in arbiterlock, which is an e_assign
-  assign clock_crossing_bridge_m1_arbiterlock = DE0_SOPC_clock_3_in_slavearbiterlockenable & clock_crossing_bridge_m1_continuerequest;
-
-  //DE0_SOPC_clock_3_in_slavearbiterlockenable2 slave enables arbiterlock2, which is an e_assign
-  assign DE0_SOPC_clock_3_in_slavearbiterlockenable2 = |DE0_SOPC_clock_3_in_arb_share_counter_next_value;
-
-  //clock_crossing_bridge/m1 DE0_SOPC_clock_3/in arbiterlock2, which is an e_assign
-  assign clock_crossing_bridge_m1_arbiterlock2 = DE0_SOPC_clock_3_in_slavearbiterlockenable2 & clock_crossing_bridge_m1_continuerequest;
-
-  //DE0_SOPC_clock_3_in_any_continuerequest at least one master continues requesting, which is an e_assign
-  assign DE0_SOPC_clock_3_in_any_continuerequest = 1;
-
-  //clock_crossing_bridge_m1_continuerequest continued request, which is an e_assign
-  assign clock_crossing_bridge_m1_continuerequest = 1;
-
-  assign clock_crossing_bridge_m1_qualified_request_DE0_SOPC_clock_3_in = clock_crossing_bridge_m1_requests_DE0_SOPC_clock_3_in & ~((clock_crossing_bridge_m1_read & ((clock_crossing_bridge_m1_latency_counter != 0))));
-  //local readdatavalid clock_crossing_bridge_m1_read_data_valid_DE0_SOPC_clock_3_in, which is an e_mux
-  assign clock_crossing_bridge_m1_read_data_valid_DE0_SOPC_clock_3_in = clock_crossing_bridge_m1_granted_DE0_SOPC_clock_3_in & clock_crossing_bridge_m1_read & ~DE0_SOPC_clock_3_in_waits_for_read;
-
-  //DE0_SOPC_clock_3_in_writedata mux, which is an e_mux
-  assign DE0_SOPC_clock_3_in_writedata = clock_crossing_bridge_m1_writedata;
-
-  //assign DE0_SOPC_clock_3_in_endofpacket_from_sa = DE0_SOPC_clock_3_in_endofpacket so that symbol knows where to group signals which may go to master only, which is an e_assign
-  assign DE0_SOPC_clock_3_in_endofpacket_from_sa = DE0_SOPC_clock_3_in_endofpacket;
-
-  //master is always granted when requested
-  assign clock_crossing_bridge_m1_granted_DE0_SOPC_clock_3_in = clock_crossing_bridge_m1_qualified_request_DE0_SOPC_clock_3_in;
-
-  //clock_crossing_bridge/m1 saved-grant DE0_SOPC_clock_3/in, which is an e_assign
-  assign clock_crossing_bridge_m1_saved_grant_DE0_SOPC_clock_3_in = clock_crossing_bridge_m1_requests_DE0_SOPC_clock_3_in;
-
-  //allow new arb cycle for DE0_SOPC_clock_3/in, which is an e_assign
-  assign DE0_SOPC_clock_3_in_allow_new_arb_cycle = 1;
-
-  //placeholder chosen master
-  assign DE0_SOPC_clock_3_in_grant_vector = 1;
-
-  //placeholder vector of master qualified-requests
-  assign DE0_SOPC_clock_3_in_master_qreq_vector = 1;
-
-  //DE0_SOPC_clock_3_in_reset_n assignment, which is an e_assign
-  assign DE0_SOPC_clock_3_in_reset_n = reset_n;
-
-  //DE0_SOPC_clock_3_in_firsttransfer first transaction, which is an e_assign
-  assign DE0_SOPC_clock_3_in_firsttransfer = DE0_SOPC_clock_3_in_begins_xfer ? DE0_SOPC_clock_3_in_unreg_firsttransfer : DE0_SOPC_clock_3_in_reg_firsttransfer;
-
-  //DE0_SOPC_clock_3_in_unreg_firsttransfer first transaction, which is an e_assign
-  assign DE0_SOPC_clock_3_in_unreg_firsttransfer = ~(DE0_SOPC_clock_3_in_slavearbiterlockenable & DE0_SOPC_clock_3_in_any_continuerequest);
-
-  //DE0_SOPC_clock_3_in_reg_firsttransfer first transaction, which is an e_register
-  always @(posedge clk or negedge reset_n)
-    begin
-      if (reset_n == 0)
-          DE0_SOPC_clock_3_in_reg_firsttransfer <= 1'b1;
-      else if (DE0_SOPC_clock_3_in_begins_xfer)
-          DE0_SOPC_clock_3_in_reg_firsttransfer <= DE0_SOPC_clock_3_in_unreg_firsttransfer;
-    end
-
-
-  //DE0_SOPC_clock_3_in_beginbursttransfer_internal begin burst transfer, which is an e_assign
-  assign DE0_SOPC_clock_3_in_beginbursttransfer_internal = DE0_SOPC_clock_3_in_begins_xfer;
-
-  //DE0_SOPC_clock_3_in_read assignment, which is an e_mux
-  assign DE0_SOPC_clock_3_in_read = clock_crossing_bridge_m1_granted_DE0_SOPC_clock_3_in & clock_crossing_bridge_m1_read;
-
-  //DE0_SOPC_clock_3_in_write assignment, which is an e_mux
-  assign DE0_SOPC_clock_3_in_write = clock_crossing_bridge_m1_granted_DE0_SOPC_clock_3_in & clock_crossing_bridge_m1_write;
-
-  //DE0_SOPC_clock_3_in_address mux, which is an e_mux
-  assign DE0_SOPC_clock_3_in_address = clock_crossing_bridge_m1_address_to_slave;
-
-  //slaveid DE0_SOPC_clock_3_in_nativeaddress nativeaddress mux, which is an e_mux
-  assign DE0_SOPC_clock_3_in_nativeaddress = clock_crossing_bridge_m1_nativeaddress;
-
-  //d1_DE0_SOPC_clock_3_in_end_xfer register, which is an e_register
-  always @(posedge clk or negedge reset_n)
-    begin
-      if (reset_n == 0)
-          d1_DE0_SOPC_clock_3_in_end_xfer <= 1;
-      else 
-        d1_DE0_SOPC_clock_3_in_end_xfer <= DE0_SOPC_clock_3_in_end_xfer;
-    end
-
-
-  //DE0_SOPC_clock_3_in_waits_for_read in a cycle, which is an e_mux
-  assign DE0_SOPC_clock_3_in_waits_for_read = DE0_SOPC_clock_3_in_in_a_read_cycle & DE0_SOPC_clock_3_in_waitrequest_from_sa;
-
-  //DE0_SOPC_clock_3_in_in_a_read_cycle assignment, which is an e_assign
-  assign DE0_SOPC_clock_3_in_in_a_read_cycle = clock_crossing_bridge_m1_granted_DE0_SOPC_clock_3_in & clock_crossing_bridge_m1_read;
-
-  //in_a_read_cycle assignment, which is an e_mux
-  assign in_a_read_cycle = DE0_SOPC_clock_3_in_in_a_read_cycle;
-
-  //DE0_SOPC_clock_3_in_waits_for_write in a cycle, which is an e_mux
-  assign DE0_SOPC_clock_3_in_waits_for_write = DE0_SOPC_clock_3_in_in_a_write_cycle & DE0_SOPC_clock_3_in_waitrequest_from_sa;
-
-  //DE0_SOPC_clock_3_in_in_a_write_cycle assignment, which is an e_assign
-  assign DE0_SOPC_clock_3_in_in_a_write_cycle = clock_crossing_bridge_m1_granted_DE0_SOPC_clock_3_in & clock_crossing_bridge_m1_write;
-
-  //in_a_write_cycle assignment, which is an e_mux
-  assign in_a_write_cycle = DE0_SOPC_clock_3_in_in_a_write_cycle;
-
-  assign wait_for_DE0_SOPC_clock_3_in_counter = 0;
-  //DE0_SOPC_clock_3_in_byteenable byte enable port mux, which is an e_mux
-  assign DE0_SOPC_clock_3_in_byteenable = (clock_crossing_bridge_m1_granted_DE0_SOPC_clock_3_in)? clock_crossing_bridge_m1_byteenable :
-    -1;
-
-
-//synthesis translate_off
-//////////////// SIMULATION-ONLY CONTENTS
-  //DE0_SOPC_clock_3/in enable non-zero assertions, which is an e_register
-  always @(posedge clk or negedge reset_n)
-    begin
-      if (reset_n == 0)
-          enable_nonzero_assertions <= 0;
-      else 
-        enable_nonzero_assertions <= 1'b1;
-    end
-
-
-
-//////////////// END SIMULATION-ONLY CONTENTS
-
-//synthesis translate_on
-
-endmodule
-
-
-// synthesis translate_off
-`timescale 1ns / 1ps
-// synthesis translate_on
-
-// turn off superfluous verilog processor warnings 
-// altera message_level Level1 
-// altera message_off 10034 10035 10036 10037 10230 10240 10030 
-
-module DE0_SOPC_clock_3_out_arbitrator (
-                                         // inputs:
-                                          DE0_SOPC_clock_3_out_address,
-                                          DE0_SOPC_clock_3_out_byteenable,
-                                          DE0_SOPC_clock_3_out_granted_keypad_0_keypad,
-                                          DE0_SOPC_clock_3_out_qualified_request_keypad_0_keypad,
-                                          DE0_SOPC_clock_3_out_read,
-                                          DE0_SOPC_clock_3_out_read_data_valid_keypad_0_keypad,
-                                          DE0_SOPC_clock_3_out_requests_keypad_0_keypad,
-                                          DE0_SOPC_clock_3_out_write,
-                                          DE0_SOPC_clock_3_out_writedata,
-                                          clk,
-                                          d1_keypad_0_keypad_end_xfer,
-                                          keypad_0_keypad_readdata_from_sa,
-                                          reset_n,
-
-                                         // outputs:
-                                          DE0_SOPC_clock_3_out_address_to_slave,
-                                          DE0_SOPC_clock_3_out_readdata,
-                                          DE0_SOPC_clock_3_out_reset_n,
-                                          DE0_SOPC_clock_3_out_waitrequest
-                                       )
-;
-
-  output  [  1: 0] DE0_SOPC_clock_3_out_address_to_slave;
-  output  [ 31: 0] DE0_SOPC_clock_3_out_readdata;
-  output           DE0_SOPC_clock_3_out_reset_n;
-  output           DE0_SOPC_clock_3_out_waitrequest;
-  input   [  1: 0] DE0_SOPC_clock_3_out_address;
-  input   [  3: 0] DE0_SOPC_clock_3_out_byteenable;
-  input            DE0_SOPC_clock_3_out_granted_keypad_0_keypad;
-  input            DE0_SOPC_clock_3_out_qualified_request_keypad_0_keypad;
-  input            DE0_SOPC_clock_3_out_read;
-  input            DE0_SOPC_clock_3_out_read_data_valid_keypad_0_keypad;
-  input            DE0_SOPC_clock_3_out_requests_keypad_0_keypad;
-  input            DE0_SOPC_clock_3_out_write;
-  input   [ 31: 0] DE0_SOPC_clock_3_out_writedata;
-  input            clk;
-  input            d1_keypad_0_keypad_end_xfer;
-  input   [ 31: 0] keypad_0_keypad_readdata_from_sa;
-  input            reset_n;
-
-  reg     [  1: 0] DE0_SOPC_clock_3_out_address_last_time;
-  wire    [  1: 0] DE0_SOPC_clock_3_out_address_to_slave;
-  reg     [  3: 0] DE0_SOPC_clock_3_out_byteenable_last_time;
-  reg              DE0_SOPC_clock_3_out_read_last_time;
-  wire    [ 31: 0] DE0_SOPC_clock_3_out_readdata;
-  wire             DE0_SOPC_clock_3_out_reset_n;
-  wire             DE0_SOPC_clock_3_out_run;
-  wire             DE0_SOPC_clock_3_out_waitrequest;
-  reg              DE0_SOPC_clock_3_out_write_last_time;
-  reg     [ 31: 0] DE0_SOPC_clock_3_out_writedata_last_time;
-  reg              active_and_waiting_last_time;
-  wire             r_0;
-  //r_0 master_run cascaded wait assignment, which is an e_assign
-  assign r_0 = 1 & ((~DE0_SOPC_clock_3_out_qualified_request_keypad_0_keypad | ~DE0_SOPC_clock_3_out_read | (1 & ~d1_keypad_0_keypad_end_xfer & DE0_SOPC_clock_3_out_read))) & ((~DE0_SOPC_clock_3_out_qualified_request_keypad_0_keypad | ~DE0_SOPC_clock_3_out_write | (1 & DE0_SOPC_clock_3_out_write)));
-
-  //cascaded wait assignment, which is an e_assign
-  assign DE0_SOPC_clock_3_out_run = r_0;
-
-  //optimize select-logic by passing only those address bits which matter.
-  assign DE0_SOPC_clock_3_out_address_to_slave = DE0_SOPC_clock_3_out_address;
-
-  //DE0_SOPC_clock_3/out readdata mux, which is an e_mux
-  assign DE0_SOPC_clock_3_out_readdata = keypad_0_keypad_readdata_from_sa;
-
-  //actual waitrequest port, which is an e_assign
-  assign DE0_SOPC_clock_3_out_waitrequest = ~DE0_SOPC_clock_3_out_run;
-
-  //DE0_SOPC_clock_3_out_reset_n assignment, which is an e_assign
-  assign DE0_SOPC_clock_3_out_reset_n = reset_n;
-
-
-//synthesis translate_off
-//////////////// SIMULATION-ONLY CONTENTS
-  //DE0_SOPC_clock_3_out_address check against wait, which is an e_register
-  always @(posedge clk or negedge reset_n)
-    begin
-      if (reset_n == 0)
-          DE0_SOPC_clock_3_out_address_last_time <= 0;
-      else 
-        DE0_SOPC_clock_3_out_address_last_time <= DE0_SOPC_clock_3_out_address;
-    end
-
-
-  //DE0_SOPC_clock_3/out waited last time, which is an e_register
-  always @(posedge clk or negedge reset_n)
-    begin
-      if (reset_n == 0)
-          active_and_waiting_last_time <= 0;
-      else 
-        active_and_waiting_last_time <= DE0_SOPC_clock_3_out_waitrequest & (DE0_SOPC_clock_3_out_read | DE0_SOPC_clock_3_out_write);
-    end
-
-
-  //DE0_SOPC_clock_3_out_address matches last port_name, which is an e_process
-  always @(posedge clk)
-    begin
-      if (active_and_waiting_last_time & (DE0_SOPC_clock_3_out_address != DE0_SOPC_clock_3_out_address_last_time))
-        begin
-          $write("%0d ns: DE0_SOPC_clock_3_out_address did not heed wait!!!", $time);
-          $stop;
-        end
-    end
-
-
-  //DE0_SOPC_clock_3_out_byteenable check against wait, which is an e_register
-  always @(posedge clk or negedge reset_n)
-    begin
-      if (reset_n == 0)
-          DE0_SOPC_clock_3_out_byteenable_last_time <= 0;
-      else 
-        DE0_SOPC_clock_3_out_byteenable_last_time <= DE0_SOPC_clock_3_out_byteenable;
-    end
-
-
-  //DE0_SOPC_clock_3_out_byteenable matches last port_name, which is an e_process
-  always @(posedge clk)
-    begin
-      if (active_and_waiting_last_time & (DE0_SOPC_clock_3_out_byteenable != DE0_SOPC_clock_3_out_byteenable_last_time))
-        begin
-          $write("%0d ns: DE0_SOPC_clock_3_out_byteenable did not heed wait!!!", $time);
-          $stop;
-        end
-    end
-
-
-  //DE0_SOPC_clock_3_out_read check against wait, which is an e_register
-  always @(posedge clk or negedge reset_n)
-    begin
-      if (reset_n == 0)
-          DE0_SOPC_clock_3_out_read_last_time <= 0;
-      else 
-        DE0_SOPC_clock_3_out_read_last_time <= DE0_SOPC_clock_3_out_read;
-    end
-
-
-  //DE0_SOPC_clock_3_out_read matches last port_name, which is an e_process
-  always @(posedge clk)
-    begin
-      if (active_and_waiting_last_time & (DE0_SOPC_clock_3_out_read != DE0_SOPC_clock_3_out_read_last_time))
-        begin
-          $write("%0d ns: DE0_SOPC_clock_3_out_read did not heed wait!!!", $time);
-          $stop;
-        end
-    end
-
-
-  //DE0_SOPC_clock_3_out_write check against wait, which is an e_register
-  always @(posedge clk or negedge reset_n)
-    begin
-      if (reset_n == 0)
-          DE0_SOPC_clock_3_out_write_last_time <= 0;
-      else 
-        DE0_SOPC_clock_3_out_write_last_time <= DE0_SOPC_clock_3_out_write;
-    end
-
-
-  //DE0_SOPC_clock_3_out_write matches last port_name, which is an e_process
-  always @(posedge clk)
-    begin
-      if (active_and_waiting_last_time & (DE0_SOPC_clock_3_out_write != DE0_SOPC_clock_3_out_write_last_time))
-        begin
-          $write("%0d ns: DE0_SOPC_clock_3_out_write did not heed wait!!!", $time);
-          $stop;
-        end
-    end
-
-
-  //DE0_SOPC_clock_3_out_writedata check against wait, which is an e_register
-  always @(posedge clk or negedge reset_n)
-    begin
-      if (reset_n == 0)
-          DE0_SOPC_clock_3_out_writedata_last_time <= 0;
-      else 
-        DE0_SOPC_clock_3_out_writedata_last_time <= DE0_SOPC_clock_3_out_writedata;
-    end
-
-
-  //DE0_SOPC_clock_3_out_writedata matches last port_name, which is an e_process
-  always @(posedge clk)
-    begin
-      if (active_and_waiting_last_time & (DE0_SOPC_clock_3_out_writedata != DE0_SOPC_clock_3_out_writedata_last_time) & DE0_SOPC_clock_3_out_write)
-        begin
-          $write("%0d ns: DE0_SOPC_clock_3_out_writedata did not heed wait!!!", $time);
-          $stop;
-        end
-    end
-
-
-
-//////////////// END SIMULATION-ONLY CONTENTS
-
-//synthesis translate_on
-
-endmodule
-
-
-// synthesis translate_off
-`timescale 1ns / 1ps
-// synthesis translate_on
-
-// turn off superfluous verilog processor warnings 
-// altera message_level Level1 
-// altera message_off 10034 10035 10036 10037 10230 10240 10030 
-
-module SD_CARD_Interface_avalon_slave_arbitrator (
-                                                   // inputs:
-                                                    DE0_SOPC_clock_2_out_address_to_slave,
-                                                    DE0_SOPC_clock_2_out_byteenable,
-                                                    DE0_SOPC_clock_2_out_read,
-                                                    DE0_SOPC_clock_2_out_write,
-                                                    DE0_SOPC_clock_2_out_writedata,
-                                                    SD_CARD_Interface_avalon_slave_readdata,
-                                                    SD_CARD_Interface_avalon_slave_waitrequest,
-                                                    clk,
-                                                    reset_n,
-
-                                                   // outputs:
-                                                    DE0_SOPC_clock_2_out_granted_SD_CARD_Interface_avalon_slave,
-                                                    DE0_SOPC_clock_2_out_qualified_request_SD_CARD_Interface_avalon_slave,
-                                                    DE0_SOPC_clock_2_out_read_data_valid_SD_CARD_Interface_avalon_slave,
-                                                    DE0_SOPC_clock_2_out_requests_SD_CARD_Interface_avalon_slave,
-                                                    SD_CARD_Interface_avalon_slave_address,
-                                                    SD_CARD_Interface_avalon_slave_byteenable,
-                                                    SD_CARD_Interface_avalon_slave_chipselect,
-                                                    SD_CARD_Interface_avalon_slave_read,
-                                                    SD_CARD_Interface_avalon_slave_readdata_from_sa,
-                                                    SD_CARD_Interface_avalon_slave_reset_n,
-                                                    SD_CARD_Interface_avalon_slave_waitrequest_from_sa,
-                                                    SD_CARD_Interface_avalon_slave_write,
-                                                    SD_CARD_Interface_avalon_slave_writedata,
-                                                    d1_SD_CARD_Interface_avalon_slave_end_xfer
-                                                 )
-;
-
-  output           DE0_SOPC_clock_2_out_granted_SD_CARD_Interface_avalon_slave;
-  output           DE0_SOPC_clock_2_out_qualified_request_SD_CARD_Interface_avalon_slave;
-  output           DE0_SOPC_clock_2_out_read_data_valid_SD_CARD_Interface_avalon_slave;
-  output           DE0_SOPC_clock_2_out_requests_SD_CARD_Interface_avalon_slave;
-  output  [  7: 0] SD_CARD_Interface_avalon_slave_address;
-  output  [  3: 0] SD_CARD_Interface_avalon_slave_byteenable;
-  output           SD_CARD_Interface_avalon_slave_chipselect;
-  output           SD_CARD_Interface_avalon_slave_read;
-  output  [ 31: 0] SD_CARD_Interface_avalon_slave_readdata_from_sa;
-  output           SD_CARD_Interface_avalon_slave_reset_n;
-  output           SD_CARD_Interface_avalon_slave_waitrequest_from_sa;
-  output           SD_CARD_Interface_avalon_slave_write;
-  output  [ 31: 0] SD_CARD_Interface_avalon_slave_writedata;
-  output           d1_SD_CARD_Interface_avalon_slave_end_xfer;
-  input   [  9: 0] DE0_SOPC_clock_2_out_address_to_slave;
-  input   [  3: 0] DE0_SOPC_clock_2_out_byteenable;
-  input            DE0_SOPC_clock_2_out_read;
-  input            DE0_SOPC_clock_2_out_write;
-  input   [ 31: 0] DE0_SOPC_clock_2_out_writedata;
-  input   [ 31: 0] SD_CARD_Interface_avalon_slave_readdata;
-  input            SD_CARD_Interface_avalon_slave_waitrequest;
-  input            clk;
-  input            reset_n;
-
-  wire             DE0_SOPC_clock_2_out_arbiterlock;
-  wire             DE0_SOPC_clock_2_out_arbiterlock2;
-  wire             DE0_SOPC_clock_2_out_continuerequest;
-  wire             DE0_SOPC_clock_2_out_granted_SD_CARD_Interface_avalon_slave;
-  wire             DE0_SOPC_clock_2_out_qualified_request_SD_CARD_Interface_avalon_slave;
-  wire             DE0_SOPC_clock_2_out_read_data_valid_SD_CARD_Interface_avalon_slave;
-  wire             DE0_SOPC_clock_2_out_requests_SD_CARD_Interface_avalon_slave;
-  wire             DE0_SOPC_clock_2_out_saved_grant_SD_CARD_Interface_avalon_slave;
-  wire    [  7: 0] SD_CARD_Interface_avalon_slave_address;
-  wire             SD_CARD_Interface_avalon_slave_allgrants;
-  wire             SD_CARD_Interface_avalon_slave_allow_new_arb_cycle;
-  wire             SD_CARD_Interface_avalon_slave_any_bursting_master_saved_grant;
-  wire             SD_CARD_Interface_avalon_slave_any_continuerequest;
-  wire             SD_CARD_Interface_avalon_slave_arb_counter_enable;
-  reg              SD_CARD_Interface_avalon_slave_arb_share_counter;
-  wire             SD_CARD_Interface_avalon_slave_arb_share_counter_next_value;
-  wire             SD_CARD_Interface_avalon_slave_arb_share_set_values;
-  wire             SD_CARD_Interface_avalon_slave_beginbursttransfer_internal;
-  wire             SD_CARD_Interface_avalon_slave_begins_xfer;
-  wire    [  3: 0] SD_CARD_Interface_avalon_slave_byteenable;
-  wire             SD_CARD_Interface_avalon_slave_chipselect;
-  wire             SD_CARD_Interface_avalon_slave_end_xfer;
-  wire             SD_CARD_Interface_avalon_slave_firsttransfer;
-  wire             SD_CARD_Interface_avalon_slave_grant_vector;
-  wire             SD_CARD_Interface_avalon_slave_in_a_read_cycle;
-  wire             SD_CARD_Interface_avalon_slave_in_a_write_cycle;
-  wire             SD_CARD_Interface_avalon_slave_master_qreq_vector;
-  wire             SD_CARD_Interface_avalon_slave_non_bursting_master_requests;
-  wire             SD_CARD_Interface_avalon_slave_read;
-  wire    [ 31: 0] SD_CARD_Interface_avalon_slave_readdata_from_sa;
-  reg              SD_CARD_Interface_avalon_slave_reg_firsttransfer;
-  wire             SD_CARD_Interface_avalon_slave_reset_n;
-  reg              SD_CARD_Interface_avalon_slave_slavearbiterlockenable;
-  wire             SD_CARD_Interface_avalon_slave_slavearbiterlockenable2;
-  wire             SD_CARD_Interface_avalon_slave_unreg_firsttransfer;
-  wire             SD_CARD_Interface_avalon_slave_waitrequest_from_sa;
-  wire             SD_CARD_Interface_avalon_slave_waits_for_read;
-  wire             SD_CARD_Interface_avalon_slave_waits_for_write;
-  wire             SD_CARD_Interface_avalon_slave_write;
-  wire    [ 31: 0] SD_CARD_Interface_avalon_slave_writedata;
-  reg              d1_SD_CARD_Interface_avalon_slave_end_xfer;
-  reg              d1_reasons_to_wait;
-  reg              enable_nonzero_assertions;
-  wire             end_xfer_arb_share_counter_term_SD_CARD_Interface_avalon_slave;
-  wire             in_a_read_cycle;
-  wire             in_a_write_cycle;
-  wire    [  9: 0] shifted_address_to_SD_CARD_Interface_avalon_slave_from_DE0_SOPC_clock_2_out;
-  wire             wait_for_SD_CARD_Interface_avalon_slave_counter;
-  always @(posedge clk or negedge reset_n)
-    begin
-      if (reset_n == 0)
-          d1_reasons_to_wait <= 0;
-      else 
-        d1_reasons_to_wait <= ~SD_CARD_Interface_avalon_slave_end_xfer;
-    end
-
-
-  assign SD_CARD_Interface_avalon_slave_begins_xfer = ~d1_reasons_to_wait & ((DE0_SOPC_clock_2_out_qualified_request_SD_CARD_Interface_avalon_slave));
-  //assign SD_CARD_Interface_avalon_slave_readdata_from_sa = SD_CARD_Interface_avalon_slave_readdata so that symbol knows where to group signals which may go to master only, which is an e_assign
-  assign SD_CARD_Interface_avalon_slave_readdata_from_sa = SD_CARD_Interface_avalon_slave_readdata;
-
-  assign DE0_SOPC_clock_2_out_requests_SD_CARD_Interface_avalon_slave = (1) & (DE0_SOPC_clock_2_out_read | DE0_SOPC_clock_2_out_write);
-  //assign SD_CARD_Interface_avalon_slave_waitrequest_from_sa = SD_CARD_Interface_avalon_slave_waitrequest so that symbol knows where to group signals which may go to master only, which is an e_assign
-  assign SD_CARD_Interface_avalon_slave_waitrequest_from_sa = SD_CARD_Interface_avalon_slave_waitrequest;
-
-  //SD_CARD_Interface_avalon_slave_arb_share_counter set values, which is an e_mux
-  assign SD_CARD_Interface_avalon_slave_arb_share_set_values = 1;
-
-  //SD_CARD_Interface_avalon_slave_non_bursting_master_requests mux, which is an e_mux
-  assign SD_CARD_Interface_avalon_slave_non_bursting_master_requests = DE0_SOPC_clock_2_out_requests_SD_CARD_Interface_avalon_slave;
-
-  //SD_CARD_Interface_avalon_slave_any_bursting_master_saved_grant mux, which is an e_mux
-  assign SD_CARD_Interface_avalon_slave_any_bursting_master_saved_grant = 0;
-
-  //SD_CARD_Interface_avalon_slave_arb_share_counter_next_value assignment, which is an e_assign
-  assign SD_CARD_Interface_avalon_slave_arb_share_counter_next_value = SD_CARD_Interface_avalon_slave_firsttransfer ? (SD_CARD_Interface_avalon_slave_arb_share_set_values - 1) : |SD_CARD_Interface_avalon_slave_arb_share_counter ? (SD_CARD_Interface_avalon_slave_arb_share_counter - 1) : 0;
-
-  //SD_CARD_Interface_avalon_slave_allgrants all slave grants, which is an e_mux
-  assign SD_CARD_Interface_avalon_slave_allgrants = |SD_CARD_Interface_avalon_slave_grant_vector;
-
-  //SD_CARD_Interface_avalon_slave_end_xfer assignment, which is an e_assign
-  assign SD_CARD_Interface_avalon_slave_end_xfer = ~(SD_CARD_Interface_avalon_slave_waits_for_read | SD_CARD_Interface_avalon_slave_waits_for_write);
-
-  //end_xfer_arb_share_counter_term_SD_CARD_Interface_avalon_slave arb share counter enable term, which is an e_assign
-  assign end_xfer_arb_share_counter_term_SD_CARD_Interface_avalon_slave = SD_CARD_Interface_avalon_slave_end_xfer & (~SD_CARD_Interface_avalon_slave_any_bursting_master_saved_grant | in_a_read_cycle | in_a_write_cycle);
-
-  //SD_CARD_Interface_avalon_slave_arb_share_counter arbitration counter enable, which is an e_assign
-  assign SD_CARD_Interface_avalon_slave_arb_counter_enable = (end_xfer_arb_share_counter_term_SD_CARD_Interface_avalon_slave & SD_CARD_Interface_avalon_slave_allgrants) | (end_xfer_arb_share_counter_term_SD_CARD_Interface_avalon_slave & ~SD_CARD_Interface_avalon_slave_non_bursting_master_requests);
-
-  //SD_CARD_Interface_avalon_slave_arb_share_counter counter, which is an e_register
-  always @(posedge clk or negedge reset_n)
-    begin
-      if (reset_n == 0)
-          SD_CARD_Interface_avalon_slave_arb_share_counter <= 0;
-      else if (SD_CARD_Interface_avalon_slave_arb_counter_enable)
-          SD_CARD_Interface_avalon_slave_arb_share_counter <= SD_CARD_Interface_avalon_slave_arb_share_counter_next_value;
-    end
-
-
-  //SD_CARD_Interface_avalon_slave_slavearbiterlockenable slave enables arbiterlock, which is an e_register
-  always @(posedge clk or negedge reset_n)
-    begin
-      if (reset_n == 0)
-          SD_CARD_Interface_avalon_slave_slavearbiterlockenable <= 0;
-      else if ((|SD_CARD_Interface_avalon_slave_master_qreq_vector & end_xfer_arb_share_counter_term_SD_CARD_Interface_avalon_slave) | (end_xfer_arb_share_counter_term_SD_CARD_Interface_avalon_slave & ~SD_CARD_Interface_avalon_slave_non_bursting_master_requests))
-          SD_CARD_Interface_avalon_slave_slavearbiterlockenable <= |SD_CARD_Interface_avalon_slave_arb_share_counter_next_value;
-    end
-
-
-  //DE0_SOPC_clock_2/out SD_CARD_Interface/avalon_slave arbiterlock, which is an e_assign
-  assign DE0_SOPC_clock_2_out_arbiterlock = SD_CARD_Interface_avalon_slave_slavearbiterlockenable & DE0_SOPC_clock_2_out_continuerequest;
-
-  //SD_CARD_Interface_avalon_slave_slavearbiterlockenable2 slave enables arbiterlock2, which is an e_assign
-  assign SD_CARD_Interface_avalon_slave_slavearbiterlockenable2 = |SD_CARD_Interface_avalon_slave_arb_share_counter_next_value;
-
-  //DE0_SOPC_clock_2/out SD_CARD_Interface/avalon_slave arbiterlock2, which is an e_assign
-  assign DE0_SOPC_clock_2_out_arbiterlock2 = SD_CARD_Interface_avalon_slave_slavearbiterlockenable2 & DE0_SOPC_clock_2_out_continuerequest;
-
-  //SD_CARD_Interface_avalon_slave_any_continuerequest at least one master continues requesting, which is an e_assign
-  assign SD_CARD_Interface_avalon_slave_any_continuerequest = 1;
-
-  //DE0_SOPC_clock_2_out_continuerequest continued request, which is an e_assign
-  assign DE0_SOPC_clock_2_out_continuerequest = 1;
-
-  assign DE0_SOPC_clock_2_out_qualified_request_SD_CARD_Interface_avalon_slave = DE0_SOPC_clock_2_out_requests_SD_CARD_Interface_avalon_slave;
-  //SD_CARD_Interface_avalon_slave_writedata mux, which is an e_mux
-  assign SD_CARD_Interface_avalon_slave_writedata = DE0_SOPC_clock_2_out_writedata;
-
-  //master is always granted when requested
-  assign DE0_SOPC_clock_2_out_granted_SD_CARD_Interface_avalon_slave = DE0_SOPC_clock_2_out_qualified_request_SD_CARD_Interface_avalon_slave;
-
-  //DE0_SOPC_clock_2/out saved-grant SD_CARD_Interface/avalon_slave, which is an e_assign
-  assign DE0_SOPC_clock_2_out_saved_grant_SD_CARD_Interface_avalon_slave = DE0_SOPC_clock_2_out_requests_SD_CARD_Interface_avalon_slave;
-
-  //allow new arb cycle for SD_CARD_Interface/avalon_slave, which is an e_assign
-  assign SD_CARD_Interface_avalon_slave_allow_new_arb_cycle = 1;
-
-  //placeholder chosen master
-  assign SD_CARD_Interface_avalon_slave_grant_vector = 1;
-
-  //placeholder vector of master qualified-requests
-  assign SD_CARD_Interface_avalon_slave_master_qreq_vector = 1;
-
-  //SD_CARD_Interface_avalon_slave_reset_n assignment, which is an e_assign
-  assign SD_CARD_Interface_avalon_slave_reset_n = reset_n;
-
-  assign SD_CARD_Interface_avalon_slave_chipselect = DE0_SOPC_clock_2_out_granted_SD_CARD_Interface_avalon_slave;
-  //SD_CARD_Interface_avalon_slave_firsttransfer first transaction, which is an e_assign
-  assign SD_CARD_Interface_avalon_slave_firsttransfer = SD_CARD_Interface_avalon_slave_begins_xfer ? SD_CARD_Interface_avalon_slave_unreg_firsttransfer : SD_CARD_Interface_avalon_slave_reg_firsttransfer;
-
-  //SD_CARD_Interface_avalon_slave_unreg_firsttransfer first transaction, which is an e_assign
-  assign SD_CARD_Interface_avalon_slave_unreg_firsttransfer = ~(SD_CARD_Interface_avalon_slave_slavearbiterlockenable & SD_CARD_Interface_avalon_slave_any_continuerequest);
-
-  //SD_CARD_Interface_avalon_slave_reg_firsttransfer first transaction, which is an e_register
-  always @(posedge clk or negedge reset_n)
-    begin
-      if (reset_n == 0)
-          SD_CARD_Interface_avalon_slave_reg_firsttransfer <= 1'b1;
-      else if (SD_CARD_Interface_avalon_slave_begins_xfer)
-          SD_CARD_Interface_avalon_slave_reg_firsttransfer <= SD_CARD_Interface_avalon_slave_unreg_firsttransfer;
-    end
-
-
-  //SD_CARD_Interface_avalon_slave_beginbursttransfer_internal begin burst transfer, which is an e_assign
-  assign SD_CARD_Interface_avalon_slave_beginbursttransfer_internal = SD_CARD_Interface_avalon_slave_begins_xfer;
-
-  //SD_CARD_Interface_avalon_slave_read assignment, which is an e_mux
-  assign SD_CARD_Interface_avalon_slave_read = DE0_SOPC_clock_2_out_granted_SD_CARD_Interface_avalon_slave & DE0_SOPC_clock_2_out_read;
-
-  //SD_CARD_Interface_avalon_slave_write assignment, which is an e_mux
-  assign SD_CARD_Interface_avalon_slave_write = DE0_SOPC_clock_2_out_granted_SD_CARD_Interface_avalon_slave & DE0_SOPC_clock_2_out_write;
-
-  assign shifted_address_to_SD_CARD_Interface_avalon_slave_from_DE0_SOPC_clock_2_out = DE0_SOPC_clock_2_out_address_to_slave;
-  //SD_CARD_Interface_avalon_slave_address mux, which is an e_mux
-  assign SD_CARD_Interface_avalon_slave_address = shifted_address_to_SD_CARD_Interface_avalon_slave_from_DE0_SOPC_clock_2_out >> 2;
-
-  //d1_SD_CARD_Interface_avalon_slave_end_xfer register, which is an e_register
-  always @(posedge clk or negedge reset_n)
-    begin
-      if (reset_n == 0)
-          d1_SD_CARD_Interface_avalon_slave_end_xfer <= 1;
-      else 
-        d1_SD_CARD_Interface_avalon_slave_end_xfer <= SD_CARD_Interface_avalon_slave_end_xfer;
-    end
-
-
-  //SD_CARD_Interface_avalon_slave_waits_for_read in a cycle, which is an e_mux
-  assign SD_CARD_Interface_avalon_slave_waits_for_read = SD_CARD_Interface_avalon_slave_in_a_read_cycle & SD_CARD_Interface_avalon_slave_waitrequest_from_sa;
-
-  //SD_CARD_Interface_avalon_slave_in_a_read_cycle assignment, which is an e_assign
-  assign SD_CARD_Interface_avalon_slave_in_a_read_cycle = DE0_SOPC_clock_2_out_granted_SD_CARD_Interface_avalon_slave & DE0_SOPC_clock_2_out_read;
-
-  //in_a_read_cycle assignment, which is an e_mux
-  assign in_a_read_cycle = SD_CARD_Interface_avalon_slave_in_a_read_cycle;
-
-  //SD_CARD_Interface_avalon_slave_waits_for_write in a cycle, which is an e_mux
-  assign SD_CARD_Interface_avalon_slave_waits_for_write = SD_CARD_Interface_avalon_slave_in_a_write_cycle & SD_CARD_Interface_avalon_slave_waitrequest_from_sa;
-
-  //SD_CARD_Interface_avalon_slave_in_a_write_cycle assignment, which is an e_assign
-  assign SD_CARD_Interface_avalon_slave_in_a_write_cycle = DE0_SOPC_clock_2_out_granted_SD_CARD_Interface_avalon_slave & DE0_SOPC_clock_2_out_write;
-
-  //in_a_write_cycle assignment, which is an e_mux
-  assign in_a_write_cycle = SD_CARD_Interface_avalon_slave_in_a_write_cycle;
-
-  assign wait_for_SD_CARD_Interface_avalon_slave_counter = 0;
-  //SD_CARD_Interface_avalon_slave_byteenable byte enable port mux, which is an e_mux
-  assign SD_CARD_Interface_avalon_slave_byteenable = (DE0_SOPC_clock_2_out_granted_SD_CARD_Interface_avalon_slave)? DE0_SOPC_clock_2_out_byteenable :
-    -1;
-
-
-//synthesis translate_off
-//////////////// SIMULATION-ONLY CONTENTS
-  //SD_CARD_Interface/avalon_slave enable non-zero assertions, which is an e_register
-  always @(posedge clk or negedge reset_n)
-    begin
-      if (reset_n == 0)
-          enable_nonzero_assertions <= 0;
-      else 
-        enable_nonzero_assertions <= 1'b1;
-    end
-
-
-
-//////////////// END SIMULATION-ONLY CONTENTS
-
-//synthesis translate_on
-
-endmodule
-
-
-// synthesis translate_off
-`timescale 1ns / 1ps
-// synthesis translate_on
-
-// turn off superfluous verilog processor warnings 
-// altera message_level Level1 
-// altera message_off 10034 10035 10036 10037 10230 10240 10030 
-
 module buttons_s1_arbitrator (
                                // inputs:
                                 buttons_s1_irq,
@@ -2476,7 +940,7 @@ module buttons_s1_arbitrator (
   //assign buttons_s1_readdata_from_sa = buttons_s1_readdata so that symbol knows where to group signals which may go to master only, which is an e_assign
   assign buttons_s1_readdata_from_sa = buttons_s1_readdata;
 
-  assign clock_crossing_bridge_m1_requests_buttons_s1 = ({clock_crossing_bridge_m1_address_to_slave[10 : 4] , 4'b0} == 11'h480) & (clock_crossing_bridge_m1_read | clock_crossing_bridge_m1_write);
+  assign clock_crossing_bridge_m1_requests_buttons_s1 = ({clock_crossing_bridge_m1_address_to_slave[10 : 4] , 4'b0} == 11'h460) & (clock_crossing_bridge_m1_read | clock_crossing_bridge_m1_write);
   //buttons_s1_arb_share_counter set values, which is an e_mux
   assign buttons_s1_arb_share_set_values = 1;
 
@@ -4290,23 +2754,15 @@ endmodule
 
 module clock_crossing_bridge_m1_arbitrator (
                                              // inputs:
-                                              DE0_SOPC_clock_1_in_endofpacket_from_sa,
-                                              DE0_SOPC_clock_1_in_readdata_from_sa,
-                                              DE0_SOPC_clock_1_in_waitrequest_from_sa,
-                                              DE0_SOPC_clock_2_in_endofpacket_from_sa,
-                                              DE0_SOPC_clock_2_in_readdata_from_sa,
-                                              DE0_SOPC_clock_2_in_waitrequest_from_sa,
-                                              DE0_SOPC_clock_3_in_endofpacket_from_sa,
-                                              DE0_SOPC_clock_3_in_readdata_from_sa,
-                                              DE0_SOPC_clock_3_in_waitrequest_from_sa,
+                                              Altera_UP_SD_Card_avalon_sdcard_slave_readdata_from_sa,
+                                              Altera_UP_SD_Card_avalon_sdcard_slave_waitrequest_from_sa,
                                               buttons_s1_readdata_from_sa,
                                               clk,
                                               clock_crossing_bridge_m1_address,
                                               clock_crossing_bridge_m1_byteenable,
-                                              clock_crossing_bridge_m1_granted_DE0_SOPC_clock_1_in,
-                                              clock_crossing_bridge_m1_granted_DE0_SOPC_clock_2_in,
-                                              clock_crossing_bridge_m1_granted_DE0_SOPC_clock_3_in,
+                                              clock_crossing_bridge_m1_granted_Altera_UP_SD_Card_avalon_sdcard_slave,
                                               clock_crossing_bridge_m1_granted_buttons_s1,
+                                              clock_crossing_bridge_m1_granted_keypad_0_keypad,
                                               clock_crossing_bridge_m1_granted_lcd_control_slave,
                                               clock_crossing_bridge_m1_granted_lcd_light_s1,
                                               clock_crossing_bridge_m1_granted_leds_s1,
@@ -4315,10 +2771,9 @@ module clock_crossing_bridge_m1_arbitrator (
                                               clock_crossing_bridge_m1_granted_sysid_control_slave,
                                               clock_crossing_bridge_m1_granted_timer_s1,
                                               clock_crossing_bridge_m1_granted_uart_s1,
-                                              clock_crossing_bridge_m1_qualified_request_DE0_SOPC_clock_1_in,
-                                              clock_crossing_bridge_m1_qualified_request_DE0_SOPC_clock_2_in,
-                                              clock_crossing_bridge_m1_qualified_request_DE0_SOPC_clock_3_in,
+                                              clock_crossing_bridge_m1_qualified_request_Altera_UP_SD_Card_avalon_sdcard_slave,
                                               clock_crossing_bridge_m1_qualified_request_buttons_s1,
+                                              clock_crossing_bridge_m1_qualified_request_keypad_0_keypad,
                                               clock_crossing_bridge_m1_qualified_request_lcd_control_slave,
                                               clock_crossing_bridge_m1_qualified_request_lcd_light_s1,
                                               clock_crossing_bridge_m1_qualified_request_leds_s1,
@@ -4328,10 +2783,9 @@ module clock_crossing_bridge_m1_arbitrator (
                                               clock_crossing_bridge_m1_qualified_request_timer_s1,
                                               clock_crossing_bridge_m1_qualified_request_uart_s1,
                                               clock_crossing_bridge_m1_read,
-                                              clock_crossing_bridge_m1_read_data_valid_DE0_SOPC_clock_1_in,
-                                              clock_crossing_bridge_m1_read_data_valid_DE0_SOPC_clock_2_in,
-                                              clock_crossing_bridge_m1_read_data_valid_DE0_SOPC_clock_3_in,
+                                              clock_crossing_bridge_m1_read_data_valid_Altera_UP_SD_Card_avalon_sdcard_slave,
                                               clock_crossing_bridge_m1_read_data_valid_buttons_s1,
+                                              clock_crossing_bridge_m1_read_data_valid_keypad_0_keypad,
                                               clock_crossing_bridge_m1_read_data_valid_lcd_control_slave,
                                               clock_crossing_bridge_m1_read_data_valid_lcd_light_s1,
                                               clock_crossing_bridge_m1_read_data_valid_leds_s1,
@@ -4340,10 +2794,9 @@ module clock_crossing_bridge_m1_arbitrator (
                                               clock_crossing_bridge_m1_read_data_valid_sysid_control_slave,
                                               clock_crossing_bridge_m1_read_data_valid_timer_s1,
                                               clock_crossing_bridge_m1_read_data_valid_uart_s1,
-                                              clock_crossing_bridge_m1_requests_DE0_SOPC_clock_1_in,
-                                              clock_crossing_bridge_m1_requests_DE0_SOPC_clock_2_in,
-                                              clock_crossing_bridge_m1_requests_DE0_SOPC_clock_3_in,
+                                              clock_crossing_bridge_m1_requests_Altera_UP_SD_Card_avalon_sdcard_slave,
                                               clock_crossing_bridge_m1_requests_buttons_s1,
+                                              clock_crossing_bridge_m1_requests_keypad_0_keypad,
                                               clock_crossing_bridge_m1_requests_lcd_control_slave,
                                               clock_crossing_bridge_m1_requests_lcd_light_s1,
                                               clock_crossing_bridge_m1_requests_leds_s1,
@@ -4354,10 +2807,9 @@ module clock_crossing_bridge_m1_arbitrator (
                                               clock_crossing_bridge_m1_requests_uart_s1,
                                               clock_crossing_bridge_m1_write,
                                               clock_crossing_bridge_m1_writedata,
-                                              d1_DE0_SOPC_clock_1_in_end_xfer,
-                                              d1_DE0_SOPC_clock_2_in_end_xfer,
-                                              d1_DE0_SOPC_clock_3_in_end_xfer,
+                                              d1_Altera_UP_SD_Card_avalon_sdcard_slave_end_xfer,
                                               d1_buttons_s1_end_xfer,
+                                              d1_keypad_0_keypad_end_xfer,
                                               d1_lcd_control_slave_end_xfer,
                                               d1_lcd_light_s1_end_xfer,
                                               d1_leds_s1_end_xfer,
@@ -4366,6 +2818,7 @@ module clock_crossing_bridge_m1_arbitrator (
                                               d1_sysid_control_slave_end_xfer,
                                               d1_timer_s1_end_xfer,
                                               d1_uart_s1_end_xfer,
+                                              keypad_0_keypad_readdata_from_sa,
                                               lcd_control_slave_readdata_from_sa,
                                               lcd_control_slave_wait_counter_eq_0,
                                               lcd_light_s1_readdata_from_sa,
@@ -4379,7 +2832,6 @@ module clock_crossing_bridge_m1_arbitrator (
 
                                              // outputs:
                                               clock_crossing_bridge_m1_address_to_slave,
-                                              clock_crossing_bridge_m1_endofpacket,
                                               clock_crossing_bridge_m1_latency_counter,
                                               clock_crossing_bridge_m1_readdata,
                                               clock_crossing_bridge_m1_readdatavalid,
@@ -4389,29 +2841,20 @@ module clock_crossing_bridge_m1_arbitrator (
 ;
 
   output  [ 10: 0] clock_crossing_bridge_m1_address_to_slave;
-  output           clock_crossing_bridge_m1_endofpacket;
   output           clock_crossing_bridge_m1_latency_counter;
   output  [ 31: 0] clock_crossing_bridge_m1_readdata;
   output           clock_crossing_bridge_m1_readdatavalid;
   output           clock_crossing_bridge_m1_reset_n;
   output           clock_crossing_bridge_m1_waitrequest;
-  input            DE0_SOPC_clock_1_in_endofpacket_from_sa;
-  input   [ 15: 0] DE0_SOPC_clock_1_in_readdata_from_sa;
-  input            DE0_SOPC_clock_1_in_waitrequest_from_sa;
-  input            DE0_SOPC_clock_2_in_endofpacket_from_sa;
-  input   [ 31: 0] DE0_SOPC_clock_2_in_readdata_from_sa;
-  input            DE0_SOPC_clock_2_in_waitrequest_from_sa;
-  input            DE0_SOPC_clock_3_in_endofpacket_from_sa;
-  input   [ 31: 0] DE0_SOPC_clock_3_in_readdata_from_sa;
-  input            DE0_SOPC_clock_3_in_waitrequest_from_sa;
+  input   [ 31: 0] Altera_UP_SD_Card_avalon_sdcard_slave_readdata_from_sa;
+  input            Altera_UP_SD_Card_avalon_sdcard_slave_waitrequest_from_sa;
   input   [ 31: 0] buttons_s1_readdata_from_sa;
   input            clk;
   input   [ 10: 0] clock_crossing_bridge_m1_address;
   input   [  3: 0] clock_crossing_bridge_m1_byteenable;
-  input            clock_crossing_bridge_m1_granted_DE0_SOPC_clock_1_in;
-  input            clock_crossing_bridge_m1_granted_DE0_SOPC_clock_2_in;
-  input            clock_crossing_bridge_m1_granted_DE0_SOPC_clock_3_in;
+  input            clock_crossing_bridge_m1_granted_Altera_UP_SD_Card_avalon_sdcard_slave;
   input            clock_crossing_bridge_m1_granted_buttons_s1;
+  input            clock_crossing_bridge_m1_granted_keypad_0_keypad;
   input            clock_crossing_bridge_m1_granted_lcd_control_slave;
   input            clock_crossing_bridge_m1_granted_lcd_light_s1;
   input            clock_crossing_bridge_m1_granted_leds_s1;
@@ -4420,10 +2863,9 @@ module clock_crossing_bridge_m1_arbitrator (
   input            clock_crossing_bridge_m1_granted_sysid_control_slave;
   input            clock_crossing_bridge_m1_granted_timer_s1;
   input            clock_crossing_bridge_m1_granted_uart_s1;
-  input            clock_crossing_bridge_m1_qualified_request_DE0_SOPC_clock_1_in;
-  input            clock_crossing_bridge_m1_qualified_request_DE0_SOPC_clock_2_in;
-  input            clock_crossing_bridge_m1_qualified_request_DE0_SOPC_clock_3_in;
+  input            clock_crossing_bridge_m1_qualified_request_Altera_UP_SD_Card_avalon_sdcard_slave;
   input            clock_crossing_bridge_m1_qualified_request_buttons_s1;
+  input            clock_crossing_bridge_m1_qualified_request_keypad_0_keypad;
   input            clock_crossing_bridge_m1_qualified_request_lcd_control_slave;
   input            clock_crossing_bridge_m1_qualified_request_lcd_light_s1;
   input            clock_crossing_bridge_m1_qualified_request_leds_s1;
@@ -4433,10 +2875,9 @@ module clock_crossing_bridge_m1_arbitrator (
   input            clock_crossing_bridge_m1_qualified_request_timer_s1;
   input            clock_crossing_bridge_m1_qualified_request_uart_s1;
   input            clock_crossing_bridge_m1_read;
-  input            clock_crossing_bridge_m1_read_data_valid_DE0_SOPC_clock_1_in;
-  input            clock_crossing_bridge_m1_read_data_valid_DE0_SOPC_clock_2_in;
-  input            clock_crossing_bridge_m1_read_data_valid_DE0_SOPC_clock_3_in;
+  input            clock_crossing_bridge_m1_read_data_valid_Altera_UP_SD_Card_avalon_sdcard_slave;
   input            clock_crossing_bridge_m1_read_data_valid_buttons_s1;
+  input            clock_crossing_bridge_m1_read_data_valid_keypad_0_keypad;
   input            clock_crossing_bridge_m1_read_data_valid_lcd_control_slave;
   input            clock_crossing_bridge_m1_read_data_valid_lcd_light_s1;
   input            clock_crossing_bridge_m1_read_data_valid_leds_s1;
@@ -4445,10 +2886,9 @@ module clock_crossing_bridge_m1_arbitrator (
   input            clock_crossing_bridge_m1_read_data_valid_sysid_control_slave;
   input            clock_crossing_bridge_m1_read_data_valid_timer_s1;
   input            clock_crossing_bridge_m1_read_data_valid_uart_s1;
-  input            clock_crossing_bridge_m1_requests_DE0_SOPC_clock_1_in;
-  input            clock_crossing_bridge_m1_requests_DE0_SOPC_clock_2_in;
-  input            clock_crossing_bridge_m1_requests_DE0_SOPC_clock_3_in;
+  input            clock_crossing_bridge_m1_requests_Altera_UP_SD_Card_avalon_sdcard_slave;
   input            clock_crossing_bridge_m1_requests_buttons_s1;
+  input            clock_crossing_bridge_m1_requests_keypad_0_keypad;
   input            clock_crossing_bridge_m1_requests_lcd_control_slave;
   input            clock_crossing_bridge_m1_requests_lcd_light_s1;
   input            clock_crossing_bridge_m1_requests_leds_s1;
@@ -4459,10 +2899,9 @@ module clock_crossing_bridge_m1_arbitrator (
   input            clock_crossing_bridge_m1_requests_uart_s1;
   input            clock_crossing_bridge_m1_write;
   input   [ 31: 0] clock_crossing_bridge_m1_writedata;
-  input            d1_DE0_SOPC_clock_1_in_end_xfer;
-  input            d1_DE0_SOPC_clock_2_in_end_xfer;
-  input            d1_DE0_SOPC_clock_3_in_end_xfer;
+  input            d1_Altera_UP_SD_Card_avalon_sdcard_slave_end_xfer;
   input            d1_buttons_s1_end_xfer;
+  input            d1_keypad_0_keypad_end_xfer;
   input            d1_lcd_control_slave_end_xfer;
   input            d1_lcd_light_s1_end_xfer;
   input            d1_leds_s1_end_xfer;
@@ -4471,6 +2910,7 @@ module clock_crossing_bridge_m1_arbitrator (
   input            d1_sysid_control_slave_end_xfer;
   input            d1_timer_s1_end_xfer;
   input            d1_uart_s1_end_xfer;
+  input   [ 31: 0] keypad_0_keypad_readdata_from_sa;
   input   [  7: 0] lcd_control_slave_readdata_from_sa;
   input            lcd_control_slave_wait_counter_eq_0;
   input   [ 31: 0] lcd_light_s1_readdata_from_sa;
@@ -4486,7 +2926,6 @@ module clock_crossing_bridge_m1_arbitrator (
   reg     [ 10: 0] clock_crossing_bridge_m1_address_last_time;
   wire    [ 10: 0] clock_crossing_bridge_m1_address_to_slave;
   reg     [  3: 0] clock_crossing_bridge_m1_byteenable_last_time;
-  wire             clock_crossing_bridge_m1_endofpacket;
   wire             clock_crossing_bridge_m1_is_granted_some_slave;
   reg              clock_crossing_bridge_m1_latency_counter;
   reg              clock_crossing_bridge_m1_read_but_no_slave_selected;
@@ -4505,16 +2944,16 @@ module clock_crossing_bridge_m1_arbitrator (
   wire             r_1;
   wire             r_2;
   //r_0 master_run cascaded wait assignment, which is an e_assign
-  assign r_0 = 1 & (clock_crossing_bridge_m1_qualified_request_DE0_SOPC_clock_1_in | ~clock_crossing_bridge_m1_requests_DE0_SOPC_clock_1_in) & ((~clock_crossing_bridge_m1_qualified_request_DE0_SOPC_clock_1_in | ~(clock_crossing_bridge_m1_read | clock_crossing_bridge_m1_write) | (1 & ~DE0_SOPC_clock_1_in_waitrequest_from_sa & (clock_crossing_bridge_m1_read | clock_crossing_bridge_m1_write)))) & ((~clock_crossing_bridge_m1_qualified_request_DE0_SOPC_clock_1_in | ~(clock_crossing_bridge_m1_read | clock_crossing_bridge_m1_write) | (1 & ~DE0_SOPC_clock_1_in_waitrequest_from_sa & (clock_crossing_bridge_m1_read | clock_crossing_bridge_m1_write)))) & 1 & (clock_crossing_bridge_m1_qualified_request_DE0_SOPC_clock_2_in | ~clock_crossing_bridge_m1_requests_DE0_SOPC_clock_2_in) & ((~clock_crossing_bridge_m1_qualified_request_DE0_SOPC_clock_2_in | ~(clock_crossing_bridge_m1_read | clock_crossing_bridge_m1_write) | (1 & ~DE0_SOPC_clock_2_in_waitrequest_from_sa & (clock_crossing_bridge_m1_read | clock_crossing_bridge_m1_write)))) & ((~clock_crossing_bridge_m1_qualified_request_DE0_SOPC_clock_2_in | ~(clock_crossing_bridge_m1_read | clock_crossing_bridge_m1_write) | (1 & ~DE0_SOPC_clock_2_in_waitrequest_from_sa & (clock_crossing_bridge_m1_read | clock_crossing_bridge_m1_write)))) & 1 & (clock_crossing_bridge_m1_qualified_request_DE0_SOPC_clock_3_in | ~clock_crossing_bridge_m1_requests_DE0_SOPC_clock_3_in) & ((~clock_crossing_bridge_m1_qualified_request_DE0_SOPC_clock_3_in | ~(clock_crossing_bridge_m1_read | clock_crossing_bridge_m1_write) | (1 & ~DE0_SOPC_clock_3_in_waitrequest_from_sa & (clock_crossing_bridge_m1_read | clock_crossing_bridge_m1_write)))) & ((~clock_crossing_bridge_m1_qualified_request_DE0_SOPC_clock_3_in | ~(clock_crossing_bridge_m1_read | clock_crossing_bridge_m1_write) | (1 & ~DE0_SOPC_clock_3_in_waitrequest_from_sa & (clock_crossing_bridge_m1_read | clock_crossing_bridge_m1_write)))) & 1 & (clock_crossing_bridge_m1_qualified_request_buttons_s1 | ~clock_crossing_bridge_m1_requests_buttons_s1) & ((~clock_crossing_bridge_m1_qualified_request_buttons_s1 | ~clock_crossing_bridge_m1_read | (1 & ~d1_buttons_s1_end_xfer & clock_crossing_bridge_m1_read))) & ((~clock_crossing_bridge_m1_qualified_request_buttons_s1 | ~clock_crossing_bridge_m1_write | (1 & clock_crossing_bridge_m1_write))) & 1 & (clock_crossing_bridge_m1_qualified_request_lcd_control_slave | ~clock_crossing_bridge_m1_requests_lcd_control_slave) & ((~clock_crossing_bridge_m1_qualified_request_lcd_control_slave | ~clock_crossing_bridge_m1_read | (1 & ((lcd_control_slave_wait_counter_eq_0 & ~d1_lcd_control_slave_end_xfer)) & clock_crossing_bridge_m1_read))) & ((~clock_crossing_bridge_m1_qualified_request_lcd_control_slave | ~clock_crossing_bridge_m1_write | (1 & ((lcd_control_slave_wait_counter_eq_0 & ~d1_lcd_control_slave_end_xfer)) & clock_crossing_bridge_m1_write)));
+  assign r_0 = 1 & (clock_crossing_bridge_m1_qualified_request_Altera_UP_SD_Card_avalon_sdcard_slave | ~clock_crossing_bridge_m1_requests_Altera_UP_SD_Card_avalon_sdcard_slave) & ((~clock_crossing_bridge_m1_qualified_request_Altera_UP_SD_Card_avalon_sdcard_slave | ~(clock_crossing_bridge_m1_read | clock_crossing_bridge_m1_write) | (1 & ~Altera_UP_SD_Card_avalon_sdcard_slave_waitrequest_from_sa & (clock_crossing_bridge_m1_read | clock_crossing_bridge_m1_write)))) & ((~clock_crossing_bridge_m1_qualified_request_Altera_UP_SD_Card_avalon_sdcard_slave | ~(clock_crossing_bridge_m1_read | clock_crossing_bridge_m1_write) | (1 & ~Altera_UP_SD_Card_avalon_sdcard_slave_waitrequest_from_sa & (clock_crossing_bridge_m1_read | clock_crossing_bridge_m1_write)))) & 1 & (clock_crossing_bridge_m1_qualified_request_buttons_s1 | ~clock_crossing_bridge_m1_requests_buttons_s1) & ((~clock_crossing_bridge_m1_qualified_request_buttons_s1 | ~clock_crossing_bridge_m1_read | (1 & ~d1_buttons_s1_end_xfer & clock_crossing_bridge_m1_read))) & ((~clock_crossing_bridge_m1_qualified_request_buttons_s1 | ~clock_crossing_bridge_m1_write | (1 & clock_crossing_bridge_m1_write))) & 1 & (clock_crossing_bridge_m1_qualified_request_keypad_0_keypad | ~clock_crossing_bridge_m1_requests_keypad_0_keypad) & ((~clock_crossing_bridge_m1_qualified_request_keypad_0_keypad | ~clock_crossing_bridge_m1_read | (1 & ~d1_keypad_0_keypad_end_xfer & clock_crossing_bridge_m1_read))) & ((~clock_crossing_bridge_m1_qualified_request_keypad_0_keypad | ~clock_crossing_bridge_m1_write | (1 & clock_crossing_bridge_m1_write))) & 1 & (clock_crossing_bridge_m1_qualified_request_lcd_control_slave | ~clock_crossing_bridge_m1_requests_lcd_control_slave) & ((~clock_crossing_bridge_m1_qualified_request_lcd_control_slave | ~clock_crossing_bridge_m1_read | (1 & ((lcd_control_slave_wait_counter_eq_0 & ~d1_lcd_control_slave_end_xfer)) & clock_crossing_bridge_m1_read))) & ((~clock_crossing_bridge_m1_qualified_request_lcd_control_slave | ~clock_crossing_bridge_m1_write | (1 & ((lcd_control_slave_wait_counter_eq_0 & ~d1_lcd_control_slave_end_xfer)) & clock_crossing_bridge_m1_write))) & 1 & (clock_crossing_bridge_m1_qualified_request_lcd_light_s1 | ~clock_crossing_bridge_m1_requests_lcd_light_s1) & ((~clock_crossing_bridge_m1_qualified_request_lcd_light_s1 | ~clock_crossing_bridge_m1_read | (1 & ~d1_lcd_light_s1_end_xfer & clock_crossing_bridge_m1_read))) & ((~clock_crossing_bridge_m1_qualified_request_lcd_light_s1 | ~clock_crossing_bridge_m1_write | (1 & clock_crossing_bridge_m1_write)));
 
   //cascaded wait assignment, which is an e_assign
   assign clock_crossing_bridge_m1_run = r_0 & r_1 & r_2;
 
   //r_1 master_run cascaded wait assignment, which is an e_assign
-  assign r_1 = 1 & (clock_crossing_bridge_m1_qualified_request_lcd_light_s1 | ~clock_crossing_bridge_m1_requests_lcd_light_s1) & ((~clock_crossing_bridge_m1_qualified_request_lcd_light_s1 | ~clock_crossing_bridge_m1_read | (1 & ~d1_lcd_light_s1_end_xfer & clock_crossing_bridge_m1_read))) & ((~clock_crossing_bridge_m1_qualified_request_lcd_light_s1 | ~clock_crossing_bridge_m1_write | (1 & clock_crossing_bridge_m1_write))) & 1 & (clock_crossing_bridge_m1_qualified_request_leds_s1 | ~clock_crossing_bridge_m1_requests_leds_s1) & ((~clock_crossing_bridge_m1_qualified_request_leds_s1 | ~clock_crossing_bridge_m1_read | (1 & ~d1_leds_s1_end_xfer & clock_crossing_bridge_m1_read))) & ((~clock_crossing_bridge_m1_qualified_request_leds_s1 | ~clock_crossing_bridge_m1_write | (1 & clock_crossing_bridge_m1_write))) & 1 & (clock_crossing_bridge_m1_qualified_request_seg7_s1 | ~clock_crossing_bridge_m1_requests_seg7_s1) & ((~clock_crossing_bridge_m1_qualified_request_seg7_s1 | ~clock_crossing_bridge_m1_read | (1 & ~d1_seg7_s1_end_xfer & clock_crossing_bridge_m1_read))) & ((~clock_crossing_bridge_m1_qualified_request_seg7_s1 | ~clock_crossing_bridge_m1_write | (1 & clock_crossing_bridge_m1_write))) & 1 & (clock_crossing_bridge_m1_qualified_request_switches_s1 | ~clock_crossing_bridge_m1_requests_switches_s1) & ((~clock_crossing_bridge_m1_qualified_request_switches_s1 | ~clock_crossing_bridge_m1_read | (1 & ~d1_switches_s1_end_xfer & clock_crossing_bridge_m1_read))) & ((~clock_crossing_bridge_m1_qualified_request_switches_s1 | ~clock_crossing_bridge_m1_write | (1 & clock_crossing_bridge_m1_write))) & 1 & (clock_crossing_bridge_m1_qualified_request_sysid_control_slave | ~clock_crossing_bridge_m1_requests_sysid_control_slave) & ((~clock_crossing_bridge_m1_qualified_request_sysid_control_slave | ~clock_crossing_bridge_m1_read | (1 & ~d1_sysid_control_slave_end_xfer & clock_crossing_bridge_m1_read))) & ((~clock_crossing_bridge_m1_qualified_request_sysid_control_slave | ~clock_crossing_bridge_m1_write | (1 & clock_crossing_bridge_m1_write)));
+  assign r_1 = 1 & (clock_crossing_bridge_m1_qualified_request_leds_s1 | ~clock_crossing_bridge_m1_requests_leds_s1) & ((~clock_crossing_bridge_m1_qualified_request_leds_s1 | ~clock_crossing_bridge_m1_read | (1 & ~d1_leds_s1_end_xfer & clock_crossing_bridge_m1_read))) & ((~clock_crossing_bridge_m1_qualified_request_leds_s1 | ~clock_crossing_bridge_m1_write | (1 & clock_crossing_bridge_m1_write))) & 1 & (clock_crossing_bridge_m1_qualified_request_seg7_s1 | ~clock_crossing_bridge_m1_requests_seg7_s1) & ((~clock_crossing_bridge_m1_qualified_request_seg7_s1 | ~clock_crossing_bridge_m1_read | (1 & ~d1_seg7_s1_end_xfer & clock_crossing_bridge_m1_read))) & ((~clock_crossing_bridge_m1_qualified_request_seg7_s1 | ~clock_crossing_bridge_m1_write | (1 & clock_crossing_bridge_m1_write))) & 1 & (clock_crossing_bridge_m1_qualified_request_switches_s1 | ~clock_crossing_bridge_m1_requests_switches_s1) & ((~clock_crossing_bridge_m1_qualified_request_switches_s1 | ~clock_crossing_bridge_m1_read | (1 & ~d1_switches_s1_end_xfer & clock_crossing_bridge_m1_read))) & ((~clock_crossing_bridge_m1_qualified_request_switches_s1 | ~clock_crossing_bridge_m1_write | (1 & clock_crossing_bridge_m1_write))) & 1 & (clock_crossing_bridge_m1_qualified_request_sysid_control_slave | ~clock_crossing_bridge_m1_requests_sysid_control_slave) & ((~clock_crossing_bridge_m1_qualified_request_sysid_control_slave | ~clock_crossing_bridge_m1_read | (1 & ~d1_sysid_control_slave_end_xfer & clock_crossing_bridge_m1_read))) & ((~clock_crossing_bridge_m1_qualified_request_sysid_control_slave | ~clock_crossing_bridge_m1_write | (1 & clock_crossing_bridge_m1_write))) & 1 & (clock_crossing_bridge_m1_qualified_request_timer_s1 | ~clock_crossing_bridge_m1_requests_timer_s1) & ((~clock_crossing_bridge_m1_qualified_request_timer_s1 | ~clock_crossing_bridge_m1_read | (1 & ~d1_timer_s1_end_xfer & clock_crossing_bridge_m1_read))) & ((~clock_crossing_bridge_m1_qualified_request_timer_s1 | ~clock_crossing_bridge_m1_write | (1 & clock_crossing_bridge_m1_write)));
 
   //r_2 master_run cascaded wait assignment, which is an e_assign
-  assign r_2 = 1 & (clock_crossing_bridge_m1_qualified_request_timer_s1 | ~clock_crossing_bridge_m1_requests_timer_s1) & ((~clock_crossing_bridge_m1_qualified_request_timer_s1 | ~clock_crossing_bridge_m1_read | (1 & ~d1_timer_s1_end_xfer & clock_crossing_bridge_m1_read))) & ((~clock_crossing_bridge_m1_qualified_request_timer_s1 | ~clock_crossing_bridge_m1_write | (1 & clock_crossing_bridge_m1_write))) & 1 & (clock_crossing_bridge_m1_qualified_request_uart_s1 | ~clock_crossing_bridge_m1_requests_uart_s1) & ((~clock_crossing_bridge_m1_qualified_request_uart_s1 | ~(clock_crossing_bridge_m1_read | clock_crossing_bridge_m1_write) | (1 & ~d1_uart_s1_end_xfer & (clock_crossing_bridge_m1_read | clock_crossing_bridge_m1_write)))) & ((~clock_crossing_bridge_m1_qualified_request_uart_s1 | ~(clock_crossing_bridge_m1_read | clock_crossing_bridge_m1_write) | (1 & ~d1_uart_s1_end_xfer & (clock_crossing_bridge_m1_read | clock_crossing_bridge_m1_write))));
+  assign r_2 = 1 & (clock_crossing_bridge_m1_qualified_request_uart_s1 | ~clock_crossing_bridge_m1_requests_uart_s1) & ((~clock_crossing_bridge_m1_qualified_request_uart_s1 | ~(clock_crossing_bridge_m1_read | clock_crossing_bridge_m1_write) | (1 & ~d1_uart_s1_end_xfer & (clock_crossing_bridge_m1_read | clock_crossing_bridge_m1_write)))) & ((~clock_crossing_bridge_m1_qualified_request_uart_s1 | ~(clock_crossing_bridge_m1_read | clock_crossing_bridge_m1_write) | (1 & ~d1_uart_s1_end_xfer & (clock_crossing_bridge_m1_read | clock_crossing_bridge_m1_write))));
 
   //optimize select-logic by passing only those address bits which matter.
   assign clock_crossing_bridge_m1_address_to_slave = clock_crossing_bridge_m1_address[10 : 0];
@@ -4530,10 +2969,9 @@ module clock_crossing_bridge_m1_arbitrator (
 
 
   //some slave is getting selected, which is an e_mux
-  assign clock_crossing_bridge_m1_is_granted_some_slave = clock_crossing_bridge_m1_granted_DE0_SOPC_clock_1_in |
-    clock_crossing_bridge_m1_granted_DE0_SOPC_clock_2_in |
-    clock_crossing_bridge_m1_granted_DE0_SOPC_clock_3_in |
+  assign clock_crossing_bridge_m1_is_granted_some_slave = clock_crossing_bridge_m1_granted_Altera_UP_SD_Card_avalon_sdcard_slave |
     clock_crossing_bridge_m1_granted_buttons_s1 |
+    clock_crossing_bridge_m1_granted_keypad_0_keypad |
     clock_crossing_bridge_m1_granted_lcd_control_slave |
     clock_crossing_bridge_m1_granted_lcd_light_s1 |
     clock_crossing_bridge_m1_granted_leds_s1 |
@@ -4549,16 +2987,13 @@ module clock_crossing_bridge_m1_arbitrator (
   //latent slave read data valid which is not flushed, which is an e_mux
   assign clock_crossing_bridge_m1_readdatavalid = clock_crossing_bridge_m1_read_but_no_slave_selected |
     pre_flush_clock_crossing_bridge_m1_readdatavalid |
-    clock_crossing_bridge_m1_read_data_valid_DE0_SOPC_clock_1_in |
-    clock_crossing_bridge_m1_read_but_no_slave_selected |
-    pre_flush_clock_crossing_bridge_m1_readdatavalid |
-    clock_crossing_bridge_m1_read_data_valid_DE0_SOPC_clock_2_in |
-    clock_crossing_bridge_m1_read_but_no_slave_selected |
-    pre_flush_clock_crossing_bridge_m1_readdatavalid |
-    clock_crossing_bridge_m1_read_data_valid_DE0_SOPC_clock_3_in |
+    clock_crossing_bridge_m1_read_data_valid_Altera_UP_SD_Card_avalon_sdcard_slave |
     clock_crossing_bridge_m1_read_but_no_slave_selected |
     pre_flush_clock_crossing_bridge_m1_readdatavalid |
     clock_crossing_bridge_m1_read_data_valid_buttons_s1 |
+    clock_crossing_bridge_m1_read_but_no_slave_selected |
+    pre_flush_clock_crossing_bridge_m1_readdatavalid |
+    clock_crossing_bridge_m1_read_data_valid_keypad_0_keypad |
     clock_crossing_bridge_m1_read_but_no_slave_selected |
     pre_flush_clock_crossing_bridge_m1_readdatavalid |
     clock_crossing_bridge_m1_read_data_valid_lcd_control_slave |
@@ -4585,10 +3020,9 @@ module clock_crossing_bridge_m1_arbitrator (
     clock_crossing_bridge_m1_read_data_valid_uart_s1;
 
   //clock_crossing_bridge/m1 readdata mux, which is an e_mux
-  assign clock_crossing_bridge_m1_readdata = ({32 {~(clock_crossing_bridge_m1_qualified_request_DE0_SOPC_clock_1_in & clock_crossing_bridge_m1_read)}} | DE0_SOPC_clock_1_in_readdata_from_sa) &
-    ({32 {~(clock_crossing_bridge_m1_qualified_request_DE0_SOPC_clock_2_in & clock_crossing_bridge_m1_read)}} | DE0_SOPC_clock_2_in_readdata_from_sa) &
-    ({32 {~(clock_crossing_bridge_m1_qualified_request_DE0_SOPC_clock_3_in & clock_crossing_bridge_m1_read)}} | DE0_SOPC_clock_3_in_readdata_from_sa) &
+  assign clock_crossing_bridge_m1_readdata = ({32 {~(clock_crossing_bridge_m1_qualified_request_Altera_UP_SD_Card_avalon_sdcard_slave & clock_crossing_bridge_m1_read)}} | Altera_UP_SD_Card_avalon_sdcard_slave_readdata_from_sa) &
     ({32 {~(clock_crossing_bridge_m1_qualified_request_buttons_s1 & clock_crossing_bridge_m1_read)}} | buttons_s1_readdata_from_sa) &
+    ({32 {~(clock_crossing_bridge_m1_qualified_request_keypad_0_keypad & clock_crossing_bridge_m1_read)}} | keypad_0_keypad_readdata_from_sa) &
     ({32 {~(clock_crossing_bridge_m1_qualified_request_lcd_control_slave & clock_crossing_bridge_m1_read)}} | lcd_control_slave_readdata_from_sa) &
     ({32 {~(clock_crossing_bridge_m1_qualified_request_lcd_light_s1 & clock_crossing_bridge_m1_read)}} | lcd_light_s1_readdata_from_sa) &
     ({32 {~(clock_crossing_bridge_m1_qualified_request_leds_s1 & clock_crossing_bridge_m1_read)}} | leds_s1_readdata_from_sa) &
@@ -4621,11 +3055,6 @@ module clock_crossing_bridge_m1_arbitrator (
 
   //clock_crossing_bridge_m1_reset_n assignment, which is an e_assign
   assign clock_crossing_bridge_m1_reset_n = reset_n;
-
-  //mux clock_crossing_bridge_m1_endofpacket, which is an e_mux
-  assign clock_crossing_bridge_m1_endofpacket = (clock_crossing_bridge_m1_requests_DE0_SOPC_clock_1_in)? DE0_SOPC_clock_1_in_endofpacket_from_sa :
-    (clock_crossing_bridge_m1_requests_DE0_SOPC_clock_2_in)? DE0_SOPC_clock_2_in_endofpacket_from_sa :
-    DE0_SOPC_clock_3_in_endofpacket_from_sa;
 
 
 //synthesis translate_off
@@ -5355,54 +3784,6 @@ endmodule
 // altera message_level Level1 
 // altera message_off 10034 10035 10036 10037 10230 10240 10030 
 
-module timer_0_s1_irq_from_sa_clock_crossing_cpu_data_master_module (
-                                                                      // inputs:
-                                                                       clk,
-                                                                       data_in,
-                                                                       reset_n,
-
-                                                                      // outputs:
-                                                                       data_out
-                                                                    )
-;
-
-  output           data_out;
-  input            clk;
-  input            data_in;
-  input            reset_n;
-
-  reg              data_in_d1 /* synthesis ALTERA_ATTRIBUTE = "{-from \"*\"} CUT=ON ; PRESERVE_REGISTER=ON"  */;
-  reg              data_out /* synthesis ALTERA_ATTRIBUTE = "PRESERVE_REGISTER=ON"  */;
-  always @(posedge clk or negedge reset_n)
-    begin
-      if (reset_n == 0)
-          data_in_d1 <= 0;
-      else 
-        data_in_d1 <= data_in;
-    end
-
-
-  always @(posedge clk or negedge reset_n)
-    begin
-      if (reset_n == 0)
-          data_out <= 0;
-      else 
-        data_out <= data_in_d1;
-    end
-
-
-
-endmodule
-
-
-// synthesis translate_off
-`timescale 1ns / 1ps
-// synthesis translate_on
-
-// turn off superfluous verilog processor warnings 
-// altera message_level Level1 
-// altera message_off 10034 10035 10036 10037 10230 10240 10030 
-
 module uart_s1_irq_from_sa_clock_crossing_cpu_data_master_module (
                                                                    // inputs:
                                                                     clk,
@@ -5518,7 +3899,6 @@ module cpu_data_master_arbitrator (
                                      sdram_s1_readdata_from_sa,
                                      sdram_s1_waitrequest_from_sa,
                                      switches_s1_irq_from_sa,
-                                     timer_0_s1_irq_from_sa,
                                      timer_s1_irq_from_sa,
                                      uart_s1_irq_from_sa,
 
@@ -5605,7 +3985,6 @@ module cpu_data_master_arbitrator (
   input   [ 15: 0] sdram_s1_readdata_from_sa;
   input            sdram_s1_waitrequest_from_sa;
   input            switches_s1_irq_from_sa;
-  input            timer_0_s1_irq_from_sa;
   input            timer_s1_irq_from_sa;
   input            uart_s1_irq_from_sa;
 
@@ -5627,7 +4006,6 @@ module cpu_data_master_arbitrator (
   wire    [ 31: 0] p1_registered_cpu_data_master_readdata;
   wire             pll_cpu_buttons_s1_irq_from_sa;
   wire             pll_cpu_switches_s1_irq_from_sa;
-  wire             pll_cpu_timer_0_s1_irq_from_sa;
   wire             pll_cpu_timer_s1_irq_from_sa;
   wire             pll_cpu_uart_s1_irq_from_sa;
   wire             pre_dbs_count_enable;
@@ -5723,7 +4101,7 @@ module cpu_data_master_arbitrator (
     1'b0,
     1'b0,
     1'b0,
-    pll_cpu_timer_0_s1_irq_from_sa,
+    1'b0,
     pll_cpu_uart_s1_irq_from_sa,
     pll_cpu_timer_s1_irq_from_sa,
     pll_cpu_buttons_s1_irq_from_sa,
@@ -5812,15 +4190,6 @@ module cpu_data_master_arbitrator (
       .clk      (pll_cpu),
       .data_in  (timer_s1_irq_from_sa),
       .data_out (pll_cpu_timer_s1_irq_from_sa),
-      .reset_n  (pll_cpu_reset_n)
-    );
-
-  //timer_0_s1_irq_from_sa from clk to pll_cpu
-  timer_0_s1_irq_from_sa_clock_crossing_cpu_data_master_module timer_0_s1_irq_from_sa_clock_crossing_cpu_data_master
-    (
-      .clk      (pll_cpu),
-      .data_in  (timer_0_s1_irq_from_sa),
-      .data_out (pll_cpu_timer_0_s1_irq_from_sa),
       .reset_n  (pll_cpu_reset_n)
     );
 
@@ -6393,46 +4762,48 @@ endmodule
 
 module keypad_0_keypad_arbitrator (
                                     // inputs:
-                                     DE0_SOPC_clock_3_out_address_to_slave,
-                                     DE0_SOPC_clock_3_out_read,
-                                     DE0_SOPC_clock_3_out_write,
                                      clk,
+                                     clock_crossing_bridge_m1_address_to_slave,
+                                     clock_crossing_bridge_m1_latency_counter,
+                                     clock_crossing_bridge_m1_read,
+                                     clock_crossing_bridge_m1_write,
                                      keypad_0_keypad_readdata,
                                      reset_n,
 
                                     // outputs:
-                                     DE0_SOPC_clock_3_out_granted_keypad_0_keypad,
-                                     DE0_SOPC_clock_3_out_qualified_request_keypad_0_keypad,
-                                     DE0_SOPC_clock_3_out_read_data_valid_keypad_0_keypad,
-                                     DE0_SOPC_clock_3_out_requests_keypad_0_keypad,
+                                     clock_crossing_bridge_m1_granted_keypad_0_keypad,
+                                     clock_crossing_bridge_m1_qualified_request_keypad_0_keypad,
+                                     clock_crossing_bridge_m1_read_data_valid_keypad_0_keypad,
+                                     clock_crossing_bridge_m1_requests_keypad_0_keypad,
                                      d1_keypad_0_keypad_end_xfer,
                                      keypad_0_keypad_readdata_from_sa,
                                      keypad_0_keypad_reset_n
                                   )
 ;
 
-  output           DE0_SOPC_clock_3_out_granted_keypad_0_keypad;
-  output           DE0_SOPC_clock_3_out_qualified_request_keypad_0_keypad;
-  output           DE0_SOPC_clock_3_out_read_data_valid_keypad_0_keypad;
-  output           DE0_SOPC_clock_3_out_requests_keypad_0_keypad;
+  output           clock_crossing_bridge_m1_granted_keypad_0_keypad;
+  output           clock_crossing_bridge_m1_qualified_request_keypad_0_keypad;
+  output           clock_crossing_bridge_m1_read_data_valid_keypad_0_keypad;
+  output           clock_crossing_bridge_m1_requests_keypad_0_keypad;
   output           d1_keypad_0_keypad_end_xfer;
   output  [ 31: 0] keypad_0_keypad_readdata_from_sa;
   output           keypad_0_keypad_reset_n;
-  input   [  1: 0] DE0_SOPC_clock_3_out_address_to_slave;
-  input            DE0_SOPC_clock_3_out_read;
-  input            DE0_SOPC_clock_3_out_write;
   input            clk;
+  input   [ 10: 0] clock_crossing_bridge_m1_address_to_slave;
+  input            clock_crossing_bridge_m1_latency_counter;
+  input            clock_crossing_bridge_m1_read;
+  input            clock_crossing_bridge_m1_write;
   input   [ 31: 0] keypad_0_keypad_readdata;
   input            reset_n;
 
-  wire             DE0_SOPC_clock_3_out_arbiterlock;
-  wire             DE0_SOPC_clock_3_out_arbiterlock2;
-  wire             DE0_SOPC_clock_3_out_continuerequest;
-  wire             DE0_SOPC_clock_3_out_granted_keypad_0_keypad;
-  wire             DE0_SOPC_clock_3_out_qualified_request_keypad_0_keypad;
-  wire             DE0_SOPC_clock_3_out_read_data_valid_keypad_0_keypad;
-  wire             DE0_SOPC_clock_3_out_requests_keypad_0_keypad;
-  wire             DE0_SOPC_clock_3_out_saved_grant_keypad_0_keypad;
+  wire             clock_crossing_bridge_m1_arbiterlock;
+  wire             clock_crossing_bridge_m1_arbiterlock2;
+  wire             clock_crossing_bridge_m1_continuerequest;
+  wire             clock_crossing_bridge_m1_granted_keypad_0_keypad;
+  wire             clock_crossing_bridge_m1_qualified_request_keypad_0_keypad;
+  wire             clock_crossing_bridge_m1_read_data_valid_keypad_0_keypad;
+  wire             clock_crossing_bridge_m1_requests_keypad_0_keypad;
+  wire             clock_crossing_bridge_m1_saved_grant_keypad_0_keypad;
   reg              d1_keypad_0_keypad_end_xfer;
   reg              d1_reasons_to_wait;
   reg              enable_nonzero_assertions;
@@ -6464,7 +4835,7 @@ module keypad_0_keypad_arbitrator (
   wire             keypad_0_keypad_unreg_firsttransfer;
   wire             keypad_0_keypad_waits_for_read;
   wire             keypad_0_keypad_waits_for_write;
-  wire    [  1: 0] shifted_address_to_keypad_0_keypad_from_DE0_SOPC_clock_3_out;
+  wire    [ 10: 0] shifted_address_to_keypad_0_keypad_from_clock_crossing_bridge_m1;
   wire             wait_for_keypad_0_keypad_counter;
   always @(posedge clk or negedge reset_n)
     begin
@@ -6475,16 +4846,16 @@ module keypad_0_keypad_arbitrator (
     end
 
 
-  assign keypad_0_keypad_begins_xfer = ~d1_reasons_to_wait & ((DE0_SOPC_clock_3_out_qualified_request_keypad_0_keypad));
+  assign keypad_0_keypad_begins_xfer = ~d1_reasons_to_wait & ((clock_crossing_bridge_m1_qualified_request_keypad_0_keypad));
   //assign keypad_0_keypad_readdata_from_sa = keypad_0_keypad_readdata so that symbol knows where to group signals which may go to master only, which is an e_assign
   assign keypad_0_keypad_readdata_from_sa = keypad_0_keypad_readdata;
 
-  assign DE0_SOPC_clock_3_out_requests_keypad_0_keypad = ((1) & (DE0_SOPC_clock_3_out_read | DE0_SOPC_clock_3_out_write)) & DE0_SOPC_clock_3_out_read;
+  assign clock_crossing_bridge_m1_requests_keypad_0_keypad = (({clock_crossing_bridge_m1_address_to_slave[10 : 2] , 2'b0} == 11'h4a8) & (clock_crossing_bridge_m1_read | clock_crossing_bridge_m1_write)) & clock_crossing_bridge_m1_read;
   //keypad_0_keypad_arb_share_counter set values, which is an e_mux
   assign keypad_0_keypad_arb_share_set_values = 1;
 
   //keypad_0_keypad_non_bursting_master_requests mux, which is an e_mux
-  assign keypad_0_keypad_non_bursting_master_requests = DE0_SOPC_clock_3_out_requests_keypad_0_keypad;
+  assign keypad_0_keypad_non_bursting_master_requests = clock_crossing_bridge_m1_requests_keypad_0_keypad;
 
   //keypad_0_keypad_any_bursting_master_saved_grant mux, which is an e_mux
   assign keypad_0_keypad_any_bursting_master_saved_grant = 0;
@@ -6524,27 +4895,30 @@ module keypad_0_keypad_arbitrator (
     end
 
 
-  //DE0_SOPC_clock_3/out keypad_0/keypad arbiterlock, which is an e_assign
-  assign DE0_SOPC_clock_3_out_arbiterlock = keypad_0_keypad_slavearbiterlockenable & DE0_SOPC_clock_3_out_continuerequest;
+  //clock_crossing_bridge/m1 keypad_0/keypad arbiterlock, which is an e_assign
+  assign clock_crossing_bridge_m1_arbiterlock = keypad_0_keypad_slavearbiterlockenable & clock_crossing_bridge_m1_continuerequest;
 
   //keypad_0_keypad_slavearbiterlockenable2 slave enables arbiterlock2, which is an e_assign
   assign keypad_0_keypad_slavearbiterlockenable2 = |keypad_0_keypad_arb_share_counter_next_value;
 
-  //DE0_SOPC_clock_3/out keypad_0/keypad arbiterlock2, which is an e_assign
-  assign DE0_SOPC_clock_3_out_arbiterlock2 = keypad_0_keypad_slavearbiterlockenable2 & DE0_SOPC_clock_3_out_continuerequest;
+  //clock_crossing_bridge/m1 keypad_0/keypad arbiterlock2, which is an e_assign
+  assign clock_crossing_bridge_m1_arbiterlock2 = keypad_0_keypad_slavearbiterlockenable2 & clock_crossing_bridge_m1_continuerequest;
 
   //keypad_0_keypad_any_continuerequest at least one master continues requesting, which is an e_assign
   assign keypad_0_keypad_any_continuerequest = 1;
 
-  //DE0_SOPC_clock_3_out_continuerequest continued request, which is an e_assign
-  assign DE0_SOPC_clock_3_out_continuerequest = 1;
+  //clock_crossing_bridge_m1_continuerequest continued request, which is an e_assign
+  assign clock_crossing_bridge_m1_continuerequest = 1;
 
-  assign DE0_SOPC_clock_3_out_qualified_request_keypad_0_keypad = DE0_SOPC_clock_3_out_requests_keypad_0_keypad;
+  assign clock_crossing_bridge_m1_qualified_request_keypad_0_keypad = clock_crossing_bridge_m1_requests_keypad_0_keypad & ~((clock_crossing_bridge_m1_read & ((clock_crossing_bridge_m1_latency_counter != 0))));
+  //local readdatavalid clock_crossing_bridge_m1_read_data_valid_keypad_0_keypad, which is an e_mux
+  assign clock_crossing_bridge_m1_read_data_valid_keypad_0_keypad = clock_crossing_bridge_m1_granted_keypad_0_keypad & clock_crossing_bridge_m1_read & ~keypad_0_keypad_waits_for_read;
+
   //master is always granted when requested
-  assign DE0_SOPC_clock_3_out_granted_keypad_0_keypad = DE0_SOPC_clock_3_out_qualified_request_keypad_0_keypad;
+  assign clock_crossing_bridge_m1_granted_keypad_0_keypad = clock_crossing_bridge_m1_qualified_request_keypad_0_keypad;
 
-  //DE0_SOPC_clock_3/out saved-grant keypad_0/keypad, which is an e_assign
-  assign DE0_SOPC_clock_3_out_saved_grant_keypad_0_keypad = DE0_SOPC_clock_3_out_requests_keypad_0_keypad;
+  //clock_crossing_bridge/m1 saved-grant keypad_0/keypad, which is an e_assign
+  assign clock_crossing_bridge_m1_saved_grant_keypad_0_keypad = clock_crossing_bridge_m1_requests_keypad_0_keypad;
 
   //allow new arb cycle for keypad_0/keypad, which is an e_assign
   assign keypad_0_keypad_allow_new_arb_cycle = 1;
@@ -6577,7 +4951,7 @@ module keypad_0_keypad_arbitrator (
   //keypad_0_keypad_beginbursttransfer_internal begin burst transfer, which is an e_assign
   assign keypad_0_keypad_beginbursttransfer_internal = keypad_0_keypad_begins_xfer;
 
-  assign shifted_address_to_keypad_0_keypad_from_DE0_SOPC_clock_3_out = DE0_SOPC_clock_3_out_address_to_slave;
+  assign shifted_address_to_keypad_0_keypad_from_clock_crossing_bridge_m1 = clock_crossing_bridge_m1_address_to_slave;
   //d1_keypad_0_keypad_end_xfer register, which is an e_register
   always @(posedge clk or negedge reset_n)
     begin
@@ -6592,7 +4966,7 @@ module keypad_0_keypad_arbitrator (
   assign keypad_0_keypad_waits_for_read = keypad_0_keypad_in_a_read_cycle & keypad_0_keypad_begins_xfer;
 
   //keypad_0_keypad_in_a_read_cycle assignment, which is an e_assign
-  assign keypad_0_keypad_in_a_read_cycle = DE0_SOPC_clock_3_out_granted_keypad_0_keypad & DE0_SOPC_clock_3_out_read;
+  assign keypad_0_keypad_in_a_read_cycle = clock_crossing_bridge_m1_granted_keypad_0_keypad & clock_crossing_bridge_m1_read;
 
   //in_a_read_cycle assignment, which is an e_mux
   assign in_a_read_cycle = keypad_0_keypad_in_a_read_cycle;
@@ -6601,7 +4975,7 @@ module keypad_0_keypad_arbitrator (
   assign keypad_0_keypad_waits_for_write = keypad_0_keypad_in_a_write_cycle & 0;
 
   //keypad_0_keypad_in_a_write_cycle assignment, which is an e_assign
-  assign keypad_0_keypad_in_a_write_cycle = DE0_SOPC_clock_3_out_granted_keypad_0_keypad & DE0_SOPC_clock_3_out_write;
+  assign keypad_0_keypad_in_a_write_cycle = clock_crossing_bridge_m1_granted_keypad_0_keypad & clock_crossing_bridge_m1_write;
 
   //in_a_write_cycle assignment, which is an e_mux
   assign in_a_write_cycle = keypad_0_keypad_in_a_write_cycle;
@@ -6752,7 +5126,7 @@ module lcd_control_slave_arbitrator (
   //assign lcd_control_slave_readdata_from_sa = lcd_control_slave_readdata so that symbol knows where to group signals which may go to master only, which is an e_assign
   assign lcd_control_slave_readdata_from_sa = lcd_control_slave_readdata;
 
-  assign clock_crossing_bridge_m1_requests_lcd_control_slave = ({clock_crossing_bridge_m1_address_to_slave[10 : 4] , 4'b0} == 11'h490) & (clock_crossing_bridge_m1_read | clock_crossing_bridge_m1_write);
+  assign clock_crossing_bridge_m1_requests_lcd_control_slave = ({clock_crossing_bridge_m1_address_to_slave[10 : 4] , 4'b0} == 11'h470) & (clock_crossing_bridge_m1_read | clock_crossing_bridge_m1_write);
   //lcd_control_slave_arb_share_counter set values, which is an e_mux
   assign lcd_control_slave_arb_share_set_values = 1;
 
@@ -7048,7 +5422,7 @@ module lcd_light_s1_arbitrator (
   //assign lcd_light_s1_readdata_from_sa = lcd_light_s1_readdata so that symbol knows where to group signals which may go to master only, which is an e_assign
   assign lcd_light_s1_readdata_from_sa = lcd_light_s1_readdata;
 
-  assign clock_crossing_bridge_m1_requests_lcd_light_s1 = ({clock_crossing_bridge_m1_address_to_slave[10 : 4] , 4'b0} == 11'h4a0) & (clock_crossing_bridge_m1_read | clock_crossing_bridge_m1_write);
+  assign clock_crossing_bridge_m1_requests_lcd_light_s1 = ({clock_crossing_bridge_m1_address_to_slave[10 : 4] , 4'b0} == 11'h480) & (clock_crossing_bridge_m1_read | clock_crossing_bridge_m1_write);
   //lcd_light_s1_arb_share_counter set values, which is an e_mux
   assign lcd_light_s1_arb_share_set_values = 1;
 
@@ -7322,7 +5696,7 @@ module leds_s1_arbitrator (
   //assign leds_s1_readdata_from_sa = leds_s1_readdata so that symbol knows where to group signals which may go to master only, which is an e_assign
   assign leds_s1_readdata_from_sa = leds_s1_readdata;
 
-  assign clock_crossing_bridge_m1_requests_leds_s1 = ({clock_crossing_bridge_m1_address_to_slave[10 : 4] , 4'b0} == 11'h460) & (clock_crossing_bridge_m1_read | clock_crossing_bridge_m1_write);
+  assign clock_crossing_bridge_m1_requests_leds_s1 = ({clock_crossing_bridge_m1_address_to_slave[10 : 4] , 4'b0} == 11'h440) & (clock_crossing_bridge_m1_read | clock_crossing_bridge_m1_write);
   //leds_s1_arb_share_counter set values, which is an e_mux
   assign leds_s1_arb_share_set_values = 1;
 
@@ -9563,7 +7937,7 @@ module seg7_s1_arbitrator (
   //assign seg7_s1_readdata_from_sa = seg7_s1_readdata so that symbol knows where to group signals which may go to master only, which is an e_assign
   assign seg7_s1_readdata_from_sa = seg7_s1_readdata;
 
-  assign clock_crossing_bridge_m1_requests_seg7_s1 = ({clock_crossing_bridge_m1_address_to_slave[10 : 4] , 4'b0} == 11'h4b0) & (clock_crossing_bridge_m1_read | clock_crossing_bridge_m1_write);
+  assign clock_crossing_bridge_m1_requests_seg7_s1 = ({clock_crossing_bridge_m1_address_to_slave[10 : 4] , 4'b0} == 11'h490) & (clock_crossing_bridge_m1_read | clock_crossing_bridge_m1_write);
   //seg7_s1_arb_share_counter set values, which is an e_mux
   assign seg7_s1_arb_share_set_values = 1;
 
@@ -9842,7 +8216,7 @@ module switches_s1_arbitrator (
   //assign switches_s1_readdata_from_sa = switches_s1_readdata so that symbol knows where to group signals which may go to master only, which is an e_assign
   assign switches_s1_readdata_from_sa = switches_s1_readdata;
 
-  assign clock_crossing_bridge_m1_requests_switches_s1 = ({clock_crossing_bridge_m1_address_to_slave[10 : 4] , 4'b0} == 11'h470) & (clock_crossing_bridge_m1_read | clock_crossing_bridge_m1_write);
+  assign clock_crossing_bridge_m1_requests_switches_s1 = ({clock_crossing_bridge_m1_address_to_slave[10 : 4] , 4'b0} == 11'h450) & (clock_crossing_bridge_m1_read | clock_crossing_bridge_m1_write);
   //switches_s1_arb_share_counter set values, which is an e_mux
   assign switches_s1_arb_share_set_values = 1;
 
@@ -10108,7 +8482,7 @@ module sysid_control_slave_arbitrator (
   //assign sysid_control_slave_readdata_from_sa = sysid_control_slave_readdata so that symbol knows where to group signals which may go to master only, which is an e_assign
   assign sysid_control_slave_readdata_from_sa = sysid_control_slave_readdata;
 
-  assign clock_crossing_bridge_m1_requests_sysid_control_slave = (({clock_crossing_bridge_m1_address_to_slave[10 : 3] , 3'b0} == 11'h4c0) & (clock_crossing_bridge_m1_read | clock_crossing_bridge_m1_write)) & clock_crossing_bridge_m1_read;
+  assign clock_crossing_bridge_m1_requests_sysid_control_slave = (({clock_crossing_bridge_m1_address_to_slave[10 : 3] , 3'b0} == 11'h4a0) & (clock_crossing_bridge_m1_read | clock_crossing_bridge_m1_write)) & clock_crossing_bridge_m1_read;
   //sysid_control_slave_arb_share_counter set values, which is an e_mux
   assign sysid_control_slave_arb_share_set_values = 1;
 
@@ -10527,283 +8901,6 @@ module timer_s1_arbitrator (
 //synthesis translate_off
 //////////////// SIMULATION-ONLY CONTENTS
   //timer/s1 enable non-zero assertions, which is an e_register
-  always @(posedge clk or negedge reset_n)
-    begin
-      if (reset_n == 0)
-          enable_nonzero_assertions <= 0;
-      else 
-        enable_nonzero_assertions <= 1'b1;
-    end
-
-
-
-//////////////// END SIMULATION-ONLY CONTENTS
-
-//synthesis translate_on
-
-endmodule
-
-
-// synthesis translate_off
-`timescale 1ns / 1ps
-// synthesis translate_on
-
-// turn off superfluous verilog processor warnings 
-// altera message_level Level1 
-// altera message_off 10034 10035 10036 10037 10230 10240 10030 
-
-module timer_0_s1_arbitrator (
-                               // inputs:
-                                DE0_SOPC_clock_1_out_address_to_slave,
-                                DE0_SOPC_clock_1_out_nativeaddress,
-                                DE0_SOPC_clock_1_out_read,
-                                DE0_SOPC_clock_1_out_write,
-                                DE0_SOPC_clock_1_out_writedata,
-                                clk,
-                                reset_n,
-                                timer_0_s1_irq,
-                                timer_0_s1_readdata,
-
-                               // outputs:
-                                DE0_SOPC_clock_1_out_granted_timer_0_s1,
-                                DE0_SOPC_clock_1_out_qualified_request_timer_0_s1,
-                                DE0_SOPC_clock_1_out_read_data_valid_timer_0_s1,
-                                DE0_SOPC_clock_1_out_requests_timer_0_s1,
-                                d1_timer_0_s1_end_xfer,
-                                timer_0_s1_address,
-                                timer_0_s1_chipselect,
-                                timer_0_s1_irq_from_sa,
-                                timer_0_s1_readdata_from_sa,
-                                timer_0_s1_reset_n,
-                                timer_0_s1_write_n,
-                                timer_0_s1_writedata
-                             )
-;
-
-  output           DE0_SOPC_clock_1_out_granted_timer_0_s1;
-  output           DE0_SOPC_clock_1_out_qualified_request_timer_0_s1;
-  output           DE0_SOPC_clock_1_out_read_data_valid_timer_0_s1;
-  output           DE0_SOPC_clock_1_out_requests_timer_0_s1;
-  output           d1_timer_0_s1_end_xfer;
-  output  [  2: 0] timer_0_s1_address;
-  output           timer_0_s1_chipselect;
-  output           timer_0_s1_irq_from_sa;
-  output  [ 15: 0] timer_0_s1_readdata_from_sa;
-  output           timer_0_s1_reset_n;
-  output           timer_0_s1_write_n;
-  output  [ 15: 0] timer_0_s1_writedata;
-  input   [  3: 0] DE0_SOPC_clock_1_out_address_to_slave;
-  input   [  2: 0] DE0_SOPC_clock_1_out_nativeaddress;
-  input            DE0_SOPC_clock_1_out_read;
-  input            DE0_SOPC_clock_1_out_write;
-  input   [ 15: 0] DE0_SOPC_clock_1_out_writedata;
-  input            clk;
-  input            reset_n;
-  input            timer_0_s1_irq;
-  input   [ 15: 0] timer_0_s1_readdata;
-
-  wire             DE0_SOPC_clock_1_out_arbiterlock;
-  wire             DE0_SOPC_clock_1_out_arbiterlock2;
-  wire             DE0_SOPC_clock_1_out_continuerequest;
-  wire             DE0_SOPC_clock_1_out_granted_timer_0_s1;
-  wire             DE0_SOPC_clock_1_out_qualified_request_timer_0_s1;
-  wire             DE0_SOPC_clock_1_out_read_data_valid_timer_0_s1;
-  wire             DE0_SOPC_clock_1_out_requests_timer_0_s1;
-  wire             DE0_SOPC_clock_1_out_saved_grant_timer_0_s1;
-  reg              d1_reasons_to_wait;
-  reg              d1_timer_0_s1_end_xfer;
-  reg              enable_nonzero_assertions;
-  wire             end_xfer_arb_share_counter_term_timer_0_s1;
-  wire             in_a_read_cycle;
-  wire             in_a_write_cycle;
-  wire    [  2: 0] timer_0_s1_address;
-  wire             timer_0_s1_allgrants;
-  wire             timer_0_s1_allow_new_arb_cycle;
-  wire             timer_0_s1_any_bursting_master_saved_grant;
-  wire             timer_0_s1_any_continuerequest;
-  wire             timer_0_s1_arb_counter_enable;
-  reg              timer_0_s1_arb_share_counter;
-  wire             timer_0_s1_arb_share_counter_next_value;
-  wire             timer_0_s1_arb_share_set_values;
-  wire             timer_0_s1_beginbursttransfer_internal;
-  wire             timer_0_s1_begins_xfer;
-  wire             timer_0_s1_chipselect;
-  wire             timer_0_s1_end_xfer;
-  wire             timer_0_s1_firsttransfer;
-  wire             timer_0_s1_grant_vector;
-  wire             timer_0_s1_in_a_read_cycle;
-  wire             timer_0_s1_in_a_write_cycle;
-  wire             timer_0_s1_irq_from_sa;
-  wire             timer_0_s1_master_qreq_vector;
-  wire             timer_0_s1_non_bursting_master_requests;
-  wire    [ 15: 0] timer_0_s1_readdata_from_sa;
-  reg              timer_0_s1_reg_firsttransfer;
-  wire             timer_0_s1_reset_n;
-  reg              timer_0_s1_slavearbiterlockenable;
-  wire             timer_0_s1_slavearbiterlockenable2;
-  wire             timer_0_s1_unreg_firsttransfer;
-  wire             timer_0_s1_waits_for_read;
-  wire             timer_0_s1_waits_for_write;
-  wire             timer_0_s1_write_n;
-  wire    [ 15: 0] timer_0_s1_writedata;
-  wire             wait_for_timer_0_s1_counter;
-  always @(posedge clk or negedge reset_n)
-    begin
-      if (reset_n == 0)
-          d1_reasons_to_wait <= 0;
-      else 
-        d1_reasons_to_wait <= ~timer_0_s1_end_xfer;
-    end
-
-
-  assign timer_0_s1_begins_xfer = ~d1_reasons_to_wait & ((DE0_SOPC_clock_1_out_qualified_request_timer_0_s1));
-  //assign timer_0_s1_readdata_from_sa = timer_0_s1_readdata so that symbol knows where to group signals which may go to master only, which is an e_assign
-  assign timer_0_s1_readdata_from_sa = timer_0_s1_readdata;
-
-  assign DE0_SOPC_clock_1_out_requests_timer_0_s1 = (1) & (DE0_SOPC_clock_1_out_read | DE0_SOPC_clock_1_out_write);
-  //timer_0_s1_arb_share_counter set values, which is an e_mux
-  assign timer_0_s1_arb_share_set_values = 1;
-
-  //timer_0_s1_non_bursting_master_requests mux, which is an e_mux
-  assign timer_0_s1_non_bursting_master_requests = DE0_SOPC_clock_1_out_requests_timer_0_s1;
-
-  //timer_0_s1_any_bursting_master_saved_grant mux, which is an e_mux
-  assign timer_0_s1_any_bursting_master_saved_grant = 0;
-
-  //timer_0_s1_arb_share_counter_next_value assignment, which is an e_assign
-  assign timer_0_s1_arb_share_counter_next_value = timer_0_s1_firsttransfer ? (timer_0_s1_arb_share_set_values - 1) : |timer_0_s1_arb_share_counter ? (timer_0_s1_arb_share_counter - 1) : 0;
-
-  //timer_0_s1_allgrants all slave grants, which is an e_mux
-  assign timer_0_s1_allgrants = |timer_0_s1_grant_vector;
-
-  //timer_0_s1_end_xfer assignment, which is an e_assign
-  assign timer_0_s1_end_xfer = ~(timer_0_s1_waits_for_read | timer_0_s1_waits_for_write);
-
-  //end_xfer_arb_share_counter_term_timer_0_s1 arb share counter enable term, which is an e_assign
-  assign end_xfer_arb_share_counter_term_timer_0_s1 = timer_0_s1_end_xfer & (~timer_0_s1_any_bursting_master_saved_grant | in_a_read_cycle | in_a_write_cycle);
-
-  //timer_0_s1_arb_share_counter arbitration counter enable, which is an e_assign
-  assign timer_0_s1_arb_counter_enable = (end_xfer_arb_share_counter_term_timer_0_s1 & timer_0_s1_allgrants) | (end_xfer_arb_share_counter_term_timer_0_s1 & ~timer_0_s1_non_bursting_master_requests);
-
-  //timer_0_s1_arb_share_counter counter, which is an e_register
-  always @(posedge clk or negedge reset_n)
-    begin
-      if (reset_n == 0)
-          timer_0_s1_arb_share_counter <= 0;
-      else if (timer_0_s1_arb_counter_enable)
-          timer_0_s1_arb_share_counter <= timer_0_s1_arb_share_counter_next_value;
-    end
-
-
-  //timer_0_s1_slavearbiterlockenable slave enables arbiterlock, which is an e_register
-  always @(posedge clk or negedge reset_n)
-    begin
-      if (reset_n == 0)
-          timer_0_s1_slavearbiterlockenable <= 0;
-      else if ((|timer_0_s1_master_qreq_vector & end_xfer_arb_share_counter_term_timer_0_s1) | (end_xfer_arb_share_counter_term_timer_0_s1 & ~timer_0_s1_non_bursting_master_requests))
-          timer_0_s1_slavearbiterlockenable <= |timer_0_s1_arb_share_counter_next_value;
-    end
-
-
-  //DE0_SOPC_clock_1/out timer_0/s1 arbiterlock, which is an e_assign
-  assign DE0_SOPC_clock_1_out_arbiterlock = timer_0_s1_slavearbiterlockenable & DE0_SOPC_clock_1_out_continuerequest;
-
-  //timer_0_s1_slavearbiterlockenable2 slave enables arbiterlock2, which is an e_assign
-  assign timer_0_s1_slavearbiterlockenable2 = |timer_0_s1_arb_share_counter_next_value;
-
-  //DE0_SOPC_clock_1/out timer_0/s1 arbiterlock2, which is an e_assign
-  assign DE0_SOPC_clock_1_out_arbiterlock2 = timer_0_s1_slavearbiterlockenable2 & DE0_SOPC_clock_1_out_continuerequest;
-
-  //timer_0_s1_any_continuerequest at least one master continues requesting, which is an e_assign
-  assign timer_0_s1_any_continuerequest = 1;
-
-  //DE0_SOPC_clock_1_out_continuerequest continued request, which is an e_assign
-  assign DE0_SOPC_clock_1_out_continuerequest = 1;
-
-  assign DE0_SOPC_clock_1_out_qualified_request_timer_0_s1 = DE0_SOPC_clock_1_out_requests_timer_0_s1;
-  //timer_0_s1_writedata mux, which is an e_mux
-  assign timer_0_s1_writedata = DE0_SOPC_clock_1_out_writedata;
-
-  //master is always granted when requested
-  assign DE0_SOPC_clock_1_out_granted_timer_0_s1 = DE0_SOPC_clock_1_out_qualified_request_timer_0_s1;
-
-  //DE0_SOPC_clock_1/out saved-grant timer_0/s1, which is an e_assign
-  assign DE0_SOPC_clock_1_out_saved_grant_timer_0_s1 = DE0_SOPC_clock_1_out_requests_timer_0_s1;
-
-  //allow new arb cycle for timer_0/s1, which is an e_assign
-  assign timer_0_s1_allow_new_arb_cycle = 1;
-
-  //placeholder chosen master
-  assign timer_0_s1_grant_vector = 1;
-
-  //placeholder vector of master qualified-requests
-  assign timer_0_s1_master_qreq_vector = 1;
-
-  //timer_0_s1_reset_n assignment, which is an e_assign
-  assign timer_0_s1_reset_n = reset_n;
-
-  assign timer_0_s1_chipselect = DE0_SOPC_clock_1_out_granted_timer_0_s1;
-  //timer_0_s1_firsttransfer first transaction, which is an e_assign
-  assign timer_0_s1_firsttransfer = timer_0_s1_begins_xfer ? timer_0_s1_unreg_firsttransfer : timer_0_s1_reg_firsttransfer;
-
-  //timer_0_s1_unreg_firsttransfer first transaction, which is an e_assign
-  assign timer_0_s1_unreg_firsttransfer = ~(timer_0_s1_slavearbiterlockenable & timer_0_s1_any_continuerequest);
-
-  //timer_0_s1_reg_firsttransfer first transaction, which is an e_register
-  always @(posedge clk or negedge reset_n)
-    begin
-      if (reset_n == 0)
-          timer_0_s1_reg_firsttransfer <= 1'b1;
-      else if (timer_0_s1_begins_xfer)
-          timer_0_s1_reg_firsttransfer <= timer_0_s1_unreg_firsttransfer;
-    end
-
-
-  //timer_0_s1_beginbursttransfer_internal begin burst transfer, which is an e_assign
-  assign timer_0_s1_beginbursttransfer_internal = timer_0_s1_begins_xfer;
-
-  //~timer_0_s1_write_n assignment, which is an e_mux
-  assign timer_0_s1_write_n = ~(DE0_SOPC_clock_1_out_granted_timer_0_s1 & DE0_SOPC_clock_1_out_write);
-
-  //timer_0_s1_address mux, which is an e_mux
-  assign timer_0_s1_address = DE0_SOPC_clock_1_out_nativeaddress;
-
-  //d1_timer_0_s1_end_xfer register, which is an e_register
-  always @(posedge clk or negedge reset_n)
-    begin
-      if (reset_n == 0)
-          d1_timer_0_s1_end_xfer <= 1;
-      else 
-        d1_timer_0_s1_end_xfer <= timer_0_s1_end_xfer;
-    end
-
-
-  //timer_0_s1_waits_for_read in a cycle, which is an e_mux
-  assign timer_0_s1_waits_for_read = timer_0_s1_in_a_read_cycle & timer_0_s1_begins_xfer;
-
-  //timer_0_s1_in_a_read_cycle assignment, which is an e_assign
-  assign timer_0_s1_in_a_read_cycle = DE0_SOPC_clock_1_out_granted_timer_0_s1 & DE0_SOPC_clock_1_out_read;
-
-  //in_a_read_cycle assignment, which is an e_mux
-  assign in_a_read_cycle = timer_0_s1_in_a_read_cycle;
-
-  //timer_0_s1_waits_for_write in a cycle, which is an e_mux
-  assign timer_0_s1_waits_for_write = timer_0_s1_in_a_write_cycle & 0;
-
-  //timer_0_s1_in_a_write_cycle assignment, which is an e_assign
-  assign timer_0_s1_in_a_write_cycle = DE0_SOPC_clock_1_out_granted_timer_0_s1 & DE0_SOPC_clock_1_out_write;
-
-  //in_a_write_cycle assignment, which is an e_mux
-  assign in_a_write_cycle = timer_0_s1_in_a_write_cycle;
-
-  assign wait_for_timer_0_s1_counter = 0;
-  //assign timer_0_s1_irq_from_sa = timer_0_s1_irq so that symbol knows where to group signals which may go to master only, which is an e_assign
-  assign timer_0_s1_irq_from_sa = timer_0_s1_irq;
-
-
-//synthesis translate_off
-//////////////// SIMULATION-ONLY CONTENTS
-  //timer_0/s1 enable non-zero assertions, which is an e_register
   always @(posedge clk or negedge reset_n)
     begin
       if (reset_n == 0)
@@ -11863,15 +9960,15 @@ endmodule
 // altera message_level Level1 
 // altera message_off 10034 10035 10036 10037 10230 10240 10030 
 
-module DE0_SOPC_reset_pll_cpu_domain_synch_module (
-                                                    // inputs:
-                                                     clk,
-                                                     data_in,
-                                                     reset_n,
+module DE0_SOPC_reset_pll_io_domain_synch_module (
+                                                   // inputs:
+                                                    clk,
+                                                    data_in,
+                                                    reset_n,
 
-                                                    // outputs:
-                                                     data_out
-                                                  )
+                                                   // outputs:
+                                                    data_out
+                                                 )
 ;
 
   output           data_out;
@@ -11911,15 +10008,15 @@ endmodule
 // altera message_level Level1 
 // altera message_off 10034 10035 10036 10037 10230 10240 10030 
 
-module DE0_SOPC_reset_pll_io_domain_synch_module (
-                                                   // inputs:
-                                                    clk,
-                                                    data_in,
-                                                    reset_n,
+module DE0_SOPC_reset_pll_cpu_domain_synch_module (
+                                                    // inputs:
+                                                     clk,
+                                                     data_in,
+                                                     reset_n,
 
-                                                   // outputs:
-                                                    data_out
-                                                 )
+                                                    // outputs:
+                                                     data_out
+                                                  )
 ;
 
   output           data_out;
@@ -12016,11 +10113,11 @@ module DE0_SOPC (
                    pll_vga,
                    reset_n,
 
-                  // the_SD_CARD_Interface
-                   b_SD_cmd_to_and_from_the_SD_CARD_Interface,
-                   b_SD_dat3_to_and_from_the_SD_CARD_Interface,
-                   b_SD_dat_to_and_from_the_SD_CARD_Interface,
-                   o_SD_clock_from_the_SD_CARD_Interface,
+                  // the_Altera_UP_SD_Card
+                   b_SD_cmd_to_and_from_the_Altera_UP_SD_Card,
+                   b_SD_dat3_to_and_from_the_Altera_UP_SD_Card,
+                   b_SD_dat_to_and_from_the_Altera_UP_SD_Card,
+                   o_SD_clock_from_the_Altera_UP_SD_Card,
 
                   // the_buttons
                    in_port_to_the_buttons,
@@ -12076,12 +10173,12 @@ module DE0_SOPC (
   output           LCD_RW_from_the_lcd;
   inout   [  7: 0] LCD_data_to_and_from_the_lcd;
   output  [ 21: 0] address_to_the_cfi_flash;
-  inout            b_SD_cmd_to_and_from_the_SD_CARD_Interface;
-  inout            b_SD_dat3_to_and_from_the_SD_CARD_Interface;
-  inout            b_SD_dat_to_and_from_the_SD_CARD_Interface;
+  inout            b_SD_cmd_to_and_from_the_Altera_UP_SD_Card;
+  inout            b_SD_dat3_to_and_from_the_Altera_UP_SD_Card;
+  inout            b_SD_dat_to_and_from_the_Altera_UP_SD_Card;
   output  [  3: 0] col_from_the_keypad_0;
   inout   [ 15: 0] data_to_and_from_the_cfi_flash;
-  output           o_SD_clock_from_the_SD_CARD_Interface;
+  output           o_SD_clock_from_the_Altera_UP_SD_Card;
   output           out_port_from_the_lcd_light;
   output  [  9: 0] out_port_from_the_leds;
   output  [ 31: 0] out_port_from_the_seg7;
@@ -12109,6 +10206,17 @@ module DE0_SOPC (
   input   [  3: 0] row_to_the_keypad_0;
   input            rxd_to_the_uart;
 
+  wire    [  7: 0] Altera_UP_SD_Card_avalon_sdcard_slave_address;
+  wire    [  3: 0] Altera_UP_SD_Card_avalon_sdcard_slave_byteenable;
+  wire             Altera_UP_SD_Card_avalon_sdcard_slave_chipselect;
+  wire             Altera_UP_SD_Card_avalon_sdcard_slave_read;
+  wire    [ 31: 0] Altera_UP_SD_Card_avalon_sdcard_slave_readdata;
+  wire    [ 31: 0] Altera_UP_SD_Card_avalon_sdcard_slave_readdata_from_sa;
+  wire             Altera_UP_SD_Card_avalon_sdcard_slave_reset_n;
+  wire             Altera_UP_SD_Card_avalon_sdcard_slave_waitrequest;
+  wire             Altera_UP_SD_Card_avalon_sdcard_slave_waitrequest_from_sa;
+  wire             Altera_UP_SD_Card_avalon_sdcard_slave_write;
+  wire    [ 31: 0] Altera_UP_SD_Card_avalon_sdcard_slave_writedata;
   wire    [  3: 0] DE0_SOPC_clock_0_in_address;
   wire    [  1: 0] DE0_SOPC_clock_0_in_byteenable;
   wire             DE0_SOPC_clock_0_in_endofpacket;
@@ -12137,109 +10245,14 @@ module DE0_SOPC (
   wire             DE0_SOPC_clock_0_out_waitrequest;
   wire             DE0_SOPC_clock_0_out_write;
   wire    [ 15: 0] DE0_SOPC_clock_0_out_writedata;
-  wire    [  3: 0] DE0_SOPC_clock_1_in_address;
-  wire    [  1: 0] DE0_SOPC_clock_1_in_byteenable;
-  wire             DE0_SOPC_clock_1_in_endofpacket;
-  wire             DE0_SOPC_clock_1_in_endofpacket_from_sa;
-  wire    [  2: 0] DE0_SOPC_clock_1_in_nativeaddress;
-  wire             DE0_SOPC_clock_1_in_read;
-  wire    [ 15: 0] DE0_SOPC_clock_1_in_readdata;
-  wire    [ 15: 0] DE0_SOPC_clock_1_in_readdata_from_sa;
-  wire             DE0_SOPC_clock_1_in_reset_n;
-  wire             DE0_SOPC_clock_1_in_waitrequest;
-  wire             DE0_SOPC_clock_1_in_waitrequest_from_sa;
-  wire             DE0_SOPC_clock_1_in_write;
-  wire    [ 15: 0] DE0_SOPC_clock_1_in_writedata;
-  wire    [  3: 0] DE0_SOPC_clock_1_out_address;
-  wire    [  3: 0] DE0_SOPC_clock_1_out_address_to_slave;
-  wire    [  1: 0] DE0_SOPC_clock_1_out_byteenable;
-  wire             DE0_SOPC_clock_1_out_endofpacket;
-  wire             DE0_SOPC_clock_1_out_granted_timer_0_s1;
-  wire    [  2: 0] DE0_SOPC_clock_1_out_nativeaddress;
-  wire             DE0_SOPC_clock_1_out_qualified_request_timer_0_s1;
-  wire             DE0_SOPC_clock_1_out_read;
-  wire             DE0_SOPC_clock_1_out_read_data_valid_timer_0_s1;
-  wire    [ 15: 0] DE0_SOPC_clock_1_out_readdata;
-  wire             DE0_SOPC_clock_1_out_requests_timer_0_s1;
-  wire             DE0_SOPC_clock_1_out_reset_n;
-  wire             DE0_SOPC_clock_1_out_waitrequest;
-  wire             DE0_SOPC_clock_1_out_write;
-  wire    [ 15: 0] DE0_SOPC_clock_1_out_writedata;
-  wire    [  9: 0] DE0_SOPC_clock_2_in_address;
-  wire    [  3: 0] DE0_SOPC_clock_2_in_byteenable;
-  wire             DE0_SOPC_clock_2_in_endofpacket;
-  wire             DE0_SOPC_clock_2_in_endofpacket_from_sa;
-  wire    [  7: 0] DE0_SOPC_clock_2_in_nativeaddress;
-  wire             DE0_SOPC_clock_2_in_read;
-  wire    [ 31: 0] DE0_SOPC_clock_2_in_readdata;
-  wire    [ 31: 0] DE0_SOPC_clock_2_in_readdata_from_sa;
-  wire             DE0_SOPC_clock_2_in_reset_n;
-  wire             DE0_SOPC_clock_2_in_waitrequest;
-  wire             DE0_SOPC_clock_2_in_waitrequest_from_sa;
-  wire             DE0_SOPC_clock_2_in_write;
-  wire    [ 31: 0] DE0_SOPC_clock_2_in_writedata;
-  wire    [  9: 0] DE0_SOPC_clock_2_out_address;
-  wire    [  9: 0] DE0_SOPC_clock_2_out_address_to_slave;
-  wire    [  3: 0] DE0_SOPC_clock_2_out_byteenable;
-  wire             DE0_SOPC_clock_2_out_endofpacket;
-  wire             DE0_SOPC_clock_2_out_granted_SD_CARD_Interface_avalon_slave;
-  wire    [  7: 0] DE0_SOPC_clock_2_out_nativeaddress;
-  wire             DE0_SOPC_clock_2_out_qualified_request_SD_CARD_Interface_avalon_slave;
-  wire             DE0_SOPC_clock_2_out_read;
-  wire             DE0_SOPC_clock_2_out_read_data_valid_SD_CARD_Interface_avalon_slave;
-  wire    [ 31: 0] DE0_SOPC_clock_2_out_readdata;
-  wire             DE0_SOPC_clock_2_out_requests_SD_CARD_Interface_avalon_slave;
-  wire             DE0_SOPC_clock_2_out_reset_n;
-  wire             DE0_SOPC_clock_2_out_waitrequest;
-  wire             DE0_SOPC_clock_2_out_write;
-  wire    [ 31: 0] DE0_SOPC_clock_2_out_writedata;
-  wire    [  1: 0] DE0_SOPC_clock_3_in_address;
-  wire    [  3: 0] DE0_SOPC_clock_3_in_byteenable;
-  wire             DE0_SOPC_clock_3_in_endofpacket;
-  wire             DE0_SOPC_clock_3_in_endofpacket_from_sa;
-  wire             DE0_SOPC_clock_3_in_nativeaddress;
-  wire             DE0_SOPC_clock_3_in_read;
-  wire    [ 31: 0] DE0_SOPC_clock_3_in_readdata;
-  wire    [ 31: 0] DE0_SOPC_clock_3_in_readdata_from_sa;
-  wire             DE0_SOPC_clock_3_in_reset_n;
-  wire             DE0_SOPC_clock_3_in_waitrequest;
-  wire             DE0_SOPC_clock_3_in_waitrequest_from_sa;
-  wire             DE0_SOPC_clock_3_in_write;
-  wire    [ 31: 0] DE0_SOPC_clock_3_in_writedata;
-  wire    [  1: 0] DE0_SOPC_clock_3_out_address;
-  wire    [  1: 0] DE0_SOPC_clock_3_out_address_to_slave;
-  wire    [  3: 0] DE0_SOPC_clock_3_out_byteenable;
-  wire             DE0_SOPC_clock_3_out_endofpacket;
-  wire             DE0_SOPC_clock_3_out_granted_keypad_0_keypad;
-  wire             DE0_SOPC_clock_3_out_nativeaddress;
-  wire             DE0_SOPC_clock_3_out_qualified_request_keypad_0_keypad;
-  wire             DE0_SOPC_clock_3_out_read;
-  wire             DE0_SOPC_clock_3_out_read_data_valid_keypad_0_keypad;
-  wire    [ 31: 0] DE0_SOPC_clock_3_out_readdata;
-  wire             DE0_SOPC_clock_3_out_requests_keypad_0_keypad;
-  wire             DE0_SOPC_clock_3_out_reset_n;
-  wire             DE0_SOPC_clock_3_out_waitrequest;
-  wire             DE0_SOPC_clock_3_out_write;
-  wire    [ 31: 0] DE0_SOPC_clock_3_out_writedata;
   wire             LCD_E_from_the_lcd;
   wire             LCD_RS_from_the_lcd;
   wire             LCD_RW_from_the_lcd;
   wire    [  7: 0] LCD_data_to_and_from_the_lcd;
-  wire    [  7: 0] SD_CARD_Interface_avalon_slave_address;
-  wire    [  3: 0] SD_CARD_Interface_avalon_slave_byteenable;
-  wire             SD_CARD_Interface_avalon_slave_chipselect;
-  wire             SD_CARD_Interface_avalon_slave_read;
-  wire    [ 31: 0] SD_CARD_Interface_avalon_slave_readdata;
-  wire    [ 31: 0] SD_CARD_Interface_avalon_slave_readdata_from_sa;
-  wire             SD_CARD_Interface_avalon_slave_reset_n;
-  wire             SD_CARD_Interface_avalon_slave_waitrequest;
-  wire             SD_CARD_Interface_avalon_slave_waitrequest_from_sa;
-  wire             SD_CARD_Interface_avalon_slave_write;
-  wire    [ 31: 0] SD_CARD_Interface_avalon_slave_writedata;
   wire    [ 21: 0] address_to_the_cfi_flash;
-  wire             b_SD_cmd_to_and_from_the_SD_CARD_Interface;
-  wire             b_SD_dat3_to_and_from_the_SD_CARD_Interface;
-  wire             b_SD_dat_to_and_from_the_SD_CARD_Interface;
+  wire             b_SD_cmd_to_and_from_the_Altera_UP_SD_Card;
+  wire             b_SD_dat3_to_and_from_the_Altera_UP_SD_Card;
+  wire             b_SD_dat_to_and_from_the_Altera_UP_SD_Card;
   wire    [  1: 0] buttons_s1_address;
   wire             buttons_s1_chipselect;
   wire             buttons_s1_irq;
@@ -12256,10 +10269,9 @@ module DE0_SOPC (
   wire    [ 10: 0] clock_crossing_bridge_m1_address_to_slave;
   wire    [  3: 0] clock_crossing_bridge_m1_byteenable;
   wire             clock_crossing_bridge_m1_endofpacket;
-  wire             clock_crossing_bridge_m1_granted_DE0_SOPC_clock_1_in;
-  wire             clock_crossing_bridge_m1_granted_DE0_SOPC_clock_2_in;
-  wire             clock_crossing_bridge_m1_granted_DE0_SOPC_clock_3_in;
+  wire             clock_crossing_bridge_m1_granted_Altera_UP_SD_Card_avalon_sdcard_slave;
   wire             clock_crossing_bridge_m1_granted_buttons_s1;
+  wire             clock_crossing_bridge_m1_granted_keypad_0_keypad;
   wire             clock_crossing_bridge_m1_granted_lcd_control_slave;
   wire             clock_crossing_bridge_m1_granted_lcd_light_s1;
   wire             clock_crossing_bridge_m1_granted_leds_s1;
@@ -12270,10 +10282,9 @@ module DE0_SOPC (
   wire             clock_crossing_bridge_m1_granted_uart_s1;
   wire             clock_crossing_bridge_m1_latency_counter;
   wire    [  8: 0] clock_crossing_bridge_m1_nativeaddress;
-  wire             clock_crossing_bridge_m1_qualified_request_DE0_SOPC_clock_1_in;
-  wire             clock_crossing_bridge_m1_qualified_request_DE0_SOPC_clock_2_in;
-  wire             clock_crossing_bridge_m1_qualified_request_DE0_SOPC_clock_3_in;
+  wire             clock_crossing_bridge_m1_qualified_request_Altera_UP_SD_Card_avalon_sdcard_slave;
   wire             clock_crossing_bridge_m1_qualified_request_buttons_s1;
+  wire             clock_crossing_bridge_m1_qualified_request_keypad_0_keypad;
   wire             clock_crossing_bridge_m1_qualified_request_lcd_control_slave;
   wire             clock_crossing_bridge_m1_qualified_request_lcd_light_s1;
   wire             clock_crossing_bridge_m1_qualified_request_leds_s1;
@@ -12283,10 +10294,9 @@ module DE0_SOPC (
   wire             clock_crossing_bridge_m1_qualified_request_timer_s1;
   wire             clock_crossing_bridge_m1_qualified_request_uart_s1;
   wire             clock_crossing_bridge_m1_read;
-  wire             clock_crossing_bridge_m1_read_data_valid_DE0_SOPC_clock_1_in;
-  wire             clock_crossing_bridge_m1_read_data_valid_DE0_SOPC_clock_2_in;
-  wire             clock_crossing_bridge_m1_read_data_valid_DE0_SOPC_clock_3_in;
+  wire             clock_crossing_bridge_m1_read_data_valid_Altera_UP_SD_Card_avalon_sdcard_slave;
   wire             clock_crossing_bridge_m1_read_data_valid_buttons_s1;
+  wire             clock_crossing_bridge_m1_read_data_valid_keypad_0_keypad;
   wire             clock_crossing_bridge_m1_read_data_valid_lcd_control_slave;
   wire             clock_crossing_bridge_m1_read_data_valid_lcd_light_s1;
   wire             clock_crossing_bridge_m1_read_data_valid_leds_s1;
@@ -12297,10 +10307,9 @@ module DE0_SOPC (
   wire             clock_crossing_bridge_m1_read_data_valid_uart_s1;
   wire    [ 31: 0] clock_crossing_bridge_m1_readdata;
   wire             clock_crossing_bridge_m1_readdatavalid;
-  wire             clock_crossing_bridge_m1_requests_DE0_SOPC_clock_1_in;
-  wire             clock_crossing_bridge_m1_requests_DE0_SOPC_clock_2_in;
-  wire             clock_crossing_bridge_m1_requests_DE0_SOPC_clock_3_in;
+  wire             clock_crossing_bridge_m1_requests_Altera_UP_SD_Card_avalon_sdcard_slave;
   wire             clock_crossing_bridge_m1_requests_buttons_s1;
+  wire             clock_crossing_bridge_m1_requests_keypad_0_keypad;
   wire             clock_crossing_bridge_m1_requests_lcd_control_slave;
   wire             clock_crossing_bridge_m1_requests_lcd_light_s1;
   wire             clock_crossing_bridge_m1_requests_leds_s1;
@@ -12408,11 +10417,8 @@ module DE0_SOPC (
   wire             cpu_jtag_debug_module_resetrequest_from_sa;
   wire             cpu_jtag_debug_module_write;
   wire    [ 31: 0] cpu_jtag_debug_module_writedata;
+  wire             d1_Altera_UP_SD_Card_avalon_sdcard_slave_end_xfer;
   wire             d1_DE0_SOPC_clock_0_in_end_xfer;
-  wire             d1_DE0_SOPC_clock_1_in_end_xfer;
-  wire             d1_DE0_SOPC_clock_2_in_end_xfer;
-  wire             d1_DE0_SOPC_clock_3_in_end_xfer;
-  wire             d1_SD_CARD_Interface_avalon_slave_end_xfer;
   wire             d1_buttons_s1_end_xfer;
   wire             d1_clock_crossing_bridge_s1_end_xfer;
   wire             d1_cpu_jtag_debug_module_end_xfer;
@@ -12427,7 +10433,6 @@ module DE0_SOPC (
   wire             d1_seg7_s1_end_xfer;
   wire             d1_switches_s1_end_xfer;
   wire             d1_sysid_control_slave_end_xfer;
-  wire             d1_timer_0_s1_end_xfer;
   wire             d1_timer_s1_end_xfer;
   wire             d1_tristate_bridge_avalon_slave_end_xfer;
   wire             d1_uart_s1_end_xfer;
@@ -12476,7 +10481,7 @@ module DE0_SOPC (
   wire             leds_s1_reset_n;
   wire             leds_s1_write_n;
   wire    [ 31: 0] leds_s1_writedata;
-  wire             o_SD_clock_from_the_SD_CARD_Interface;
+  wire             o_SD_clock_from_the_Altera_UP_SD_Card;
   wire    [ 12: 0] onchip_mem_s1_address;
   wire    [  3: 0] onchip_mem_s1_byteenable;
   wire             onchip_mem_s1_chipselect;
@@ -12547,15 +10552,6 @@ module DE0_SOPC (
   wire    [ 31: 0] sysid_control_slave_readdata;
   wire    [ 31: 0] sysid_control_slave_readdata_from_sa;
   wire             sysid_control_slave_reset_n;
-  wire    [  2: 0] timer_0_s1_address;
-  wire             timer_0_s1_chipselect;
-  wire             timer_0_s1_irq;
-  wire             timer_0_s1_irq_from_sa;
-  wire    [ 15: 0] timer_0_s1_readdata;
-  wire    [ 15: 0] timer_0_s1_readdata_from_sa;
-  wire             timer_0_s1_reset_n;
-  wire             timer_0_s1_write_n;
-  wire    [ 15: 0] timer_0_s1_writedata;
   wire    [  2: 0] timer_s1_address;
   wire             timer_s1_chipselect;
   wire             timer_s1_irq;
@@ -12591,6 +10587,52 @@ module DE0_SOPC (
   wire    [  1: 0] zs_dqm_from_the_sdram;
   wire             zs_ras_n_from_the_sdram;
   wire             zs_we_n_from_the_sdram;
+  Altera_UP_SD_Card_avalon_sdcard_slave_arbitrator the_Altera_UP_SD_Card_avalon_sdcard_slave
+    (
+      .Altera_UP_SD_Card_avalon_sdcard_slave_address                                    (Altera_UP_SD_Card_avalon_sdcard_slave_address),
+      .Altera_UP_SD_Card_avalon_sdcard_slave_byteenable                                 (Altera_UP_SD_Card_avalon_sdcard_slave_byteenable),
+      .Altera_UP_SD_Card_avalon_sdcard_slave_chipselect                                 (Altera_UP_SD_Card_avalon_sdcard_slave_chipselect),
+      .Altera_UP_SD_Card_avalon_sdcard_slave_read                                       (Altera_UP_SD_Card_avalon_sdcard_slave_read),
+      .Altera_UP_SD_Card_avalon_sdcard_slave_readdata                                   (Altera_UP_SD_Card_avalon_sdcard_slave_readdata),
+      .Altera_UP_SD_Card_avalon_sdcard_slave_readdata_from_sa                           (Altera_UP_SD_Card_avalon_sdcard_slave_readdata_from_sa),
+      .Altera_UP_SD_Card_avalon_sdcard_slave_reset_n                                    (Altera_UP_SD_Card_avalon_sdcard_slave_reset_n),
+      .Altera_UP_SD_Card_avalon_sdcard_slave_waitrequest                                (Altera_UP_SD_Card_avalon_sdcard_slave_waitrequest),
+      .Altera_UP_SD_Card_avalon_sdcard_slave_waitrequest_from_sa                        (Altera_UP_SD_Card_avalon_sdcard_slave_waitrequest_from_sa),
+      .Altera_UP_SD_Card_avalon_sdcard_slave_write                                      (Altera_UP_SD_Card_avalon_sdcard_slave_write),
+      .Altera_UP_SD_Card_avalon_sdcard_slave_writedata                                  (Altera_UP_SD_Card_avalon_sdcard_slave_writedata),
+      .clk                                                                              (pll_io),
+      .clock_crossing_bridge_m1_address_to_slave                                        (clock_crossing_bridge_m1_address_to_slave),
+      .clock_crossing_bridge_m1_byteenable                                              (clock_crossing_bridge_m1_byteenable),
+      .clock_crossing_bridge_m1_granted_Altera_UP_SD_Card_avalon_sdcard_slave           (clock_crossing_bridge_m1_granted_Altera_UP_SD_Card_avalon_sdcard_slave),
+      .clock_crossing_bridge_m1_latency_counter                                         (clock_crossing_bridge_m1_latency_counter),
+      .clock_crossing_bridge_m1_qualified_request_Altera_UP_SD_Card_avalon_sdcard_slave (clock_crossing_bridge_m1_qualified_request_Altera_UP_SD_Card_avalon_sdcard_slave),
+      .clock_crossing_bridge_m1_read                                                    (clock_crossing_bridge_m1_read),
+      .clock_crossing_bridge_m1_read_data_valid_Altera_UP_SD_Card_avalon_sdcard_slave   (clock_crossing_bridge_m1_read_data_valid_Altera_UP_SD_Card_avalon_sdcard_slave),
+      .clock_crossing_bridge_m1_requests_Altera_UP_SD_Card_avalon_sdcard_slave          (clock_crossing_bridge_m1_requests_Altera_UP_SD_Card_avalon_sdcard_slave),
+      .clock_crossing_bridge_m1_write                                                   (clock_crossing_bridge_m1_write),
+      .clock_crossing_bridge_m1_writedata                                               (clock_crossing_bridge_m1_writedata),
+      .d1_Altera_UP_SD_Card_avalon_sdcard_slave_end_xfer                                (d1_Altera_UP_SD_Card_avalon_sdcard_slave_end_xfer),
+      .reset_n                                                                          (pll_io_reset_n)
+    );
+
+  Altera_UP_SD_Card the_Altera_UP_SD_Card
+    (
+      .b_SD_cmd             (b_SD_cmd_to_and_from_the_Altera_UP_SD_Card),
+      .b_SD_dat             (b_SD_dat_to_and_from_the_Altera_UP_SD_Card),
+      .b_SD_dat3            (b_SD_dat3_to_and_from_the_Altera_UP_SD_Card),
+      .i_avalon_address     (Altera_UP_SD_Card_avalon_sdcard_slave_address),
+      .i_avalon_byteenable  (Altera_UP_SD_Card_avalon_sdcard_slave_byteenable),
+      .i_avalon_chip_select (Altera_UP_SD_Card_avalon_sdcard_slave_chipselect),
+      .i_avalon_read        (Altera_UP_SD_Card_avalon_sdcard_slave_read),
+      .i_avalon_write       (Altera_UP_SD_Card_avalon_sdcard_slave_write),
+      .i_avalon_writedata   (Altera_UP_SD_Card_avalon_sdcard_slave_writedata),
+      .i_clock              (pll_io),
+      .i_reset_n            (Altera_UP_SD_Card_avalon_sdcard_slave_reset_n),
+      .o_SD_clock           (o_SD_clock_from_the_Altera_UP_SD_Card),
+      .o_avalon_readdata    (Altera_UP_SD_Card_avalon_sdcard_slave_readdata),
+      .o_avalon_waitrequest (Altera_UP_SD_Card_avalon_sdcard_slave_waitrequest)
+    );
+
   DE0_SOPC_clock_0_in_arbitrator the_DE0_SOPC_clock_0_in
     (
       .DE0_SOPC_clock_0_in_address                           (DE0_SOPC_clock_0_in_address),
@@ -12668,286 +10710,6 @@ module DE0_SOPC (
       .slave_writedata      (DE0_SOPC_clock_0_in_writedata)
     );
 
-  DE0_SOPC_clock_1_in_arbitrator the_DE0_SOPC_clock_1_in
-    (
-      .DE0_SOPC_clock_1_in_address                                    (DE0_SOPC_clock_1_in_address),
-      .DE0_SOPC_clock_1_in_byteenable                                 (DE0_SOPC_clock_1_in_byteenable),
-      .DE0_SOPC_clock_1_in_endofpacket                                (DE0_SOPC_clock_1_in_endofpacket),
-      .DE0_SOPC_clock_1_in_endofpacket_from_sa                        (DE0_SOPC_clock_1_in_endofpacket_from_sa),
-      .DE0_SOPC_clock_1_in_nativeaddress                              (DE0_SOPC_clock_1_in_nativeaddress),
-      .DE0_SOPC_clock_1_in_read                                       (DE0_SOPC_clock_1_in_read),
-      .DE0_SOPC_clock_1_in_readdata                                   (DE0_SOPC_clock_1_in_readdata),
-      .DE0_SOPC_clock_1_in_readdata_from_sa                           (DE0_SOPC_clock_1_in_readdata_from_sa),
-      .DE0_SOPC_clock_1_in_reset_n                                    (DE0_SOPC_clock_1_in_reset_n),
-      .DE0_SOPC_clock_1_in_waitrequest                                (DE0_SOPC_clock_1_in_waitrequest),
-      .DE0_SOPC_clock_1_in_waitrequest_from_sa                        (DE0_SOPC_clock_1_in_waitrequest_from_sa),
-      .DE0_SOPC_clock_1_in_write                                      (DE0_SOPC_clock_1_in_write),
-      .DE0_SOPC_clock_1_in_writedata                                  (DE0_SOPC_clock_1_in_writedata),
-      .clk                                                            (pll_io),
-      .clock_crossing_bridge_m1_address_to_slave                      (clock_crossing_bridge_m1_address_to_slave),
-      .clock_crossing_bridge_m1_byteenable                            (clock_crossing_bridge_m1_byteenable),
-      .clock_crossing_bridge_m1_granted_DE0_SOPC_clock_1_in           (clock_crossing_bridge_m1_granted_DE0_SOPC_clock_1_in),
-      .clock_crossing_bridge_m1_latency_counter                       (clock_crossing_bridge_m1_latency_counter),
-      .clock_crossing_bridge_m1_nativeaddress                         (clock_crossing_bridge_m1_nativeaddress),
-      .clock_crossing_bridge_m1_qualified_request_DE0_SOPC_clock_1_in (clock_crossing_bridge_m1_qualified_request_DE0_SOPC_clock_1_in),
-      .clock_crossing_bridge_m1_read                                  (clock_crossing_bridge_m1_read),
-      .clock_crossing_bridge_m1_read_data_valid_DE0_SOPC_clock_1_in   (clock_crossing_bridge_m1_read_data_valid_DE0_SOPC_clock_1_in),
-      .clock_crossing_bridge_m1_requests_DE0_SOPC_clock_1_in          (clock_crossing_bridge_m1_requests_DE0_SOPC_clock_1_in),
-      .clock_crossing_bridge_m1_write                                 (clock_crossing_bridge_m1_write),
-      .clock_crossing_bridge_m1_writedata                             (clock_crossing_bridge_m1_writedata),
-      .d1_DE0_SOPC_clock_1_in_end_xfer                                (d1_DE0_SOPC_clock_1_in_end_xfer),
-      .reset_n                                                        (pll_io_reset_n)
-    );
-
-  DE0_SOPC_clock_1_out_arbitrator the_DE0_SOPC_clock_1_out
-    (
-      .DE0_SOPC_clock_1_out_address                      (DE0_SOPC_clock_1_out_address),
-      .DE0_SOPC_clock_1_out_address_to_slave             (DE0_SOPC_clock_1_out_address_to_slave),
-      .DE0_SOPC_clock_1_out_byteenable                   (DE0_SOPC_clock_1_out_byteenable),
-      .DE0_SOPC_clock_1_out_granted_timer_0_s1           (DE0_SOPC_clock_1_out_granted_timer_0_s1),
-      .DE0_SOPC_clock_1_out_qualified_request_timer_0_s1 (DE0_SOPC_clock_1_out_qualified_request_timer_0_s1),
-      .DE0_SOPC_clock_1_out_read                         (DE0_SOPC_clock_1_out_read),
-      .DE0_SOPC_clock_1_out_read_data_valid_timer_0_s1   (DE0_SOPC_clock_1_out_read_data_valid_timer_0_s1),
-      .DE0_SOPC_clock_1_out_readdata                     (DE0_SOPC_clock_1_out_readdata),
-      .DE0_SOPC_clock_1_out_requests_timer_0_s1          (DE0_SOPC_clock_1_out_requests_timer_0_s1),
-      .DE0_SOPC_clock_1_out_reset_n                      (DE0_SOPC_clock_1_out_reset_n),
-      .DE0_SOPC_clock_1_out_waitrequest                  (DE0_SOPC_clock_1_out_waitrequest),
-      .DE0_SOPC_clock_1_out_write                        (DE0_SOPC_clock_1_out_write),
-      .DE0_SOPC_clock_1_out_writedata                    (DE0_SOPC_clock_1_out_writedata),
-      .clk                                               (clk),
-      .d1_timer_0_s1_end_xfer                            (d1_timer_0_s1_end_xfer),
-      .reset_n                                           (clk_reset_n),
-      .timer_0_s1_readdata_from_sa                       (timer_0_s1_readdata_from_sa)
-    );
-
-  DE0_SOPC_clock_1 the_DE0_SOPC_clock_1
-    (
-      .master_address       (DE0_SOPC_clock_1_out_address),
-      .master_byteenable    (DE0_SOPC_clock_1_out_byteenable),
-      .master_clk           (clk),
-      .master_endofpacket   (DE0_SOPC_clock_1_out_endofpacket),
-      .master_nativeaddress (DE0_SOPC_clock_1_out_nativeaddress),
-      .master_read          (DE0_SOPC_clock_1_out_read),
-      .master_readdata      (DE0_SOPC_clock_1_out_readdata),
-      .master_reset_n       (DE0_SOPC_clock_1_out_reset_n),
-      .master_waitrequest   (DE0_SOPC_clock_1_out_waitrequest),
-      .master_write         (DE0_SOPC_clock_1_out_write),
-      .master_writedata     (DE0_SOPC_clock_1_out_writedata),
-      .slave_address        (DE0_SOPC_clock_1_in_address),
-      .slave_byteenable     (DE0_SOPC_clock_1_in_byteenable),
-      .slave_clk            (pll_io),
-      .slave_endofpacket    (DE0_SOPC_clock_1_in_endofpacket),
-      .slave_nativeaddress  (DE0_SOPC_clock_1_in_nativeaddress),
-      .slave_read           (DE0_SOPC_clock_1_in_read),
-      .slave_readdata       (DE0_SOPC_clock_1_in_readdata),
-      .slave_reset_n        (DE0_SOPC_clock_1_in_reset_n),
-      .slave_waitrequest    (DE0_SOPC_clock_1_in_waitrequest),
-      .slave_write          (DE0_SOPC_clock_1_in_write),
-      .slave_writedata      (DE0_SOPC_clock_1_in_writedata)
-    );
-
-  DE0_SOPC_clock_2_in_arbitrator the_DE0_SOPC_clock_2_in
-    (
-      .DE0_SOPC_clock_2_in_address                                    (DE0_SOPC_clock_2_in_address),
-      .DE0_SOPC_clock_2_in_byteenable                                 (DE0_SOPC_clock_2_in_byteenable),
-      .DE0_SOPC_clock_2_in_endofpacket                                (DE0_SOPC_clock_2_in_endofpacket),
-      .DE0_SOPC_clock_2_in_endofpacket_from_sa                        (DE0_SOPC_clock_2_in_endofpacket_from_sa),
-      .DE0_SOPC_clock_2_in_nativeaddress                              (DE0_SOPC_clock_2_in_nativeaddress),
-      .DE0_SOPC_clock_2_in_read                                       (DE0_SOPC_clock_2_in_read),
-      .DE0_SOPC_clock_2_in_readdata                                   (DE0_SOPC_clock_2_in_readdata),
-      .DE0_SOPC_clock_2_in_readdata_from_sa                           (DE0_SOPC_clock_2_in_readdata_from_sa),
-      .DE0_SOPC_clock_2_in_reset_n                                    (DE0_SOPC_clock_2_in_reset_n),
-      .DE0_SOPC_clock_2_in_waitrequest                                (DE0_SOPC_clock_2_in_waitrequest),
-      .DE0_SOPC_clock_2_in_waitrequest_from_sa                        (DE0_SOPC_clock_2_in_waitrequest_from_sa),
-      .DE0_SOPC_clock_2_in_write                                      (DE0_SOPC_clock_2_in_write),
-      .DE0_SOPC_clock_2_in_writedata                                  (DE0_SOPC_clock_2_in_writedata),
-      .clk                                                            (pll_io),
-      .clock_crossing_bridge_m1_address_to_slave                      (clock_crossing_bridge_m1_address_to_slave),
-      .clock_crossing_bridge_m1_byteenable                            (clock_crossing_bridge_m1_byteenable),
-      .clock_crossing_bridge_m1_granted_DE0_SOPC_clock_2_in           (clock_crossing_bridge_m1_granted_DE0_SOPC_clock_2_in),
-      .clock_crossing_bridge_m1_latency_counter                       (clock_crossing_bridge_m1_latency_counter),
-      .clock_crossing_bridge_m1_nativeaddress                         (clock_crossing_bridge_m1_nativeaddress),
-      .clock_crossing_bridge_m1_qualified_request_DE0_SOPC_clock_2_in (clock_crossing_bridge_m1_qualified_request_DE0_SOPC_clock_2_in),
-      .clock_crossing_bridge_m1_read                                  (clock_crossing_bridge_m1_read),
-      .clock_crossing_bridge_m1_read_data_valid_DE0_SOPC_clock_2_in   (clock_crossing_bridge_m1_read_data_valid_DE0_SOPC_clock_2_in),
-      .clock_crossing_bridge_m1_requests_DE0_SOPC_clock_2_in          (clock_crossing_bridge_m1_requests_DE0_SOPC_clock_2_in),
-      .clock_crossing_bridge_m1_write                                 (clock_crossing_bridge_m1_write),
-      .clock_crossing_bridge_m1_writedata                             (clock_crossing_bridge_m1_writedata),
-      .d1_DE0_SOPC_clock_2_in_end_xfer                                (d1_DE0_SOPC_clock_2_in_end_xfer),
-      .reset_n                                                        (pll_io_reset_n)
-    );
-
-  DE0_SOPC_clock_2_out_arbitrator the_DE0_SOPC_clock_2_out
-    (
-      .DE0_SOPC_clock_2_out_address                                          (DE0_SOPC_clock_2_out_address),
-      .DE0_SOPC_clock_2_out_address_to_slave                                 (DE0_SOPC_clock_2_out_address_to_slave),
-      .DE0_SOPC_clock_2_out_byteenable                                       (DE0_SOPC_clock_2_out_byteenable),
-      .DE0_SOPC_clock_2_out_granted_SD_CARD_Interface_avalon_slave           (DE0_SOPC_clock_2_out_granted_SD_CARD_Interface_avalon_slave),
-      .DE0_SOPC_clock_2_out_qualified_request_SD_CARD_Interface_avalon_slave (DE0_SOPC_clock_2_out_qualified_request_SD_CARD_Interface_avalon_slave),
-      .DE0_SOPC_clock_2_out_read                                             (DE0_SOPC_clock_2_out_read),
-      .DE0_SOPC_clock_2_out_read_data_valid_SD_CARD_Interface_avalon_slave   (DE0_SOPC_clock_2_out_read_data_valid_SD_CARD_Interface_avalon_slave),
-      .DE0_SOPC_clock_2_out_readdata                                         (DE0_SOPC_clock_2_out_readdata),
-      .DE0_SOPC_clock_2_out_requests_SD_CARD_Interface_avalon_slave          (DE0_SOPC_clock_2_out_requests_SD_CARD_Interface_avalon_slave),
-      .DE0_SOPC_clock_2_out_reset_n                                          (DE0_SOPC_clock_2_out_reset_n),
-      .DE0_SOPC_clock_2_out_waitrequest                                      (DE0_SOPC_clock_2_out_waitrequest),
-      .DE0_SOPC_clock_2_out_write                                            (DE0_SOPC_clock_2_out_write),
-      .DE0_SOPC_clock_2_out_writedata                                        (DE0_SOPC_clock_2_out_writedata),
-      .SD_CARD_Interface_avalon_slave_readdata_from_sa                       (SD_CARD_Interface_avalon_slave_readdata_from_sa),
-      .SD_CARD_Interface_avalon_slave_waitrequest_from_sa                    (SD_CARD_Interface_avalon_slave_waitrequest_from_sa),
-      .clk                                                                   (clk),
-      .d1_SD_CARD_Interface_avalon_slave_end_xfer                            (d1_SD_CARD_Interface_avalon_slave_end_xfer),
-      .reset_n                                                               (clk_reset_n)
-    );
-
-  DE0_SOPC_clock_2 the_DE0_SOPC_clock_2
-    (
-      .master_address       (DE0_SOPC_clock_2_out_address),
-      .master_byteenable    (DE0_SOPC_clock_2_out_byteenable),
-      .master_clk           (clk),
-      .master_endofpacket   (DE0_SOPC_clock_2_out_endofpacket),
-      .master_nativeaddress (DE0_SOPC_clock_2_out_nativeaddress),
-      .master_read          (DE0_SOPC_clock_2_out_read),
-      .master_readdata      (DE0_SOPC_clock_2_out_readdata),
-      .master_reset_n       (DE0_SOPC_clock_2_out_reset_n),
-      .master_waitrequest   (DE0_SOPC_clock_2_out_waitrequest),
-      .master_write         (DE0_SOPC_clock_2_out_write),
-      .master_writedata     (DE0_SOPC_clock_2_out_writedata),
-      .slave_address        (DE0_SOPC_clock_2_in_address),
-      .slave_byteenable     (DE0_SOPC_clock_2_in_byteenable),
-      .slave_clk            (pll_io),
-      .slave_endofpacket    (DE0_SOPC_clock_2_in_endofpacket),
-      .slave_nativeaddress  (DE0_SOPC_clock_2_in_nativeaddress),
-      .slave_read           (DE0_SOPC_clock_2_in_read),
-      .slave_readdata       (DE0_SOPC_clock_2_in_readdata),
-      .slave_reset_n        (DE0_SOPC_clock_2_in_reset_n),
-      .slave_waitrequest    (DE0_SOPC_clock_2_in_waitrequest),
-      .slave_write          (DE0_SOPC_clock_2_in_write),
-      .slave_writedata      (DE0_SOPC_clock_2_in_writedata)
-    );
-
-  DE0_SOPC_clock_3_in_arbitrator the_DE0_SOPC_clock_3_in
-    (
-      .DE0_SOPC_clock_3_in_address                                    (DE0_SOPC_clock_3_in_address),
-      .DE0_SOPC_clock_3_in_byteenable                                 (DE0_SOPC_clock_3_in_byteenable),
-      .DE0_SOPC_clock_3_in_endofpacket                                (DE0_SOPC_clock_3_in_endofpacket),
-      .DE0_SOPC_clock_3_in_endofpacket_from_sa                        (DE0_SOPC_clock_3_in_endofpacket_from_sa),
-      .DE0_SOPC_clock_3_in_nativeaddress                              (DE0_SOPC_clock_3_in_nativeaddress),
-      .DE0_SOPC_clock_3_in_read                                       (DE0_SOPC_clock_3_in_read),
-      .DE0_SOPC_clock_3_in_readdata                                   (DE0_SOPC_clock_3_in_readdata),
-      .DE0_SOPC_clock_3_in_readdata_from_sa                           (DE0_SOPC_clock_3_in_readdata_from_sa),
-      .DE0_SOPC_clock_3_in_reset_n                                    (DE0_SOPC_clock_3_in_reset_n),
-      .DE0_SOPC_clock_3_in_waitrequest                                (DE0_SOPC_clock_3_in_waitrequest),
-      .DE0_SOPC_clock_3_in_waitrequest_from_sa                        (DE0_SOPC_clock_3_in_waitrequest_from_sa),
-      .DE0_SOPC_clock_3_in_write                                      (DE0_SOPC_clock_3_in_write),
-      .DE0_SOPC_clock_3_in_writedata                                  (DE0_SOPC_clock_3_in_writedata),
-      .clk                                                            (pll_io),
-      .clock_crossing_bridge_m1_address_to_slave                      (clock_crossing_bridge_m1_address_to_slave),
-      .clock_crossing_bridge_m1_byteenable                            (clock_crossing_bridge_m1_byteenable),
-      .clock_crossing_bridge_m1_granted_DE0_SOPC_clock_3_in           (clock_crossing_bridge_m1_granted_DE0_SOPC_clock_3_in),
-      .clock_crossing_bridge_m1_latency_counter                       (clock_crossing_bridge_m1_latency_counter),
-      .clock_crossing_bridge_m1_nativeaddress                         (clock_crossing_bridge_m1_nativeaddress),
-      .clock_crossing_bridge_m1_qualified_request_DE0_SOPC_clock_3_in (clock_crossing_bridge_m1_qualified_request_DE0_SOPC_clock_3_in),
-      .clock_crossing_bridge_m1_read                                  (clock_crossing_bridge_m1_read),
-      .clock_crossing_bridge_m1_read_data_valid_DE0_SOPC_clock_3_in   (clock_crossing_bridge_m1_read_data_valid_DE0_SOPC_clock_3_in),
-      .clock_crossing_bridge_m1_requests_DE0_SOPC_clock_3_in          (clock_crossing_bridge_m1_requests_DE0_SOPC_clock_3_in),
-      .clock_crossing_bridge_m1_write                                 (clock_crossing_bridge_m1_write),
-      .clock_crossing_bridge_m1_writedata                             (clock_crossing_bridge_m1_writedata),
-      .d1_DE0_SOPC_clock_3_in_end_xfer                                (d1_DE0_SOPC_clock_3_in_end_xfer),
-      .reset_n                                                        (pll_io_reset_n)
-    );
-
-  DE0_SOPC_clock_3_out_arbitrator the_DE0_SOPC_clock_3_out
-    (
-      .DE0_SOPC_clock_3_out_address                           (DE0_SOPC_clock_3_out_address),
-      .DE0_SOPC_clock_3_out_address_to_slave                  (DE0_SOPC_clock_3_out_address_to_slave),
-      .DE0_SOPC_clock_3_out_byteenable                        (DE0_SOPC_clock_3_out_byteenable),
-      .DE0_SOPC_clock_3_out_granted_keypad_0_keypad           (DE0_SOPC_clock_3_out_granted_keypad_0_keypad),
-      .DE0_SOPC_clock_3_out_qualified_request_keypad_0_keypad (DE0_SOPC_clock_3_out_qualified_request_keypad_0_keypad),
-      .DE0_SOPC_clock_3_out_read                              (DE0_SOPC_clock_3_out_read),
-      .DE0_SOPC_clock_3_out_read_data_valid_keypad_0_keypad   (DE0_SOPC_clock_3_out_read_data_valid_keypad_0_keypad),
-      .DE0_SOPC_clock_3_out_readdata                          (DE0_SOPC_clock_3_out_readdata),
-      .DE0_SOPC_clock_3_out_requests_keypad_0_keypad          (DE0_SOPC_clock_3_out_requests_keypad_0_keypad),
-      .DE0_SOPC_clock_3_out_reset_n                           (DE0_SOPC_clock_3_out_reset_n),
-      .DE0_SOPC_clock_3_out_waitrequest                       (DE0_SOPC_clock_3_out_waitrequest),
-      .DE0_SOPC_clock_3_out_write                             (DE0_SOPC_clock_3_out_write),
-      .DE0_SOPC_clock_3_out_writedata                         (DE0_SOPC_clock_3_out_writedata),
-      .clk                                                    (clk),
-      .d1_keypad_0_keypad_end_xfer                            (d1_keypad_0_keypad_end_xfer),
-      .keypad_0_keypad_readdata_from_sa                       (keypad_0_keypad_readdata_from_sa),
-      .reset_n                                                (clk_reset_n)
-    );
-
-  DE0_SOPC_clock_3 the_DE0_SOPC_clock_3
-    (
-      .master_address       (DE0_SOPC_clock_3_out_address),
-      .master_byteenable    (DE0_SOPC_clock_3_out_byteenable),
-      .master_clk           (clk),
-      .master_endofpacket   (DE0_SOPC_clock_3_out_endofpacket),
-      .master_nativeaddress (DE0_SOPC_clock_3_out_nativeaddress),
-      .master_read          (DE0_SOPC_clock_3_out_read),
-      .master_readdata      (DE0_SOPC_clock_3_out_readdata),
-      .master_reset_n       (DE0_SOPC_clock_3_out_reset_n),
-      .master_waitrequest   (DE0_SOPC_clock_3_out_waitrequest),
-      .master_write         (DE0_SOPC_clock_3_out_write),
-      .master_writedata     (DE0_SOPC_clock_3_out_writedata),
-      .slave_address        (DE0_SOPC_clock_3_in_address),
-      .slave_byteenable     (DE0_SOPC_clock_3_in_byteenable),
-      .slave_clk            (pll_io),
-      .slave_endofpacket    (DE0_SOPC_clock_3_in_endofpacket),
-      .slave_nativeaddress  (DE0_SOPC_clock_3_in_nativeaddress),
-      .slave_read           (DE0_SOPC_clock_3_in_read),
-      .slave_readdata       (DE0_SOPC_clock_3_in_readdata),
-      .slave_reset_n        (DE0_SOPC_clock_3_in_reset_n),
-      .slave_waitrequest    (DE0_SOPC_clock_3_in_waitrequest),
-      .slave_write          (DE0_SOPC_clock_3_in_write),
-      .slave_writedata      (DE0_SOPC_clock_3_in_writedata)
-    );
-
-  SD_CARD_Interface_avalon_slave_arbitrator the_SD_CARD_Interface_avalon_slave
-    (
-      .DE0_SOPC_clock_2_out_address_to_slave                                 (DE0_SOPC_clock_2_out_address_to_slave),
-      .DE0_SOPC_clock_2_out_byteenable                                       (DE0_SOPC_clock_2_out_byteenable),
-      .DE0_SOPC_clock_2_out_granted_SD_CARD_Interface_avalon_slave           (DE0_SOPC_clock_2_out_granted_SD_CARD_Interface_avalon_slave),
-      .DE0_SOPC_clock_2_out_qualified_request_SD_CARD_Interface_avalon_slave (DE0_SOPC_clock_2_out_qualified_request_SD_CARD_Interface_avalon_slave),
-      .DE0_SOPC_clock_2_out_read                                             (DE0_SOPC_clock_2_out_read),
-      .DE0_SOPC_clock_2_out_read_data_valid_SD_CARD_Interface_avalon_slave   (DE0_SOPC_clock_2_out_read_data_valid_SD_CARD_Interface_avalon_slave),
-      .DE0_SOPC_clock_2_out_requests_SD_CARD_Interface_avalon_slave          (DE0_SOPC_clock_2_out_requests_SD_CARD_Interface_avalon_slave),
-      .DE0_SOPC_clock_2_out_write                                            (DE0_SOPC_clock_2_out_write),
-      .DE0_SOPC_clock_2_out_writedata                                        (DE0_SOPC_clock_2_out_writedata),
-      .SD_CARD_Interface_avalon_slave_address                                (SD_CARD_Interface_avalon_slave_address),
-      .SD_CARD_Interface_avalon_slave_byteenable                             (SD_CARD_Interface_avalon_slave_byteenable),
-      .SD_CARD_Interface_avalon_slave_chipselect                             (SD_CARD_Interface_avalon_slave_chipselect),
-      .SD_CARD_Interface_avalon_slave_read                                   (SD_CARD_Interface_avalon_slave_read),
-      .SD_CARD_Interface_avalon_slave_readdata                               (SD_CARD_Interface_avalon_slave_readdata),
-      .SD_CARD_Interface_avalon_slave_readdata_from_sa                       (SD_CARD_Interface_avalon_slave_readdata_from_sa),
-      .SD_CARD_Interface_avalon_slave_reset_n                                (SD_CARD_Interface_avalon_slave_reset_n),
-      .SD_CARD_Interface_avalon_slave_waitrequest                            (SD_CARD_Interface_avalon_slave_waitrequest),
-      .SD_CARD_Interface_avalon_slave_waitrequest_from_sa                    (SD_CARD_Interface_avalon_slave_waitrequest_from_sa),
-      .SD_CARD_Interface_avalon_slave_write                                  (SD_CARD_Interface_avalon_slave_write),
-      .SD_CARD_Interface_avalon_slave_writedata                              (SD_CARD_Interface_avalon_slave_writedata),
-      .clk                                                                   (clk),
-      .d1_SD_CARD_Interface_avalon_slave_end_xfer                            (d1_SD_CARD_Interface_avalon_slave_end_xfer),
-      .reset_n                                                               (clk_reset_n)
-    );
-
-  SD_CARD_Interface the_SD_CARD_Interface
-    (
-      .b_SD_cmd             (b_SD_cmd_to_and_from_the_SD_CARD_Interface),
-      .b_SD_dat             (b_SD_dat_to_and_from_the_SD_CARD_Interface),
-      .b_SD_dat3            (b_SD_dat3_to_and_from_the_SD_CARD_Interface),
-      .i_avalon_address     (SD_CARD_Interface_avalon_slave_address),
-      .i_avalon_byteenable  (SD_CARD_Interface_avalon_slave_byteenable),
-      .i_avalon_chip_select (SD_CARD_Interface_avalon_slave_chipselect),
-      .i_avalon_read        (SD_CARD_Interface_avalon_slave_read),
-      .i_avalon_write       (SD_CARD_Interface_avalon_slave_write),
-      .i_avalon_writedata   (SD_CARD_Interface_avalon_slave_writedata),
-      .i_clock              (clk),
-      .i_reset_n            (SD_CARD_Interface_avalon_slave_reset_n),
-      .o_SD_clock           (o_SD_clock_from_the_SD_CARD_Interface),
-      .o_avalon_readdata    (SD_CARD_Interface_avalon_slave_readdata),
-      .o_avalon_waitrequest (SD_CARD_Interface_avalon_slave_waitrequest)
-    );
-
   buttons_s1_arbitrator the_buttons_s1
     (
       .buttons_s1_address                                    (buttons_s1_address),
@@ -13021,99 +10783,87 @@ module DE0_SOPC (
 
   clock_crossing_bridge_m1_arbitrator the_clock_crossing_bridge_m1
     (
-      .DE0_SOPC_clock_1_in_endofpacket_from_sa                        (DE0_SOPC_clock_1_in_endofpacket_from_sa),
-      .DE0_SOPC_clock_1_in_readdata_from_sa                           (DE0_SOPC_clock_1_in_readdata_from_sa),
-      .DE0_SOPC_clock_1_in_waitrequest_from_sa                        (DE0_SOPC_clock_1_in_waitrequest_from_sa),
-      .DE0_SOPC_clock_2_in_endofpacket_from_sa                        (DE0_SOPC_clock_2_in_endofpacket_from_sa),
-      .DE0_SOPC_clock_2_in_readdata_from_sa                           (DE0_SOPC_clock_2_in_readdata_from_sa),
-      .DE0_SOPC_clock_2_in_waitrequest_from_sa                        (DE0_SOPC_clock_2_in_waitrequest_from_sa),
-      .DE0_SOPC_clock_3_in_endofpacket_from_sa                        (DE0_SOPC_clock_3_in_endofpacket_from_sa),
-      .DE0_SOPC_clock_3_in_readdata_from_sa                           (DE0_SOPC_clock_3_in_readdata_from_sa),
-      .DE0_SOPC_clock_3_in_waitrequest_from_sa                        (DE0_SOPC_clock_3_in_waitrequest_from_sa),
-      .buttons_s1_readdata_from_sa                                    (buttons_s1_readdata_from_sa),
-      .clk                                                            (pll_io),
-      .clock_crossing_bridge_m1_address                               (clock_crossing_bridge_m1_address),
-      .clock_crossing_bridge_m1_address_to_slave                      (clock_crossing_bridge_m1_address_to_slave),
-      .clock_crossing_bridge_m1_byteenable                            (clock_crossing_bridge_m1_byteenable),
-      .clock_crossing_bridge_m1_endofpacket                           (clock_crossing_bridge_m1_endofpacket),
-      .clock_crossing_bridge_m1_granted_DE0_SOPC_clock_1_in           (clock_crossing_bridge_m1_granted_DE0_SOPC_clock_1_in),
-      .clock_crossing_bridge_m1_granted_DE0_SOPC_clock_2_in           (clock_crossing_bridge_m1_granted_DE0_SOPC_clock_2_in),
-      .clock_crossing_bridge_m1_granted_DE0_SOPC_clock_3_in           (clock_crossing_bridge_m1_granted_DE0_SOPC_clock_3_in),
-      .clock_crossing_bridge_m1_granted_buttons_s1                    (clock_crossing_bridge_m1_granted_buttons_s1),
-      .clock_crossing_bridge_m1_granted_lcd_control_slave             (clock_crossing_bridge_m1_granted_lcd_control_slave),
-      .clock_crossing_bridge_m1_granted_lcd_light_s1                  (clock_crossing_bridge_m1_granted_lcd_light_s1),
-      .clock_crossing_bridge_m1_granted_leds_s1                       (clock_crossing_bridge_m1_granted_leds_s1),
-      .clock_crossing_bridge_m1_granted_seg7_s1                       (clock_crossing_bridge_m1_granted_seg7_s1),
-      .clock_crossing_bridge_m1_granted_switches_s1                   (clock_crossing_bridge_m1_granted_switches_s1),
-      .clock_crossing_bridge_m1_granted_sysid_control_slave           (clock_crossing_bridge_m1_granted_sysid_control_slave),
-      .clock_crossing_bridge_m1_granted_timer_s1                      (clock_crossing_bridge_m1_granted_timer_s1),
-      .clock_crossing_bridge_m1_granted_uart_s1                       (clock_crossing_bridge_m1_granted_uart_s1),
-      .clock_crossing_bridge_m1_latency_counter                       (clock_crossing_bridge_m1_latency_counter),
-      .clock_crossing_bridge_m1_qualified_request_DE0_SOPC_clock_1_in (clock_crossing_bridge_m1_qualified_request_DE0_SOPC_clock_1_in),
-      .clock_crossing_bridge_m1_qualified_request_DE0_SOPC_clock_2_in (clock_crossing_bridge_m1_qualified_request_DE0_SOPC_clock_2_in),
-      .clock_crossing_bridge_m1_qualified_request_DE0_SOPC_clock_3_in (clock_crossing_bridge_m1_qualified_request_DE0_SOPC_clock_3_in),
-      .clock_crossing_bridge_m1_qualified_request_buttons_s1          (clock_crossing_bridge_m1_qualified_request_buttons_s1),
-      .clock_crossing_bridge_m1_qualified_request_lcd_control_slave   (clock_crossing_bridge_m1_qualified_request_lcd_control_slave),
-      .clock_crossing_bridge_m1_qualified_request_lcd_light_s1        (clock_crossing_bridge_m1_qualified_request_lcd_light_s1),
-      .clock_crossing_bridge_m1_qualified_request_leds_s1             (clock_crossing_bridge_m1_qualified_request_leds_s1),
-      .clock_crossing_bridge_m1_qualified_request_seg7_s1             (clock_crossing_bridge_m1_qualified_request_seg7_s1),
-      .clock_crossing_bridge_m1_qualified_request_switches_s1         (clock_crossing_bridge_m1_qualified_request_switches_s1),
-      .clock_crossing_bridge_m1_qualified_request_sysid_control_slave (clock_crossing_bridge_m1_qualified_request_sysid_control_slave),
-      .clock_crossing_bridge_m1_qualified_request_timer_s1            (clock_crossing_bridge_m1_qualified_request_timer_s1),
-      .clock_crossing_bridge_m1_qualified_request_uart_s1             (clock_crossing_bridge_m1_qualified_request_uart_s1),
-      .clock_crossing_bridge_m1_read                                  (clock_crossing_bridge_m1_read),
-      .clock_crossing_bridge_m1_read_data_valid_DE0_SOPC_clock_1_in   (clock_crossing_bridge_m1_read_data_valid_DE0_SOPC_clock_1_in),
-      .clock_crossing_bridge_m1_read_data_valid_DE0_SOPC_clock_2_in   (clock_crossing_bridge_m1_read_data_valid_DE0_SOPC_clock_2_in),
-      .clock_crossing_bridge_m1_read_data_valid_DE0_SOPC_clock_3_in   (clock_crossing_bridge_m1_read_data_valid_DE0_SOPC_clock_3_in),
-      .clock_crossing_bridge_m1_read_data_valid_buttons_s1            (clock_crossing_bridge_m1_read_data_valid_buttons_s1),
-      .clock_crossing_bridge_m1_read_data_valid_lcd_control_slave     (clock_crossing_bridge_m1_read_data_valid_lcd_control_slave),
-      .clock_crossing_bridge_m1_read_data_valid_lcd_light_s1          (clock_crossing_bridge_m1_read_data_valid_lcd_light_s1),
-      .clock_crossing_bridge_m1_read_data_valid_leds_s1               (clock_crossing_bridge_m1_read_data_valid_leds_s1),
-      .clock_crossing_bridge_m1_read_data_valid_seg7_s1               (clock_crossing_bridge_m1_read_data_valid_seg7_s1),
-      .clock_crossing_bridge_m1_read_data_valid_switches_s1           (clock_crossing_bridge_m1_read_data_valid_switches_s1),
-      .clock_crossing_bridge_m1_read_data_valid_sysid_control_slave   (clock_crossing_bridge_m1_read_data_valid_sysid_control_slave),
-      .clock_crossing_bridge_m1_read_data_valid_timer_s1              (clock_crossing_bridge_m1_read_data_valid_timer_s1),
-      .clock_crossing_bridge_m1_read_data_valid_uart_s1               (clock_crossing_bridge_m1_read_data_valid_uart_s1),
-      .clock_crossing_bridge_m1_readdata                              (clock_crossing_bridge_m1_readdata),
-      .clock_crossing_bridge_m1_readdatavalid                         (clock_crossing_bridge_m1_readdatavalid),
-      .clock_crossing_bridge_m1_requests_DE0_SOPC_clock_1_in          (clock_crossing_bridge_m1_requests_DE0_SOPC_clock_1_in),
-      .clock_crossing_bridge_m1_requests_DE0_SOPC_clock_2_in          (clock_crossing_bridge_m1_requests_DE0_SOPC_clock_2_in),
-      .clock_crossing_bridge_m1_requests_DE0_SOPC_clock_3_in          (clock_crossing_bridge_m1_requests_DE0_SOPC_clock_3_in),
-      .clock_crossing_bridge_m1_requests_buttons_s1                   (clock_crossing_bridge_m1_requests_buttons_s1),
-      .clock_crossing_bridge_m1_requests_lcd_control_slave            (clock_crossing_bridge_m1_requests_lcd_control_slave),
-      .clock_crossing_bridge_m1_requests_lcd_light_s1                 (clock_crossing_bridge_m1_requests_lcd_light_s1),
-      .clock_crossing_bridge_m1_requests_leds_s1                      (clock_crossing_bridge_m1_requests_leds_s1),
-      .clock_crossing_bridge_m1_requests_seg7_s1                      (clock_crossing_bridge_m1_requests_seg7_s1),
-      .clock_crossing_bridge_m1_requests_switches_s1                  (clock_crossing_bridge_m1_requests_switches_s1),
-      .clock_crossing_bridge_m1_requests_sysid_control_slave          (clock_crossing_bridge_m1_requests_sysid_control_slave),
-      .clock_crossing_bridge_m1_requests_timer_s1                     (clock_crossing_bridge_m1_requests_timer_s1),
-      .clock_crossing_bridge_m1_requests_uart_s1                      (clock_crossing_bridge_m1_requests_uart_s1),
-      .clock_crossing_bridge_m1_reset_n                               (clock_crossing_bridge_m1_reset_n),
-      .clock_crossing_bridge_m1_waitrequest                           (clock_crossing_bridge_m1_waitrequest),
-      .clock_crossing_bridge_m1_write                                 (clock_crossing_bridge_m1_write),
-      .clock_crossing_bridge_m1_writedata                             (clock_crossing_bridge_m1_writedata),
-      .d1_DE0_SOPC_clock_1_in_end_xfer                                (d1_DE0_SOPC_clock_1_in_end_xfer),
-      .d1_DE0_SOPC_clock_2_in_end_xfer                                (d1_DE0_SOPC_clock_2_in_end_xfer),
-      .d1_DE0_SOPC_clock_3_in_end_xfer                                (d1_DE0_SOPC_clock_3_in_end_xfer),
-      .d1_buttons_s1_end_xfer                                         (d1_buttons_s1_end_xfer),
-      .d1_lcd_control_slave_end_xfer                                  (d1_lcd_control_slave_end_xfer),
-      .d1_lcd_light_s1_end_xfer                                       (d1_lcd_light_s1_end_xfer),
-      .d1_leds_s1_end_xfer                                            (d1_leds_s1_end_xfer),
-      .d1_seg7_s1_end_xfer                                            (d1_seg7_s1_end_xfer),
-      .d1_switches_s1_end_xfer                                        (d1_switches_s1_end_xfer),
-      .d1_sysid_control_slave_end_xfer                                (d1_sysid_control_slave_end_xfer),
-      .d1_timer_s1_end_xfer                                           (d1_timer_s1_end_xfer),
-      .d1_uart_s1_end_xfer                                            (d1_uart_s1_end_xfer),
-      .lcd_control_slave_readdata_from_sa                             (lcd_control_slave_readdata_from_sa),
-      .lcd_control_slave_wait_counter_eq_0                            (lcd_control_slave_wait_counter_eq_0),
-      .lcd_light_s1_readdata_from_sa                                  (lcd_light_s1_readdata_from_sa),
-      .leds_s1_readdata_from_sa                                       (leds_s1_readdata_from_sa),
-      .reset_n                                                        (pll_io_reset_n),
-      .seg7_s1_readdata_from_sa                                       (seg7_s1_readdata_from_sa),
-      .switches_s1_readdata_from_sa                                   (switches_s1_readdata_from_sa),
-      .sysid_control_slave_readdata_from_sa                           (sysid_control_slave_readdata_from_sa),
-      .timer_s1_readdata_from_sa                                      (timer_s1_readdata_from_sa),
-      .uart_s1_readdata_from_sa                                       (uart_s1_readdata_from_sa)
+      .Altera_UP_SD_Card_avalon_sdcard_slave_readdata_from_sa                           (Altera_UP_SD_Card_avalon_sdcard_slave_readdata_from_sa),
+      .Altera_UP_SD_Card_avalon_sdcard_slave_waitrequest_from_sa                        (Altera_UP_SD_Card_avalon_sdcard_slave_waitrequest_from_sa),
+      .buttons_s1_readdata_from_sa                                                      (buttons_s1_readdata_from_sa),
+      .clk                                                                              (pll_io),
+      .clock_crossing_bridge_m1_address                                                 (clock_crossing_bridge_m1_address),
+      .clock_crossing_bridge_m1_address_to_slave                                        (clock_crossing_bridge_m1_address_to_slave),
+      .clock_crossing_bridge_m1_byteenable                                              (clock_crossing_bridge_m1_byteenable),
+      .clock_crossing_bridge_m1_granted_Altera_UP_SD_Card_avalon_sdcard_slave           (clock_crossing_bridge_m1_granted_Altera_UP_SD_Card_avalon_sdcard_slave),
+      .clock_crossing_bridge_m1_granted_buttons_s1                                      (clock_crossing_bridge_m1_granted_buttons_s1),
+      .clock_crossing_bridge_m1_granted_keypad_0_keypad                                 (clock_crossing_bridge_m1_granted_keypad_0_keypad),
+      .clock_crossing_bridge_m1_granted_lcd_control_slave                               (clock_crossing_bridge_m1_granted_lcd_control_slave),
+      .clock_crossing_bridge_m1_granted_lcd_light_s1                                    (clock_crossing_bridge_m1_granted_lcd_light_s1),
+      .clock_crossing_bridge_m1_granted_leds_s1                                         (clock_crossing_bridge_m1_granted_leds_s1),
+      .clock_crossing_bridge_m1_granted_seg7_s1                                         (clock_crossing_bridge_m1_granted_seg7_s1),
+      .clock_crossing_bridge_m1_granted_switches_s1                                     (clock_crossing_bridge_m1_granted_switches_s1),
+      .clock_crossing_bridge_m1_granted_sysid_control_slave                             (clock_crossing_bridge_m1_granted_sysid_control_slave),
+      .clock_crossing_bridge_m1_granted_timer_s1                                        (clock_crossing_bridge_m1_granted_timer_s1),
+      .clock_crossing_bridge_m1_granted_uart_s1                                         (clock_crossing_bridge_m1_granted_uart_s1),
+      .clock_crossing_bridge_m1_latency_counter                                         (clock_crossing_bridge_m1_latency_counter),
+      .clock_crossing_bridge_m1_qualified_request_Altera_UP_SD_Card_avalon_sdcard_slave (clock_crossing_bridge_m1_qualified_request_Altera_UP_SD_Card_avalon_sdcard_slave),
+      .clock_crossing_bridge_m1_qualified_request_buttons_s1                            (clock_crossing_bridge_m1_qualified_request_buttons_s1),
+      .clock_crossing_bridge_m1_qualified_request_keypad_0_keypad                       (clock_crossing_bridge_m1_qualified_request_keypad_0_keypad),
+      .clock_crossing_bridge_m1_qualified_request_lcd_control_slave                     (clock_crossing_bridge_m1_qualified_request_lcd_control_slave),
+      .clock_crossing_bridge_m1_qualified_request_lcd_light_s1                          (clock_crossing_bridge_m1_qualified_request_lcd_light_s1),
+      .clock_crossing_bridge_m1_qualified_request_leds_s1                               (clock_crossing_bridge_m1_qualified_request_leds_s1),
+      .clock_crossing_bridge_m1_qualified_request_seg7_s1                               (clock_crossing_bridge_m1_qualified_request_seg7_s1),
+      .clock_crossing_bridge_m1_qualified_request_switches_s1                           (clock_crossing_bridge_m1_qualified_request_switches_s1),
+      .clock_crossing_bridge_m1_qualified_request_sysid_control_slave                   (clock_crossing_bridge_m1_qualified_request_sysid_control_slave),
+      .clock_crossing_bridge_m1_qualified_request_timer_s1                              (clock_crossing_bridge_m1_qualified_request_timer_s1),
+      .clock_crossing_bridge_m1_qualified_request_uart_s1                               (clock_crossing_bridge_m1_qualified_request_uart_s1),
+      .clock_crossing_bridge_m1_read                                                    (clock_crossing_bridge_m1_read),
+      .clock_crossing_bridge_m1_read_data_valid_Altera_UP_SD_Card_avalon_sdcard_slave   (clock_crossing_bridge_m1_read_data_valid_Altera_UP_SD_Card_avalon_sdcard_slave),
+      .clock_crossing_bridge_m1_read_data_valid_buttons_s1                              (clock_crossing_bridge_m1_read_data_valid_buttons_s1),
+      .clock_crossing_bridge_m1_read_data_valid_keypad_0_keypad                         (clock_crossing_bridge_m1_read_data_valid_keypad_0_keypad),
+      .clock_crossing_bridge_m1_read_data_valid_lcd_control_slave                       (clock_crossing_bridge_m1_read_data_valid_lcd_control_slave),
+      .clock_crossing_bridge_m1_read_data_valid_lcd_light_s1                            (clock_crossing_bridge_m1_read_data_valid_lcd_light_s1),
+      .clock_crossing_bridge_m1_read_data_valid_leds_s1                                 (clock_crossing_bridge_m1_read_data_valid_leds_s1),
+      .clock_crossing_bridge_m1_read_data_valid_seg7_s1                                 (clock_crossing_bridge_m1_read_data_valid_seg7_s1),
+      .clock_crossing_bridge_m1_read_data_valid_switches_s1                             (clock_crossing_bridge_m1_read_data_valid_switches_s1),
+      .clock_crossing_bridge_m1_read_data_valid_sysid_control_slave                     (clock_crossing_bridge_m1_read_data_valid_sysid_control_slave),
+      .clock_crossing_bridge_m1_read_data_valid_timer_s1                                (clock_crossing_bridge_m1_read_data_valid_timer_s1),
+      .clock_crossing_bridge_m1_read_data_valid_uart_s1                                 (clock_crossing_bridge_m1_read_data_valid_uart_s1),
+      .clock_crossing_bridge_m1_readdata                                                (clock_crossing_bridge_m1_readdata),
+      .clock_crossing_bridge_m1_readdatavalid                                           (clock_crossing_bridge_m1_readdatavalid),
+      .clock_crossing_bridge_m1_requests_Altera_UP_SD_Card_avalon_sdcard_slave          (clock_crossing_bridge_m1_requests_Altera_UP_SD_Card_avalon_sdcard_slave),
+      .clock_crossing_bridge_m1_requests_buttons_s1                                     (clock_crossing_bridge_m1_requests_buttons_s1),
+      .clock_crossing_bridge_m1_requests_keypad_0_keypad                                (clock_crossing_bridge_m1_requests_keypad_0_keypad),
+      .clock_crossing_bridge_m1_requests_lcd_control_slave                              (clock_crossing_bridge_m1_requests_lcd_control_slave),
+      .clock_crossing_bridge_m1_requests_lcd_light_s1                                   (clock_crossing_bridge_m1_requests_lcd_light_s1),
+      .clock_crossing_bridge_m1_requests_leds_s1                                        (clock_crossing_bridge_m1_requests_leds_s1),
+      .clock_crossing_bridge_m1_requests_seg7_s1                                        (clock_crossing_bridge_m1_requests_seg7_s1),
+      .clock_crossing_bridge_m1_requests_switches_s1                                    (clock_crossing_bridge_m1_requests_switches_s1),
+      .clock_crossing_bridge_m1_requests_sysid_control_slave                            (clock_crossing_bridge_m1_requests_sysid_control_slave),
+      .clock_crossing_bridge_m1_requests_timer_s1                                       (clock_crossing_bridge_m1_requests_timer_s1),
+      .clock_crossing_bridge_m1_requests_uart_s1                                        (clock_crossing_bridge_m1_requests_uart_s1),
+      .clock_crossing_bridge_m1_reset_n                                                 (clock_crossing_bridge_m1_reset_n),
+      .clock_crossing_bridge_m1_waitrequest                                             (clock_crossing_bridge_m1_waitrequest),
+      .clock_crossing_bridge_m1_write                                                   (clock_crossing_bridge_m1_write),
+      .clock_crossing_bridge_m1_writedata                                               (clock_crossing_bridge_m1_writedata),
+      .d1_Altera_UP_SD_Card_avalon_sdcard_slave_end_xfer                                (d1_Altera_UP_SD_Card_avalon_sdcard_slave_end_xfer),
+      .d1_buttons_s1_end_xfer                                                           (d1_buttons_s1_end_xfer),
+      .d1_keypad_0_keypad_end_xfer                                                      (d1_keypad_0_keypad_end_xfer),
+      .d1_lcd_control_slave_end_xfer                                                    (d1_lcd_control_slave_end_xfer),
+      .d1_lcd_light_s1_end_xfer                                                         (d1_lcd_light_s1_end_xfer),
+      .d1_leds_s1_end_xfer                                                              (d1_leds_s1_end_xfer),
+      .d1_seg7_s1_end_xfer                                                              (d1_seg7_s1_end_xfer),
+      .d1_switches_s1_end_xfer                                                          (d1_switches_s1_end_xfer),
+      .d1_sysid_control_slave_end_xfer                                                  (d1_sysid_control_slave_end_xfer),
+      .d1_timer_s1_end_xfer                                                             (d1_timer_s1_end_xfer),
+      .d1_uart_s1_end_xfer                                                              (d1_uart_s1_end_xfer),
+      .keypad_0_keypad_readdata_from_sa                                                 (keypad_0_keypad_readdata_from_sa),
+      .lcd_control_slave_readdata_from_sa                                               (lcd_control_slave_readdata_from_sa),
+      .lcd_control_slave_wait_counter_eq_0                                              (lcd_control_slave_wait_counter_eq_0),
+      .lcd_light_s1_readdata_from_sa                                                    (lcd_light_s1_readdata_from_sa),
+      .leds_s1_readdata_from_sa                                                         (leds_s1_readdata_from_sa),
+      .reset_n                                                                          (pll_io_reset_n),
+      .seg7_s1_readdata_from_sa                                                         (seg7_s1_readdata_from_sa),
+      .switches_s1_readdata_from_sa                                                     (switches_s1_readdata_from_sa),
+      .sysid_control_slave_readdata_from_sa                                             (sysid_control_slave_readdata_from_sa),
+      .timer_s1_readdata_from_sa                                                        (timer_s1_readdata_from_sa),
+      .uart_s1_readdata_from_sa                                                         (uart_s1_readdata_from_sa)
     );
 
   clock_crossing_bridge the_clock_crossing_bridge
@@ -13254,7 +11004,6 @@ module DE0_SOPC (
       .sdram_s1_readdata_from_sa                                               (sdram_s1_readdata_from_sa),
       .sdram_s1_waitrequest_from_sa                                            (sdram_s1_waitrequest_from_sa),
       .switches_s1_irq_from_sa                                                 (switches_s1_irq_from_sa),
-      .timer_0_s1_irq_from_sa                                                  (timer_0_s1_irq_from_sa),
       .timer_s1_irq_from_sa                                                    (timer_s1_irq_from_sa),
       .uart_s1_irq_from_sa                                                     (uart_s1_irq_from_sa)
     );
@@ -13377,19 +11126,20 @@ module DE0_SOPC (
 
   keypad_0_keypad_arbitrator the_keypad_0_keypad
     (
-      .DE0_SOPC_clock_3_out_address_to_slave                  (DE0_SOPC_clock_3_out_address_to_slave),
-      .DE0_SOPC_clock_3_out_granted_keypad_0_keypad           (DE0_SOPC_clock_3_out_granted_keypad_0_keypad),
-      .DE0_SOPC_clock_3_out_qualified_request_keypad_0_keypad (DE0_SOPC_clock_3_out_qualified_request_keypad_0_keypad),
-      .DE0_SOPC_clock_3_out_read                              (DE0_SOPC_clock_3_out_read),
-      .DE0_SOPC_clock_3_out_read_data_valid_keypad_0_keypad   (DE0_SOPC_clock_3_out_read_data_valid_keypad_0_keypad),
-      .DE0_SOPC_clock_3_out_requests_keypad_0_keypad          (DE0_SOPC_clock_3_out_requests_keypad_0_keypad),
-      .DE0_SOPC_clock_3_out_write                             (DE0_SOPC_clock_3_out_write),
-      .clk                                                    (clk),
-      .d1_keypad_0_keypad_end_xfer                            (d1_keypad_0_keypad_end_xfer),
-      .keypad_0_keypad_readdata                               (keypad_0_keypad_readdata),
-      .keypad_0_keypad_readdata_from_sa                       (keypad_0_keypad_readdata_from_sa),
-      .keypad_0_keypad_reset_n                                (keypad_0_keypad_reset_n),
-      .reset_n                                                (clk_reset_n)
+      .clk                                                        (pll_io),
+      .clock_crossing_bridge_m1_address_to_slave                  (clock_crossing_bridge_m1_address_to_slave),
+      .clock_crossing_bridge_m1_granted_keypad_0_keypad           (clock_crossing_bridge_m1_granted_keypad_0_keypad),
+      .clock_crossing_bridge_m1_latency_counter                   (clock_crossing_bridge_m1_latency_counter),
+      .clock_crossing_bridge_m1_qualified_request_keypad_0_keypad (clock_crossing_bridge_m1_qualified_request_keypad_0_keypad),
+      .clock_crossing_bridge_m1_read                              (clock_crossing_bridge_m1_read),
+      .clock_crossing_bridge_m1_read_data_valid_keypad_0_keypad   (clock_crossing_bridge_m1_read_data_valid_keypad_0_keypad),
+      .clock_crossing_bridge_m1_requests_keypad_0_keypad          (clock_crossing_bridge_m1_requests_keypad_0_keypad),
+      .clock_crossing_bridge_m1_write                             (clock_crossing_bridge_m1_write),
+      .d1_keypad_0_keypad_end_xfer                                (d1_keypad_0_keypad_end_xfer),
+      .keypad_0_keypad_readdata                                   (keypad_0_keypad_readdata),
+      .keypad_0_keypad_readdata_from_sa                           (keypad_0_keypad_readdata_from_sa),
+      .keypad_0_keypad_reset_n                                    (keypad_0_keypad_reset_n),
+      .reset_n                                                    (pll_io_reset_n)
     );
 
   keypad_0 the_keypad_0
@@ -13398,7 +11148,7 @@ module DE0_SOPC (
       .resetn  (keypad_0_keypad_reset_n),
       .row     (row_to_the_keypad_0),
       .shift   (keypad_0_keypad_readdata),
-      .sys_clk (clk)
+      .sys_clk (pll_io)
     );
 
   lcd_control_slave_arbitrator the_lcd_control_slave
@@ -13823,43 +11573,6 @@ module DE0_SOPC (
       .writedata  (timer_s1_writedata)
     );
 
-  timer_0_s1_arbitrator the_timer_0_s1
-    (
-      .DE0_SOPC_clock_1_out_address_to_slave             (DE0_SOPC_clock_1_out_address_to_slave),
-      .DE0_SOPC_clock_1_out_granted_timer_0_s1           (DE0_SOPC_clock_1_out_granted_timer_0_s1),
-      .DE0_SOPC_clock_1_out_nativeaddress                (DE0_SOPC_clock_1_out_nativeaddress),
-      .DE0_SOPC_clock_1_out_qualified_request_timer_0_s1 (DE0_SOPC_clock_1_out_qualified_request_timer_0_s1),
-      .DE0_SOPC_clock_1_out_read                         (DE0_SOPC_clock_1_out_read),
-      .DE0_SOPC_clock_1_out_read_data_valid_timer_0_s1   (DE0_SOPC_clock_1_out_read_data_valid_timer_0_s1),
-      .DE0_SOPC_clock_1_out_requests_timer_0_s1          (DE0_SOPC_clock_1_out_requests_timer_0_s1),
-      .DE0_SOPC_clock_1_out_write                        (DE0_SOPC_clock_1_out_write),
-      .DE0_SOPC_clock_1_out_writedata                    (DE0_SOPC_clock_1_out_writedata),
-      .clk                                               (clk),
-      .d1_timer_0_s1_end_xfer                            (d1_timer_0_s1_end_xfer),
-      .reset_n                                           (clk_reset_n),
-      .timer_0_s1_address                                (timer_0_s1_address),
-      .timer_0_s1_chipselect                             (timer_0_s1_chipselect),
-      .timer_0_s1_irq                                    (timer_0_s1_irq),
-      .timer_0_s1_irq_from_sa                            (timer_0_s1_irq_from_sa),
-      .timer_0_s1_readdata                               (timer_0_s1_readdata),
-      .timer_0_s1_readdata_from_sa                       (timer_0_s1_readdata_from_sa),
-      .timer_0_s1_reset_n                                (timer_0_s1_reset_n),
-      .timer_0_s1_write_n                                (timer_0_s1_write_n),
-      .timer_0_s1_writedata                              (timer_0_s1_writedata)
-    );
-
-  timer_0 the_timer_0
-    (
-      .address    (timer_0_s1_address),
-      .chipselect (timer_0_s1_chipselect),
-      .clk        (clk),
-      .irq        (timer_0_s1_irq),
-      .readdata   (timer_0_s1_readdata),
-      .reset_n    (timer_0_s1_reset_n),
-      .write_n    (timer_0_s1_write_n),
-      .writedata  (timer_0_s1_writedata)
-    );
-
   tristate_bridge_avalon_slave_arbitrator the_tristate_bridge_avalon_slave
     (
       .address_to_the_cfi_flash                                       (address_to_the_cfi_flash),
@@ -13947,11 +11660,11 @@ module DE0_SOPC (
     );
 
   //reset is asserted asynchronously and deasserted synchronously
-  DE0_SOPC_reset_pll_cpu_domain_synch_module DE0_SOPC_reset_pll_cpu_domain_synch
+  DE0_SOPC_reset_pll_io_domain_synch_module DE0_SOPC_reset_pll_io_domain_synch
     (
-      .clk      (pll_cpu),
+      .clk      (pll_io),
       .data_in  (1'b1),
-      .data_out (pll_cpu_reset_n),
+      .data_out (pll_io_reset_n),
       .reset_n  (reset_n_sources)
     );
 
@@ -13959,18 +11672,18 @@ module DE0_SOPC (
   assign reset_n_sources = ~(~reset_n |
     0 |
     0 |
+    cpu_jtag_debug_module_resetrequest_from_sa |
+    cpu_jtag_debug_module_resetrequest_from_sa |
     0 |
-    cpu_jtag_debug_module_resetrequest_from_sa |
-    cpu_jtag_debug_module_resetrequest_from_sa |
     pll_s1_resetrequest_from_sa |
     pll_s1_resetrequest_from_sa);
 
   //reset is asserted asynchronously and deasserted synchronously
-  DE0_SOPC_reset_pll_io_domain_synch_module DE0_SOPC_reset_pll_io_domain_synch
+  DE0_SOPC_reset_pll_cpu_domain_synch_module DE0_SOPC_reset_pll_cpu_domain_synch
     (
-      .clk      (pll_io),
+      .clk      (pll_cpu),
       .data_in  (1'b1),
-      .data_out (pll_io_reset_n),
+      .data_out (pll_cpu_reset_n),
       .reset_n  (reset_n_sources)
     );
 
@@ -13986,14 +11699,8 @@ module DE0_SOPC (
   //DE0_SOPC_clock_0_out_endofpacket of type endofpacket does not connect to anything so wire it to default (0)
   assign DE0_SOPC_clock_0_out_endofpacket = 0;
 
-  //DE0_SOPC_clock_1_out_endofpacket of type endofpacket does not connect to anything so wire it to default (0)
-  assign DE0_SOPC_clock_1_out_endofpacket = 0;
-
-  //DE0_SOPC_clock_2_out_endofpacket of type endofpacket does not connect to anything so wire it to default (0)
-  assign DE0_SOPC_clock_2_out_endofpacket = 0;
-
-  //DE0_SOPC_clock_3_out_endofpacket of type endofpacket does not connect to anything so wire it to default (0)
-  assign DE0_SOPC_clock_3_out_endofpacket = 0;
+  //clock_crossing_bridge_m1_endofpacket of type endofpacket does not connect to anything so wire it to default (0)
+  assign clock_crossing_bridge_m1_endofpacket = 0;
 
   //sysid_control_slave_clock of type clock does not connect to anything so wire it to default (0)
   assign sysid_control_slave_clock = 0;
@@ -14280,27 +11987,14 @@ endmodule
 `include "/altera/11.0/quartus/eda/sim_lib/altera_mf.v"
 `include "/altera/11.0/quartus/eda/sim_lib/220model.v"
 `include "/altera/11.0/quartus/eda/sim_lib/sgate.v"
+// Altera_UP_SD_Card.vhd
 // /home/netlab/prhemery/Altera_Systems_Labs/keypad/keypad.vhd
 // keypad_0.vhd
-// /home/netlab/prhemery/year3/co-design/altera_up_sd_card_avalon_interface/hdl/Altera_UP_SD_Card_48_bit_Command_Generator.vhd
-// /home/netlab/prhemery/year3/co-design/altera_up_sd_card_avalon_interface/hdl/Altera_UP_SD_Card_Avalon_Interface.vhd
-// /home/netlab/prhemery/year3/co-design/altera_up_sd_card_avalon_interface/hdl/Altera_UP_SD_Card_Buffer.vhd
-// /home/netlab/prhemery/year3/co-design/altera_up_sd_card_avalon_interface/hdl/Altera_UP_SD_Card_Clock.vhd
-// /home/netlab/prhemery/year3/co-design/altera_up_sd_card_avalon_interface/hdl/Altera_UP_SD_Card_Control_FSM.vhd
-// /home/netlab/prhemery/year3/co-design/altera_up_sd_card_avalon_interface/hdl/Altera_UP_SD_Card_Interface.vhd
-// /home/netlab/prhemery/year3/co-design/altera_up_sd_card_avalon_interface/hdl/Altera_UP_SD_Card_Memory_Block.vhd
-// /home/netlab/prhemery/year3/co-design/altera_up_sd_card_avalon_interface/hdl/Altera_UP_SD_Card_Response_Receiver.vhd
-// /home/netlab/prhemery/year3/co-design/altera_up_sd_card_avalon_interface/hdl/Altera_UP_SD_CRC16_Generator.vhd
-// /home/netlab/prhemery/year3/co-design/altera_up_sd_card_avalon_interface/hdl/Altera_UP_SD_CRC7_Generator.vhd
-// /home/netlab/prhemery/year3/co-design/altera_up_sd_card_avalon_interface/hdl/Altera_UP_SD_Signal_Trigger.vhd
-// SD_CARD_Interface.vhd
 `include "pll.v"
 `include "altpllpll.v"
 `include "clock_crossing_bridge.v"
 `include "leds.v"
 `include "uart.v"
-`include "DE0_SOPC_clock_1.v"
-`include "timer_0.v"
 `include "sdram.v"
 `include "sdram_test_component.v"
 `include "sysid.v"
@@ -14315,10 +12009,8 @@ endmodule
 `include "cpu_jtag_debug_module_sysclk.v"
 `include "cpu_jtag_debug_module_wrapper.v"
 `include "cpu.v"
-`include "DE0_SOPC_clock_2.v"
 `include "lcd_light.v"
 `include "onchip_mem.v"
-`include "DE0_SOPC_clock_3.v"
 `include "seg7.v"
 `include "buttons.v"
 
@@ -14330,20 +12022,16 @@ module test_bench
 
   wire             DE0_SOPC_clock_0_in_endofpacket_from_sa;
   wire             DE0_SOPC_clock_0_out_endofpacket;
-  wire             DE0_SOPC_clock_1_out_endofpacket;
-  wire             DE0_SOPC_clock_2_out_endofpacket;
-  wire    [  7: 0] DE0_SOPC_clock_2_out_nativeaddress;
-  wire             DE0_SOPC_clock_3_out_endofpacket;
-  wire             DE0_SOPC_clock_3_out_nativeaddress;
   wire             LCD_E_from_the_lcd;
   wire             LCD_RS_from_the_lcd;
   wire             LCD_RW_from_the_lcd;
   wire    [  7: 0] LCD_data_to_and_from_the_lcd;
   wire    [ 21: 0] address_to_the_cfi_flash;
-  wire             b_SD_cmd_to_and_from_the_SD_CARD_Interface;
-  wire             b_SD_dat3_to_and_from_the_SD_CARD_Interface;
-  wire             b_SD_dat_to_and_from_the_SD_CARD_Interface;
+  wire             b_SD_cmd_to_and_from_the_Altera_UP_SD_Card;
+  wire             b_SD_dat3_to_and_from_the_Altera_UP_SD_Card;
+  wire             b_SD_dat_to_and_from_the_Altera_UP_SD_Card;
   reg              clk;
+  wire             clock_crossing_bridge_m1_endofpacket;
   wire             clock_crossing_bridge_s1_endofpacket_from_sa;
   wire    [  3: 0] col_from_the_keypad_0;
   wire    [ 15: 0] data_to_and_from_the_cfi_flash;
@@ -14351,7 +12039,7 @@ module test_bench
   wire    [  9: 0] in_port_to_the_switches;
   wire             jtag_uart_avalon_jtag_slave_dataavailable_from_sa;
   wire             jtag_uart_avalon_jtag_slave_readyfordata_from_sa;
-  wire             o_SD_clock_from_the_SD_CARD_Interface;
+  wire             o_SD_clock_from_the_Altera_UP_SD_Card;
   wire             out_port_from_the_lcd_light;
   wire    [  9: 0] out_port_from_the_leds;
   wire    [ 31: 0] out_port_from_the_seg7;
@@ -14392,15 +12080,15 @@ module test_bench
       .LCD_RW_from_the_lcd                         (LCD_RW_from_the_lcd),
       .LCD_data_to_and_from_the_lcd                (LCD_data_to_and_from_the_lcd),
       .address_to_the_cfi_flash                    (address_to_the_cfi_flash),
-      .b_SD_cmd_to_and_from_the_SD_CARD_Interface  (b_SD_cmd_to_and_from_the_SD_CARD_Interface),
-      .b_SD_dat3_to_and_from_the_SD_CARD_Interface (b_SD_dat3_to_and_from_the_SD_CARD_Interface),
-      .b_SD_dat_to_and_from_the_SD_CARD_Interface  (b_SD_dat_to_and_from_the_SD_CARD_Interface),
+      .b_SD_cmd_to_and_from_the_Altera_UP_SD_Card  (b_SD_cmd_to_and_from_the_Altera_UP_SD_Card),
+      .b_SD_dat3_to_and_from_the_Altera_UP_SD_Card (b_SD_dat3_to_and_from_the_Altera_UP_SD_Card),
+      .b_SD_dat_to_and_from_the_Altera_UP_SD_Card  (b_SD_dat_to_and_from_the_Altera_UP_SD_Card),
       .clk                                         (clk),
       .col_from_the_keypad_0                       (col_from_the_keypad_0),
       .data_to_and_from_the_cfi_flash              (data_to_and_from_the_cfi_flash),
       .in_port_to_the_buttons                      (in_port_to_the_buttons),
       .in_port_to_the_switches                     (in_port_to_the_switches),
-      .o_SD_clock_from_the_SD_CARD_Interface       (o_SD_clock_from_the_SD_CARD_Interface),
+      .o_SD_clock_from_the_Altera_UP_SD_Card       (o_SD_clock_from_the_Altera_UP_SD_Card),
       .out_port_from_the_lcd_light                 (out_port_from_the_lcd_light),
       .out_port_from_the_leds                      (out_port_from_the_leds),
       .out_port_from_the_seg7                      (out_port_from_the_seg7),
