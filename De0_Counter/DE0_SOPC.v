@@ -2762,7 +2762,7 @@ module clock_crossing_bridge_m1_arbitrator (
                                               clock_crossing_bridge_m1_byteenable,
                                               clock_crossing_bridge_m1_granted_Altera_UP_SD_Card_avalon_sdcard_slave,
                                               clock_crossing_bridge_m1_granted_buttons_s1,
-                                              clock_crossing_bridge_m1_granted_keypad_0_keypad,
+                                              clock_crossing_bridge_m1_granted_keypad_keypad_controller_slave,
                                               clock_crossing_bridge_m1_granted_lcd_control_slave,
                                               clock_crossing_bridge_m1_granted_lcd_light_s1,
                                               clock_crossing_bridge_m1_granted_leds_s1,
@@ -2773,7 +2773,7 @@ module clock_crossing_bridge_m1_arbitrator (
                                               clock_crossing_bridge_m1_granted_uart_s1,
                                               clock_crossing_bridge_m1_qualified_request_Altera_UP_SD_Card_avalon_sdcard_slave,
                                               clock_crossing_bridge_m1_qualified_request_buttons_s1,
-                                              clock_crossing_bridge_m1_qualified_request_keypad_0_keypad,
+                                              clock_crossing_bridge_m1_qualified_request_keypad_keypad_controller_slave,
                                               clock_crossing_bridge_m1_qualified_request_lcd_control_slave,
                                               clock_crossing_bridge_m1_qualified_request_lcd_light_s1,
                                               clock_crossing_bridge_m1_qualified_request_leds_s1,
@@ -2785,7 +2785,7 @@ module clock_crossing_bridge_m1_arbitrator (
                                               clock_crossing_bridge_m1_read,
                                               clock_crossing_bridge_m1_read_data_valid_Altera_UP_SD_Card_avalon_sdcard_slave,
                                               clock_crossing_bridge_m1_read_data_valid_buttons_s1,
-                                              clock_crossing_bridge_m1_read_data_valid_keypad_0_keypad,
+                                              clock_crossing_bridge_m1_read_data_valid_keypad_keypad_controller_slave,
                                               clock_crossing_bridge_m1_read_data_valid_lcd_control_slave,
                                               clock_crossing_bridge_m1_read_data_valid_lcd_light_s1,
                                               clock_crossing_bridge_m1_read_data_valid_leds_s1,
@@ -2796,7 +2796,7 @@ module clock_crossing_bridge_m1_arbitrator (
                                               clock_crossing_bridge_m1_read_data_valid_uart_s1,
                                               clock_crossing_bridge_m1_requests_Altera_UP_SD_Card_avalon_sdcard_slave,
                                               clock_crossing_bridge_m1_requests_buttons_s1,
-                                              clock_crossing_bridge_m1_requests_keypad_0_keypad,
+                                              clock_crossing_bridge_m1_requests_keypad_keypad_controller_slave,
                                               clock_crossing_bridge_m1_requests_lcd_control_slave,
                                               clock_crossing_bridge_m1_requests_lcd_light_s1,
                                               clock_crossing_bridge_m1_requests_leds_s1,
@@ -2809,7 +2809,7 @@ module clock_crossing_bridge_m1_arbitrator (
                                               clock_crossing_bridge_m1_writedata,
                                               d1_Altera_UP_SD_Card_avalon_sdcard_slave_end_xfer,
                                               d1_buttons_s1_end_xfer,
-                                              d1_keypad_0_keypad_end_xfer,
+                                              d1_keypad_keypad_controller_slave_end_xfer,
                                               d1_lcd_control_slave_end_xfer,
                                               d1_lcd_light_s1_end_xfer,
                                               d1_leds_s1_end_xfer,
@@ -2818,7 +2818,7 @@ module clock_crossing_bridge_m1_arbitrator (
                                               d1_sysid_control_slave_end_xfer,
                                               d1_timer_s1_end_xfer,
                                               d1_uart_s1_end_xfer,
-                                              keypad_0_keypad_readdata_from_sa,
+                                              keypad_keypad_controller_slave_readdata_from_sa,
                                               lcd_control_slave_readdata_from_sa,
                                               lcd_control_slave_wait_counter_eq_0,
                                               lcd_light_s1_readdata_from_sa,
@@ -2854,7 +2854,7 @@ module clock_crossing_bridge_m1_arbitrator (
   input   [  3: 0] clock_crossing_bridge_m1_byteenable;
   input            clock_crossing_bridge_m1_granted_Altera_UP_SD_Card_avalon_sdcard_slave;
   input            clock_crossing_bridge_m1_granted_buttons_s1;
-  input            clock_crossing_bridge_m1_granted_keypad_0_keypad;
+  input            clock_crossing_bridge_m1_granted_keypad_keypad_controller_slave;
   input            clock_crossing_bridge_m1_granted_lcd_control_slave;
   input            clock_crossing_bridge_m1_granted_lcd_light_s1;
   input            clock_crossing_bridge_m1_granted_leds_s1;
@@ -2865,7 +2865,7 @@ module clock_crossing_bridge_m1_arbitrator (
   input            clock_crossing_bridge_m1_granted_uart_s1;
   input            clock_crossing_bridge_m1_qualified_request_Altera_UP_SD_Card_avalon_sdcard_slave;
   input            clock_crossing_bridge_m1_qualified_request_buttons_s1;
-  input            clock_crossing_bridge_m1_qualified_request_keypad_0_keypad;
+  input            clock_crossing_bridge_m1_qualified_request_keypad_keypad_controller_slave;
   input            clock_crossing_bridge_m1_qualified_request_lcd_control_slave;
   input            clock_crossing_bridge_m1_qualified_request_lcd_light_s1;
   input            clock_crossing_bridge_m1_qualified_request_leds_s1;
@@ -2877,7 +2877,7 @@ module clock_crossing_bridge_m1_arbitrator (
   input            clock_crossing_bridge_m1_read;
   input            clock_crossing_bridge_m1_read_data_valid_Altera_UP_SD_Card_avalon_sdcard_slave;
   input            clock_crossing_bridge_m1_read_data_valid_buttons_s1;
-  input            clock_crossing_bridge_m1_read_data_valid_keypad_0_keypad;
+  input            clock_crossing_bridge_m1_read_data_valid_keypad_keypad_controller_slave;
   input            clock_crossing_bridge_m1_read_data_valid_lcd_control_slave;
   input            clock_crossing_bridge_m1_read_data_valid_lcd_light_s1;
   input            clock_crossing_bridge_m1_read_data_valid_leds_s1;
@@ -2888,7 +2888,7 @@ module clock_crossing_bridge_m1_arbitrator (
   input            clock_crossing_bridge_m1_read_data_valid_uart_s1;
   input            clock_crossing_bridge_m1_requests_Altera_UP_SD_Card_avalon_sdcard_slave;
   input            clock_crossing_bridge_m1_requests_buttons_s1;
-  input            clock_crossing_bridge_m1_requests_keypad_0_keypad;
+  input            clock_crossing_bridge_m1_requests_keypad_keypad_controller_slave;
   input            clock_crossing_bridge_m1_requests_lcd_control_slave;
   input            clock_crossing_bridge_m1_requests_lcd_light_s1;
   input            clock_crossing_bridge_m1_requests_leds_s1;
@@ -2901,7 +2901,7 @@ module clock_crossing_bridge_m1_arbitrator (
   input   [ 31: 0] clock_crossing_bridge_m1_writedata;
   input            d1_Altera_UP_SD_Card_avalon_sdcard_slave_end_xfer;
   input            d1_buttons_s1_end_xfer;
-  input            d1_keypad_0_keypad_end_xfer;
+  input            d1_keypad_keypad_controller_slave_end_xfer;
   input            d1_lcd_control_slave_end_xfer;
   input            d1_lcd_light_s1_end_xfer;
   input            d1_leds_s1_end_xfer;
@@ -2910,7 +2910,7 @@ module clock_crossing_bridge_m1_arbitrator (
   input            d1_sysid_control_slave_end_xfer;
   input            d1_timer_s1_end_xfer;
   input            d1_uart_s1_end_xfer;
-  input   [ 31: 0] keypad_0_keypad_readdata_from_sa;
+  input   [ 31: 0] keypad_keypad_controller_slave_readdata_from_sa;
   input   [  7: 0] lcd_control_slave_readdata_from_sa;
   input            lcd_control_slave_wait_counter_eq_0;
   input   [ 31: 0] lcd_light_s1_readdata_from_sa;
@@ -2944,7 +2944,7 @@ module clock_crossing_bridge_m1_arbitrator (
   wire             r_1;
   wire             r_2;
   //r_0 master_run cascaded wait assignment, which is an e_assign
-  assign r_0 = 1 & (clock_crossing_bridge_m1_qualified_request_Altera_UP_SD_Card_avalon_sdcard_slave | ~clock_crossing_bridge_m1_requests_Altera_UP_SD_Card_avalon_sdcard_slave) & ((~clock_crossing_bridge_m1_qualified_request_Altera_UP_SD_Card_avalon_sdcard_slave | ~(clock_crossing_bridge_m1_read | clock_crossing_bridge_m1_write) | (1 & ~Altera_UP_SD_Card_avalon_sdcard_slave_waitrequest_from_sa & (clock_crossing_bridge_m1_read | clock_crossing_bridge_m1_write)))) & ((~clock_crossing_bridge_m1_qualified_request_Altera_UP_SD_Card_avalon_sdcard_slave | ~(clock_crossing_bridge_m1_read | clock_crossing_bridge_m1_write) | (1 & ~Altera_UP_SD_Card_avalon_sdcard_slave_waitrequest_from_sa & (clock_crossing_bridge_m1_read | clock_crossing_bridge_m1_write)))) & 1 & (clock_crossing_bridge_m1_qualified_request_buttons_s1 | ~clock_crossing_bridge_m1_requests_buttons_s1) & ((~clock_crossing_bridge_m1_qualified_request_buttons_s1 | ~clock_crossing_bridge_m1_read | (1 & ~d1_buttons_s1_end_xfer & clock_crossing_bridge_m1_read))) & ((~clock_crossing_bridge_m1_qualified_request_buttons_s1 | ~clock_crossing_bridge_m1_write | (1 & clock_crossing_bridge_m1_write))) & 1 & (clock_crossing_bridge_m1_qualified_request_keypad_0_keypad | ~clock_crossing_bridge_m1_requests_keypad_0_keypad) & ((~clock_crossing_bridge_m1_qualified_request_keypad_0_keypad | ~clock_crossing_bridge_m1_read | (1 & ~d1_keypad_0_keypad_end_xfer & clock_crossing_bridge_m1_read))) & ((~clock_crossing_bridge_m1_qualified_request_keypad_0_keypad | ~clock_crossing_bridge_m1_write | (1 & clock_crossing_bridge_m1_write))) & 1 & (clock_crossing_bridge_m1_qualified_request_lcd_control_slave | ~clock_crossing_bridge_m1_requests_lcd_control_slave) & ((~clock_crossing_bridge_m1_qualified_request_lcd_control_slave | ~clock_crossing_bridge_m1_read | (1 & ((lcd_control_slave_wait_counter_eq_0 & ~d1_lcd_control_slave_end_xfer)) & clock_crossing_bridge_m1_read))) & ((~clock_crossing_bridge_m1_qualified_request_lcd_control_slave | ~clock_crossing_bridge_m1_write | (1 & ((lcd_control_slave_wait_counter_eq_0 & ~d1_lcd_control_slave_end_xfer)) & clock_crossing_bridge_m1_write))) & 1 & (clock_crossing_bridge_m1_qualified_request_lcd_light_s1 | ~clock_crossing_bridge_m1_requests_lcd_light_s1) & ((~clock_crossing_bridge_m1_qualified_request_lcd_light_s1 | ~clock_crossing_bridge_m1_read | (1 & ~d1_lcd_light_s1_end_xfer & clock_crossing_bridge_m1_read))) & ((~clock_crossing_bridge_m1_qualified_request_lcd_light_s1 | ~clock_crossing_bridge_m1_write | (1 & clock_crossing_bridge_m1_write)));
+  assign r_0 = 1 & (clock_crossing_bridge_m1_qualified_request_Altera_UP_SD_Card_avalon_sdcard_slave | ~clock_crossing_bridge_m1_requests_Altera_UP_SD_Card_avalon_sdcard_slave) & ((~clock_crossing_bridge_m1_qualified_request_Altera_UP_SD_Card_avalon_sdcard_slave | ~(clock_crossing_bridge_m1_read | clock_crossing_bridge_m1_write) | (1 & ~Altera_UP_SD_Card_avalon_sdcard_slave_waitrequest_from_sa & (clock_crossing_bridge_m1_read | clock_crossing_bridge_m1_write)))) & ((~clock_crossing_bridge_m1_qualified_request_Altera_UP_SD_Card_avalon_sdcard_slave | ~(clock_crossing_bridge_m1_read | clock_crossing_bridge_m1_write) | (1 & ~Altera_UP_SD_Card_avalon_sdcard_slave_waitrequest_from_sa & (clock_crossing_bridge_m1_read | clock_crossing_bridge_m1_write)))) & 1 & (clock_crossing_bridge_m1_qualified_request_buttons_s1 | ~clock_crossing_bridge_m1_requests_buttons_s1) & ((~clock_crossing_bridge_m1_qualified_request_buttons_s1 | ~clock_crossing_bridge_m1_read | (1 & ~d1_buttons_s1_end_xfer & clock_crossing_bridge_m1_read))) & ((~clock_crossing_bridge_m1_qualified_request_buttons_s1 | ~clock_crossing_bridge_m1_write | (1 & clock_crossing_bridge_m1_write))) & 1 & (clock_crossing_bridge_m1_qualified_request_keypad_keypad_controller_slave | ~clock_crossing_bridge_m1_requests_keypad_keypad_controller_slave) & ((~clock_crossing_bridge_m1_qualified_request_keypad_keypad_controller_slave | ~clock_crossing_bridge_m1_read | (1 & ~d1_keypad_keypad_controller_slave_end_xfer & clock_crossing_bridge_m1_read))) & ((~clock_crossing_bridge_m1_qualified_request_keypad_keypad_controller_slave | ~clock_crossing_bridge_m1_write | (1 & clock_crossing_bridge_m1_write))) & 1 & (clock_crossing_bridge_m1_qualified_request_lcd_control_slave | ~clock_crossing_bridge_m1_requests_lcd_control_slave) & ((~clock_crossing_bridge_m1_qualified_request_lcd_control_slave | ~clock_crossing_bridge_m1_read | (1 & ((lcd_control_slave_wait_counter_eq_0 & ~d1_lcd_control_slave_end_xfer)) & clock_crossing_bridge_m1_read))) & ((~clock_crossing_bridge_m1_qualified_request_lcd_control_slave | ~clock_crossing_bridge_m1_write | (1 & ((lcd_control_slave_wait_counter_eq_0 & ~d1_lcd_control_slave_end_xfer)) & clock_crossing_bridge_m1_write))) & 1 & (clock_crossing_bridge_m1_qualified_request_lcd_light_s1 | ~clock_crossing_bridge_m1_requests_lcd_light_s1) & ((~clock_crossing_bridge_m1_qualified_request_lcd_light_s1 | ~clock_crossing_bridge_m1_read | (1 & ~d1_lcd_light_s1_end_xfer & clock_crossing_bridge_m1_read))) & ((~clock_crossing_bridge_m1_qualified_request_lcd_light_s1 | ~clock_crossing_bridge_m1_write | (1 & clock_crossing_bridge_m1_write)));
 
   //cascaded wait assignment, which is an e_assign
   assign clock_crossing_bridge_m1_run = r_0 & r_1 & r_2;
@@ -2971,7 +2971,7 @@ module clock_crossing_bridge_m1_arbitrator (
   //some slave is getting selected, which is an e_mux
   assign clock_crossing_bridge_m1_is_granted_some_slave = clock_crossing_bridge_m1_granted_Altera_UP_SD_Card_avalon_sdcard_slave |
     clock_crossing_bridge_m1_granted_buttons_s1 |
-    clock_crossing_bridge_m1_granted_keypad_0_keypad |
+    clock_crossing_bridge_m1_granted_keypad_keypad_controller_slave |
     clock_crossing_bridge_m1_granted_lcd_control_slave |
     clock_crossing_bridge_m1_granted_lcd_light_s1 |
     clock_crossing_bridge_m1_granted_leds_s1 |
@@ -2993,7 +2993,7 @@ module clock_crossing_bridge_m1_arbitrator (
     clock_crossing_bridge_m1_read_data_valid_buttons_s1 |
     clock_crossing_bridge_m1_read_but_no_slave_selected |
     pre_flush_clock_crossing_bridge_m1_readdatavalid |
-    clock_crossing_bridge_m1_read_data_valid_keypad_0_keypad |
+    clock_crossing_bridge_m1_read_data_valid_keypad_keypad_controller_slave |
     clock_crossing_bridge_m1_read_but_no_slave_selected |
     pre_flush_clock_crossing_bridge_m1_readdatavalid |
     clock_crossing_bridge_m1_read_data_valid_lcd_control_slave |
@@ -3022,7 +3022,7 @@ module clock_crossing_bridge_m1_arbitrator (
   //clock_crossing_bridge/m1 readdata mux, which is an e_mux
   assign clock_crossing_bridge_m1_readdata = ({32 {~(clock_crossing_bridge_m1_qualified_request_Altera_UP_SD_Card_avalon_sdcard_slave & clock_crossing_bridge_m1_read)}} | Altera_UP_SD_Card_avalon_sdcard_slave_readdata_from_sa) &
     ({32 {~(clock_crossing_bridge_m1_qualified_request_buttons_s1 & clock_crossing_bridge_m1_read)}} | buttons_s1_readdata_from_sa) &
-    ({32 {~(clock_crossing_bridge_m1_qualified_request_keypad_0_keypad & clock_crossing_bridge_m1_read)}} | keypad_0_keypad_readdata_from_sa) &
+    ({32 {~(clock_crossing_bridge_m1_qualified_request_keypad_keypad_controller_slave & clock_crossing_bridge_m1_read)}} | keypad_keypad_controller_slave_readdata_from_sa) &
     ({32 {~(clock_crossing_bridge_m1_qualified_request_lcd_control_slave & clock_crossing_bridge_m1_read)}} | lcd_control_slave_readdata_from_sa) &
     ({32 {~(clock_crossing_bridge_m1_qualified_request_lcd_light_s1 & clock_crossing_bridge_m1_read)}} | lcd_light_s1_readdata_from_sa) &
     ({32 {~(clock_crossing_bridge_m1_qualified_request_leds_s1 & clock_crossing_bridge_m1_read)}} | leds_s1_readdata_from_sa) &
@@ -4760,231 +4760,231 @@ endmodule
 // altera message_level Level1 
 // altera message_off 10034 10035 10036 10037 10230 10240 10030 
 
-module keypad_0_keypad_arbitrator (
-                                    // inputs:
-                                     clk,
-                                     clock_crossing_bridge_m1_address_to_slave,
-                                     clock_crossing_bridge_m1_latency_counter,
-                                     clock_crossing_bridge_m1_read,
-                                     clock_crossing_bridge_m1_write,
-                                     keypad_0_keypad_readdata,
-                                     reset_n,
+module keypad_keypad_controller_slave_arbitrator (
+                                                   // inputs:
+                                                    clk,
+                                                    clock_crossing_bridge_m1_address_to_slave,
+                                                    clock_crossing_bridge_m1_latency_counter,
+                                                    clock_crossing_bridge_m1_read,
+                                                    clock_crossing_bridge_m1_write,
+                                                    keypad_keypad_controller_slave_readdata,
+                                                    reset_n,
 
-                                    // outputs:
-                                     clock_crossing_bridge_m1_granted_keypad_0_keypad,
-                                     clock_crossing_bridge_m1_qualified_request_keypad_0_keypad,
-                                     clock_crossing_bridge_m1_read_data_valid_keypad_0_keypad,
-                                     clock_crossing_bridge_m1_requests_keypad_0_keypad,
-                                     d1_keypad_0_keypad_end_xfer,
-                                     keypad_0_keypad_readdata_from_sa,
-                                     keypad_0_keypad_reset_n
-                                  )
+                                                   // outputs:
+                                                    clock_crossing_bridge_m1_granted_keypad_keypad_controller_slave,
+                                                    clock_crossing_bridge_m1_qualified_request_keypad_keypad_controller_slave,
+                                                    clock_crossing_bridge_m1_read_data_valid_keypad_keypad_controller_slave,
+                                                    clock_crossing_bridge_m1_requests_keypad_keypad_controller_slave,
+                                                    d1_keypad_keypad_controller_slave_end_xfer,
+                                                    keypad_keypad_controller_slave_readdata_from_sa,
+                                                    keypad_keypad_controller_slave_reset_n
+                                                 )
 ;
 
-  output           clock_crossing_bridge_m1_granted_keypad_0_keypad;
-  output           clock_crossing_bridge_m1_qualified_request_keypad_0_keypad;
-  output           clock_crossing_bridge_m1_read_data_valid_keypad_0_keypad;
-  output           clock_crossing_bridge_m1_requests_keypad_0_keypad;
-  output           d1_keypad_0_keypad_end_xfer;
-  output  [ 31: 0] keypad_0_keypad_readdata_from_sa;
-  output           keypad_0_keypad_reset_n;
+  output           clock_crossing_bridge_m1_granted_keypad_keypad_controller_slave;
+  output           clock_crossing_bridge_m1_qualified_request_keypad_keypad_controller_slave;
+  output           clock_crossing_bridge_m1_read_data_valid_keypad_keypad_controller_slave;
+  output           clock_crossing_bridge_m1_requests_keypad_keypad_controller_slave;
+  output           d1_keypad_keypad_controller_slave_end_xfer;
+  output  [ 31: 0] keypad_keypad_controller_slave_readdata_from_sa;
+  output           keypad_keypad_controller_slave_reset_n;
   input            clk;
   input   [ 10: 0] clock_crossing_bridge_m1_address_to_slave;
   input            clock_crossing_bridge_m1_latency_counter;
   input            clock_crossing_bridge_m1_read;
   input            clock_crossing_bridge_m1_write;
-  input   [ 31: 0] keypad_0_keypad_readdata;
+  input   [ 31: 0] keypad_keypad_controller_slave_readdata;
   input            reset_n;
 
   wire             clock_crossing_bridge_m1_arbiterlock;
   wire             clock_crossing_bridge_m1_arbiterlock2;
   wire             clock_crossing_bridge_m1_continuerequest;
-  wire             clock_crossing_bridge_m1_granted_keypad_0_keypad;
-  wire             clock_crossing_bridge_m1_qualified_request_keypad_0_keypad;
-  wire             clock_crossing_bridge_m1_read_data_valid_keypad_0_keypad;
-  wire             clock_crossing_bridge_m1_requests_keypad_0_keypad;
-  wire             clock_crossing_bridge_m1_saved_grant_keypad_0_keypad;
-  reg              d1_keypad_0_keypad_end_xfer;
+  wire             clock_crossing_bridge_m1_granted_keypad_keypad_controller_slave;
+  wire             clock_crossing_bridge_m1_qualified_request_keypad_keypad_controller_slave;
+  wire             clock_crossing_bridge_m1_read_data_valid_keypad_keypad_controller_slave;
+  wire             clock_crossing_bridge_m1_requests_keypad_keypad_controller_slave;
+  wire             clock_crossing_bridge_m1_saved_grant_keypad_keypad_controller_slave;
+  reg              d1_keypad_keypad_controller_slave_end_xfer;
   reg              d1_reasons_to_wait;
   reg              enable_nonzero_assertions;
-  wire             end_xfer_arb_share_counter_term_keypad_0_keypad;
+  wire             end_xfer_arb_share_counter_term_keypad_keypad_controller_slave;
   wire             in_a_read_cycle;
   wire             in_a_write_cycle;
-  wire             keypad_0_keypad_allgrants;
-  wire             keypad_0_keypad_allow_new_arb_cycle;
-  wire             keypad_0_keypad_any_bursting_master_saved_grant;
-  wire             keypad_0_keypad_any_continuerequest;
-  wire             keypad_0_keypad_arb_counter_enable;
-  reg              keypad_0_keypad_arb_share_counter;
-  wire             keypad_0_keypad_arb_share_counter_next_value;
-  wire             keypad_0_keypad_arb_share_set_values;
-  wire             keypad_0_keypad_beginbursttransfer_internal;
-  wire             keypad_0_keypad_begins_xfer;
-  wire             keypad_0_keypad_end_xfer;
-  wire             keypad_0_keypad_firsttransfer;
-  wire             keypad_0_keypad_grant_vector;
-  wire             keypad_0_keypad_in_a_read_cycle;
-  wire             keypad_0_keypad_in_a_write_cycle;
-  wire             keypad_0_keypad_master_qreq_vector;
-  wire             keypad_0_keypad_non_bursting_master_requests;
-  wire    [ 31: 0] keypad_0_keypad_readdata_from_sa;
-  reg              keypad_0_keypad_reg_firsttransfer;
-  wire             keypad_0_keypad_reset_n;
-  reg              keypad_0_keypad_slavearbiterlockenable;
-  wire             keypad_0_keypad_slavearbiterlockenable2;
-  wire             keypad_0_keypad_unreg_firsttransfer;
-  wire             keypad_0_keypad_waits_for_read;
-  wire             keypad_0_keypad_waits_for_write;
-  wire    [ 10: 0] shifted_address_to_keypad_0_keypad_from_clock_crossing_bridge_m1;
-  wire             wait_for_keypad_0_keypad_counter;
+  wire             keypad_keypad_controller_slave_allgrants;
+  wire             keypad_keypad_controller_slave_allow_new_arb_cycle;
+  wire             keypad_keypad_controller_slave_any_bursting_master_saved_grant;
+  wire             keypad_keypad_controller_slave_any_continuerequest;
+  wire             keypad_keypad_controller_slave_arb_counter_enable;
+  reg              keypad_keypad_controller_slave_arb_share_counter;
+  wire             keypad_keypad_controller_slave_arb_share_counter_next_value;
+  wire             keypad_keypad_controller_slave_arb_share_set_values;
+  wire             keypad_keypad_controller_slave_beginbursttransfer_internal;
+  wire             keypad_keypad_controller_slave_begins_xfer;
+  wire             keypad_keypad_controller_slave_end_xfer;
+  wire             keypad_keypad_controller_slave_firsttransfer;
+  wire             keypad_keypad_controller_slave_grant_vector;
+  wire             keypad_keypad_controller_slave_in_a_read_cycle;
+  wire             keypad_keypad_controller_slave_in_a_write_cycle;
+  wire             keypad_keypad_controller_slave_master_qreq_vector;
+  wire             keypad_keypad_controller_slave_non_bursting_master_requests;
+  wire    [ 31: 0] keypad_keypad_controller_slave_readdata_from_sa;
+  reg              keypad_keypad_controller_slave_reg_firsttransfer;
+  wire             keypad_keypad_controller_slave_reset_n;
+  reg              keypad_keypad_controller_slave_slavearbiterlockenable;
+  wire             keypad_keypad_controller_slave_slavearbiterlockenable2;
+  wire             keypad_keypad_controller_slave_unreg_firsttransfer;
+  wire             keypad_keypad_controller_slave_waits_for_read;
+  wire             keypad_keypad_controller_slave_waits_for_write;
+  wire    [ 10: 0] shifted_address_to_keypad_keypad_controller_slave_from_clock_crossing_bridge_m1;
+  wire             wait_for_keypad_keypad_controller_slave_counter;
   always @(posedge clk or negedge reset_n)
     begin
       if (reset_n == 0)
           d1_reasons_to_wait <= 0;
       else 
-        d1_reasons_to_wait <= ~keypad_0_keypad_end_xfer;
+        d1_reasons_to_wait <= ~keypad_keypad_controller_slave_end_xfer;
     end
 
 
-  assign keypad_0_keypad_begins_xfer = ~d1_reasons_to_wait & ((clock_crossing_bridge_m1_qualified_request_keypad_0_keypad));
-  //assign keypad_0_keypad_readdata_from_sa = keypad_0_keypad_readdata so that symbol knows where to group signals which may go to master only, which is an e_assign
-  assign keypad_0_keypad_readdata_from_sa = keypad_0_keypad_readdata;
+  assign keypad_keypad_controller_slave_begins_xfer = ~d1_reasons_to_wait & ((clock_crossing_bridge_m1_qualified_request_keypad_keypad_controller_slave));
+  //assign keypad_keypad_controller_slave_readdata_from_sa = keypad_keypad_controller_slave_readdata so that symbol knows where to group signals which may go to master only, which is an e_assign
+  assign keypad_keypad_controller_slave_readdata_from_sa = keypad_keypad_controller_slave_readdata;
 
-  assign clock_crossing_bridge_m1_requests_keypad_0_keypad = (({clock_crossing_bridge_m1_address_to_slave[10 : 2] , 2'b0} == 11'h4a8) & (clock_crossing_bridge_m1_read | clock_crossing_bridge_m1_write)) & clock_crossing_bridge_m1_read;
-  //keypad_0_keypad_arb_share_counter set values, which is an e_mux
-  assign keypad_0_keypad_arb_share_set_values = 1;
+  assign clock_crossing_bridge_m1_requests_keypad_keypad_controller_slave = (({clock_crossing_bridge_m1_address_to_slave[10 : 2] , 2'b0} == 11'h4a8) & (clock_crossing_bridge_m1_read | clock_crossing_bridge_m1_write)) & clock_crossing_bridge_m1_read;
+  //keypad_keypad_controller_slave_arb_share_counter set values, which is an e_mux
+  assign keypad_keypad_controller_slave_arb_share_set_values = 1;
 
-  //keypad_0_keypad_non_bursting_master_requests mux, which is an e_mux
-  assign keypad_0_keypad_non_bursting_master_requests = clock_crossing_bridge_m1_requests_keypad_0_keypad;
+  //keypad_keypad_controller_slave_non_bursting_master_requests mux, which is an e_mux
+  assign keypad_keypad_controller_slave_non_bursting_master_requests = clock_crossing_bridge_m1_requests_keypad_keypad_controller_slave;
 
-  //keypad_0_keypad_any_bursting_master_saved_grant mux, which is an e_mux
-  assign keypad_0_keypad_any_bursting_master_saved_grant = 0;
+  //keypad_keypad_controller_slave_any_bursting_master_saved_grant mux, which is an e_mux
+  assign keypad_keypad_controller_slave_any_bursting_master_saved_grant = 0;
 
-  //keypad_0_keypad_arb_share_counter_next_value assignment, which is an e_assign
-  assign keypad_0_keypad_arb_share_counter_next_value = keypad_0_keypad_firsttransfer ? (keypad_0_keypad_arb_share_set_values - 1) : |keypad_0_keypad_arb_share_counter ? (keypad_0_keypad_arb_share_counter - 1) : 0;
+  //keypad_keypad_controller_slave_arb_share_counter_next_value assignment, which is an e_assign
+  assign keypad_keypad_controller_slave_arb_share_counter_next_value = keypad_keypad_controller_slave_firsttransfer ? (keypad_keypad_controller_slave_arb_share_set_values - 1) : |keypad_keypad_controller_slave_arb_share_counter ? (keypad_keypad_controller_slave_arb_share_counter - 1) : 0;
 
-  //keypad_0_keypad_allgrants all slave grants, which is an e_mux
-  assign keypad_0_keypad_allgrants = |keypad_0_keypad_grant_vector;
+  //keypad_keypad_controller_slave_allgrants all slave grants, which is an e_mux
+  assign keypad_keypad_controller_slave_allgrants = |keypad_keypad_controller_slave_grant_vector;
 
-  //keypad_0_keypad_end_xfer assignment, which is an e_assign
-  assign keypad_0_keypad_end_xfer = ~(keypad_0_keypad_waits_for_read | keypad_0_keypad_waits_for_write);
+  //keypad_keypad_controller_slave_end_xfer assignment, which is an e_assign
+  assign keypad_keypad_controller_slave_end_xfer = ~(keypad_keypad_controller_slave_waits_for_read | keypad_keypad_controller_slave_waits_for_write);
 
-  //end_xfer_arb_share_counter_term_keypad_0_keypad arb share counter enable term, which is an e_assign
-  assign end_xfer_arb_share_counter_term_keypad_0_keypad = keypad_0_keypad_end_xfer & (~keypad_0_keypad_any_bursting_master_saved_grant | in_a_read_cycle | in_a_write_cycle);
+  //end_xfer_arb_share_counter_term_keypad_keypad_controller_slave arb share counter enable term, which is an e_assign
+  assign end_xfer_arb_share_counter_term_keypad_keypad_controller_slave = keypad_keypad_controller_slave_end_xfer & (~keypad_keypad_controller_slave_any_bursting_master_saved_grant | in_a_read_cycle | in_a_write_cycle);
 
-  //keypad_0_keypad_arb_share_counter arbitration counter enable, which is an e_assign
-  assign keypad_0_keypad_arb_counter_enable = (end_xfer_arb_share_counter_term_keypad_0_keypad & keypad_0_keypad_allgrants) | (end_xfer_arb_share_counter_term_keypad_0_keypad & ~keypad_0_keypad_non_bursting_master_requests);
+  //keypad_keypad_controller_slave_arb_share_counter arbitration counter enable, which is an e_assign
+  assign keypad_keypad_controller_slave_arb_counter_enable = (end_xfer_arb_share_counter_term_keypad_keypad_controller_slave & keypad_keypad_controller_slave_allgrants) | (end_xfer_arb_share_counter_term_keypad_keypad_controller_slave & ~keypad_keypad_controller_slave_non_bursting_master_requests);
 
-  //keypad_0_keypad_arb_share_counter counter, which is an e_register
+  //keypad_keypad_controller_slave_arb_share_counter counter, which is an e_register
   always @(posedge clk or negedge reset_n)
     begin
       if (reset_n == 0)
-          keypad_0_keypad_arb_share_counter <= 0;
-      else if (keypad_0_keypad_arb_counter_enable)
-          keypad_0_keypad_arb_share_counter <= keypad_0_keypad_arb_share_counter_next_value;
+          keypad_keypad_controller_slave_arb_share_counter <= 0;
+      else if (keypad_keypad_controller_slave_arb_counter_enable)
+          keypad_keypad_controller_slave_arb_share_counter <= keypad_keypad_controller_slave_arb_share_counter_next_value;
     end
 
 
-  //keypad_0_keypad_slavearbiterlockenable slave enables arbiterlock, which is an e_register
+  //keypad_keypad_controller_slave_slavearbiterlockenable slave enables arbiterlock, which is an e_register
   always @(posedge clk or negedge reset_n)
     begin
       if (reset_n == 0)
-          keypad_0_keypad_slavearbiterlockenable <= 0;
-      else if ((|keypad_0_keypad_master_qreq_vector & end_xfer_arb_share_counter_term_keypad_0_keypad) | (end_xfer_arb_share_counter_term_keypad_0_keypad & ~keypad_0_keypad_non_bursting_master_requests))
-          keypad_0_keypad_slavearbiterlockenable <= |keypad_0_keypad_arb_share_counter_next_value;
+          keypad_keypad_controller_slave_slavearbiterlockenable <= 0;
+      else if ((|keypad_keypad_controller_slave_master_qreq_vector & end_xfer_arb_share_counter_term_keypad_keypad_controller_slave) | (end_xfer_arb_share_counter_term_keypad_keypad_controller_slave & ~keypad_keypad_controller_slave_non_bursting_master_requests))
+          keypad_keypad_controller_slave_slavearbiterlockenable <= |keypad_keypad_controller_slave_arb_share_counter_next_value;
     end
 
 
-  //clock_crossing_bridge/m1 keypad_0/keypad arbiterlock, which is an e_assign
-  assign clock_crossing_bridge_m1_arbiterlock = keypad_0_keypad_slavearbiterlockenable & clock_crossing_bridge_m1_continuerequest;
+  //clock_crossing_bridge/m1 keypad/keypad_controller_slave arbiterlock, which is an e_assign
+  assign clock_crossing_bridge_m1_arbiterlock = keypad_keypad_controller_slave_slavearbiterlockenable & clock_crossing_bridge_m1_continuerequest;
 
-  //keypad_0_keypad_slavearbiterlockenable2 slave enables arbiterlock2, which is an e_assign
-  assign keypad_0_keypad_slavearbiterlockenable2 = |keypad_0_keypad_arb_share_counter_next_value;
+  //keypad_keypad_controller_slave_slavearbiterlockenable2 slave enables arbiterlock2, which is an e_assign
+  assign keypad_keypad_controller_slave_slavearbiterlockenable2 = |keypad_keypad_controller_slave_arb_share_counter_next_value;
 
-  //clock_crossing_bridge/m1 keypad_0/keypad arbiterlock2, which is an e_assign
-  assign clock_crossing_bridge_m1_arbiterlock2 = keypad_0_keypad_slavearbiterlockenable2 & clock_crossing_bridge_m1_continuerequest;
+  //clock_crossing_bridge/m1 keypad/keypad_controller_slave arbiterlock2, which is an e_assign
+  assign clock_crossing_bridge_m1_arbiterlock2 = keypad_keypad_controller_slave_slavearbiterlockenable2 & clock_crossing_bridge_m1_continuerequest;
 
-  //keypad_0_keypad_any_continuerequest at least one master continues requesting, which is an e_assign
-  assign keypad_0_keypad_any_continuerequest = 1;
+  //keypad_keypad_controller_slave_any_continuerequest at least one master continues requesting, which is an e_assign
+  assign keypad_keypad_controller_slave_any_continuerequest = 1;
 
   //clock_crossing_bridge_m1_continuerequest continued request, which is an e_assign
   assign clock_crossing_bridge_m1_continuerequest = 1;
 
-  assign clock_crossing_bridge_m1_qualified_request_keypad_0_keypad = clock_crossing_bridge_m1_requests_keypad_0_keypad & ~((clock_crossing_bridge_m1_read & ((clock_crossing_bridge_m1_latency_counter != 0))));
-  //local readdatavalid clock_crossing_bridge_m1_read_data_valid_keypad_0_keypad, which is an e_mux
-  assign clock_crossing_bridge_m1_read_data_valid_keypad_0_keypad = clock_crossing_bridge_m1_granted_keypad_0_keypad & clock_crossing_bridge_m1_read & ~keypad_0_keypad_waits_for_read;
+  assign clock_crossing_bridge_m1_qualified_request_keypad_keypad_controller_slave = clock_crossing_bridge_m1_requests_keypad_keypad_controller_slave & ~((clock_crossing_bridge_m1_read & ((clock_crossing_bridge_m1_latency_counter != 0))));
+  //local readdatavalid clock_crossing_bridge_m1_read_data_valid_keypad_keypad_controller_slave, which is an e_mux
+  assign clock_crossing_bridge_m1_read_data_valid_keypad_keypad_controller_slave = clock_crossing_bridge_m1_granted_keypad_keypad_controller_slave & clock_crossing_bridge_m1_read & ~keypad_keypad_controller_slave_waits_for_read;
 
   //master is always granted when requested
-  assign clock_crossing_bridge_m1_granted_keypad_0_keypad = clock_crossing_bridge_m1_qualified_request_keypad_0_keypad;
+  assign clock_crossing_bridge_m1_granted_keypad_keypad_controller_slave = clock_crossing_bridge_m1_qualified_request_keypad_keypad_controller_slave;
 
-  //clock_crossing_bridge/m1 saved-grant keypad_0/keypad, which is an e_assign
-  assign clock_crossing_bridge_m1_saved_grant_keypad_0_keypad = clock_crossing_bridge_m1_requests_keypad_0_keypad;
+  //clock_crossing_bridge/m1 saved-grant keypad/keypad_controller_slave, which is an e_assign
+  assign clock_crossing_bridge_m1_saved_grant_keypad_keypad_controller_slave = clock_crossing_bridge_m1_requests_keypad_keypad_controller_slave;
 
-  //allow new arb cycle for keypad_0/keypad, which is an e_assign
-  assign keypad_0_keypad_allow_new_arb_cycle = 1;
+  //allow new arb cycle for keypad/keypad_controller_slave, which is an e_assign
+  assign keypad_keypad_controller_slave_allow_new_arb_cycle = 1;
 
   //placeholder chosen master
-  assign keypad_0_keypad_grant_vector = 1;
+  assign keypad_keypad_controller_slave_grant_vector = 1;
 
   //placeholder vector of master qualified-requests
-  assign keypad_0_keypad_master_qreq_vector = 1;
+  assign keypad_keypad_controller_slave_master_qreq_vector = 1;
 
-  //keypad_0_keypad_reset_n assignment, which is an e_assign
-  assign keypad_0_keypad_reset_n = reset_n;
+  //keypad_keypad_controller_slave_reset_n assignment, which is an e_assign
+  assign keypad_keypad_controller_slave_reset_n = reset_n;
 
-  //keypad_0_keypad_firsttransfer first transaction, which is an e_assign
-  assign keypad_0_keypad_firsttransfer = keypad_0_keypad_begins_xfer ? keypad_0_keypad_unreg_firsttransfer : keypad_0_keypad_reg_firsttransfer;
+  //keypad_keypad_controller_slave_firsttransfer first transaction, which is an e_assign
+  assign keypad_keypad_controller_slave_firsttransfer = keypad_keypad_controller_slave_begins_xfer ? keypad_keypad_controller_slave_unreg_firsttransfer : keypad_keypad_controller_slave_reg_firsttransfer;
 
-  //keypad_0_keypad_unreg_firsttransfer first transaction, which is an e_assign
-  assign keypad_0_keypad_unreg_firsttransfer = ~(keypad_0_keypad_slavearbiterlockenable & keypad_0_keypad_any_continuerequest);
+  //keypad_keypad_controller_slave_unreg_firsttransfer first transaction, which is an e_assign
+  assign keypad_keypad_controller_slave_unreg_firsttransfer = ~(keypad_keypad_controller_slave_slavearbiterlockenable & keypad_keypad_controller_slave_any_continuerequest);
 
-  //keypad_0_keypad_reg_firsttransfer first transaction, which is an e_register
+  //keypad_keypad_controller_slave_reg_firsttransfer first transaction, which is an e_register
   always @(posedge clk or negedge reset_n)
     begin
       if (reset_n == 0)
-          keypad_0_keypad_reg_firsttransfer <= 1'b1;
-      else if (keypad_0_keypad_begins_xfer)
-          keypad_0_keypad_reg_firsttransfer <= keypad_0_keypad_unreg_firsttransfer;
+          keypad_keypad_controller_slave_reg_firsttransfer <= 1'b1;
+      else if (keypad_keypad_controller_slave_begins_xfer)
+          keypad_keypad_controller_slave_reg_firsttransfer <= keypad_keypad_controller_slave_unreg_firsttransfer;
     end
 
 
-  //keypad_0_keypad_beginbursttransfer_internal begin burst transfer, which is an e_assign
-  assign keypad_0_keypad_beginbursttransfer_internal = keypad_0_keypad_begins_xfer;
+  //keypad_keypad_controller_slave_beginbursttransfer_internal begin burst transfer, which is an e_assign
+  assign keypad_keypad_controller_slave_beginbursttransfer_internal = keypad_keypad_controller_slave_begins_xfer;
 
-  assign shifted_address_to_keypad_0_keypad_from_clock_crossing_bridge_m1 = clock_crossing_bridge_m1_address_to_slave;
-  //d1_keypad_0_keypad_end_xfer register, which is an e_register
+  assign shifted_address_to_keypad_keypad_controller_slave_from_clock_crossing_bridge_m1 = clock_crossing_bridge_m1_address_to_slave;
+  //d1_keypad_keypad_controller_slave_end_xfer register, which is an e_register
   always @(posedge clk or negedge reset_n)
     begin
       if (reset_n == 0)
-          d1_keypad_0_keypad_end_xfer <= 1;
+          d1_keypad_keypad_controller_slave_end_xfer <= 1;
       else 
-        d1_keypad_0_keypad_end_xfer <= keypad_0_keypad_end_xfer;
+        d1_keypad_keypad_controller_slave_end_xfer <= keypad_keypad_controller_slave_end_xfer;
     end
 
 
-  //keypad_0_keypad_waits_for_read in a cycle, which is an e_mux
-  assign keypad_0_keypad_waits_for_read = keypad_0_keypad_in_a_read_cycle & keypad_0_keypad_begins_xfer;
+  //keypad_keypad_controller_slave_waits_for_read in a cycle, which is an e_mux
+  assign keypad_keypad_controller_slave_waits_for_read = keypad_keypad_controller_slave_in_a_read_cycle & keypad_keypad_controller_slave_begins_xfer;
 
-  //keypad_0_keypad_in_a_read_cycle assignment, which is an e_assign
-  assign keypad_0_keypad_in_a_read_cycle = clock_crossing_bridge_m1_granted_keypad_0_keypad & clock_crossing_bridge_m1_read;
+  //keypad_keypad_controller_slave_in_a_read_cycle assignment, which is an e_assign
+  assign keypad_keypad_controller_slave_in_a_read_cycle = clock_crossing_bridge_m1_granted_keypad_keypad_controller_slave & clock_crossing_bridge_m1_read;
 
   //in_a_read_cycle assignment, which is an e_mux
-  assign in_a_read_cycle = keypad_0_keypad_in_a_read_cycle;
+  assign in_a_read_cycle = keypad_keypad_controller_slave_in_a_read_cycle;
 
-  //keypad_0_keypad_waits_for_write in a cycle, which is an e_mux
-  assign keypad_0_keypad_waits_for_write = keypad_0_keypad_in_a_write_cycle & 0;
+  //keypad_keypad_controller_slave_waits_for_write in a cycle, which is an e_mux
+  assign keypad_keypad_controller_slave_waits_for_write = keypad_keypad_controller_slave_in_a_write_cycle & 0;
 
-  //keypad_0_keypad_in_a_write_cycle assignment, which is an e_assign
-  assign keypad_0_keypad_in_a_write_cycle = clock_crossing_bridge_m1_granted_keypad_0_keypad & clock_crossing_bridge_m1_write;
+  //keypad_keypad_controller_slave_in_a_write_cycle assignment, which is an e_assign
+  assign keypad_keypad_controller_slave_in_a_write_cycle = clock_crossing_bridge_m1_granted_keypad_keypad_controller_slave & clock_crossing_bridge_m1_write;
 
   //in_a_write_cycle assignment, which is an e_mux
-  assign in_a_write_cycle = keypad_0_keypad_in_a_write_cycle;
+  assign in_a_write_cycle = keypad_keypad_controller_slave_in_a_write_cycle;
 
-  assign wait_for_keypad_0_keypad_counter = 0;
+  assign wait_for_keypad_keypad_controller_slave_counter = 0;
 
 //synthesis translate_off
 //////////////// SIMULATION-ONLY CONTENTS
-  //keypad_0/keypad enable non-zero assertions, which is an e_register
+  //keypad/keypad_controller_slave enable non-zero assertions, which is an e_register
   always @(posedge clk or negedge reset_n)
     begin
       if (reset_n == 0)
@@ -10122,9 +10122,9 @@ module DE0_SOPC (
                   // the_buttons
                    in_port_to_the_buttons,
 
-                  // the_keypad_0
-                   col_from_the_keypad_0,
-                   row_to_the_keypad_0,
+                  // the_keypad
+                   col_from_the_keypad,
+                   row_to_the_keypad,
 
                   // the_lcd
                    LCD_E_from_the_lcd,
@@ -10176,7 +10176,7 @@ module DE0_SOPC (
   inout            b_SD_cmd_to_and_from_the_Altera_UP_SD_Card;
   inout            b_SD_dat3_to_and_from_the_Altera_UP_SD_Card;
   inout            b_SD_dat_to_and_from_the_Altera_UP_SD_Card;
-  output  [  3: 0] col_from_the_keypad_0;
+  output  [  3: 0] col_from_the_keypad;
   inout   [ 15: 0] data_to_and_from_the_cfi_flash;
   output           o_SD_clock_from_the_Altera_UP_SD_Card;
   output           out_port_from_the_lcd_light;
@@ -10203,7 +10203,7 @@ module DE0_SOPC (
   input   [  2: 0] in_port_to_the_buttons;
   input   [  9: 0] in_port_to_the_switches;
   input            reset_n;
-  input   [  3: 0] row_to_the_keypad_0;
+  input   [  3: 0] row_to_the_keypad;
   input            rxd_to_the_uart;
 
   wire    [  7: 0] Altera_UP_SD_Card_avalon_sdcard_slave_address;
@@ -10271,7 +10271,7 @@ module DE0_SOPC (
   wire             clock_crossing_bridge_m1_endofpacket;
   wire             clock_crossing_bridge_m1_granted_Altera_UP_SD_Card_avalon_sdcard_slave;
   wire             clock_crossing_bridge_m1_granted_buttons_s1;
-  wire             clock_crossing_bridge_m1_granted_keypad_0_keypad;
+  wire             clock_crossing_bridge_m1_granted_keypad_keypad_controller_slave;
   wire             clock_crossing_bridge_m1_granted_lcd_control_slave;
   wire             clock_crossing_bridge_m1_granted_lcd_light_s1;
   wire             clock_crossing_bridge_m1_granted_leds_s1;
@@ -10284,7 +10284,7 @@ module DE0_SOPC (
   wire    [  8: 0] clock_crossing_bridge_m1_nativeaddress;
   wire             clock_crossing_bridge_m1_qualified_request_Altera_UP_SD_Card_avalon_sdcard_slave;
   wire             clock_crossing_bridge_m1_qualified_request_buttons_s1;
-  wire             clock_crossing_bridge_m1_qualified_request_keypad_0_keypad;
+  wire             clock_crossing_bridge_m1_qualified_request_keypad_keypad_controller_slave;
   wire             clock_crossing_bridge_m1_qualified_request_lcd_control_slave;
   wire             clock_crossing_bridge_m1_qualified_request_lcd_light_s1;
   wire             clock_crossing_bridge_m1_qualified_request_leds_s1;
@@ -10296,7 +10296,7 @@ module DE0_SOPC (
   wire             clock_crossing_bridge_m1_read;
   wire             clock_crossing_bridge_m1_read_data_valid_Altera_UP_SD_Card_avalon_sdcard_slave;
   wire             clock_crossing_bridge_m1_read_data_valid_buttons_s1;
-  wire             clock_crossing_bridge_m1_read_data_valid_keypad_0_keypad;
+  wire             clock_crossing_bridge_m1_read_data_valid_keypad_keypad_controller_slave;
   wire             clock_crossing_bridge_m1_read_data_valid_lcd_control_slave;
   wire             clock_crossing_bridge_m1_read_data_valid_lcd_light_s1;
   wire             clock_crossing_bridge_m1_read_data_valid_leds_s1;
@@ -10309,7 +10309,7 @@ module DE0_SOPC (
   wire             clock_crossing_bridge_m1_readdatavalid;
   wire             clock_crossing_bridge_m1_requests_Altera_UP_SD_Card_avalon_sdcard_slave;
   wire             clock_crossing_bridge_m1_requests_buttons_s1;
-  wire             clock_crossing_bridge_m1_requests_keypad_0_keypad;
+  wire             clock_crossing_bridge_m1_requests_keypad_keypad_controller_slave;
   wire             clock_crossing_bridge_m1_requests_lcd_control_slave;
   wire             clock_crossing_bridge_m1_requests_lcd_light_s1;
   wire             clock_crossing_bridge_m1_requests_leds_s1;
@@ -10336,7 +10336,7 @@ module DE0_SOPC (
   wire             clock_crossing_bridge_s1_waitrequest_from_sa;
   wire             clock_crossing_bridge_s1_write;
   wire    [ 31: 0] clock_crossing_bridge_s1_writedata;
-  wire    [  3: 0] col_from_the_keypad_0;
+  wire    [  3: 0] col_from_the_keypad;
   wire    [ 25: 0] cpu_data_master_address;
   wire    [ 25: 0] cpu_data_master_address_to_slave;
   wire    [  3: 0] cpu_data_master_byteenable;
@@ -10423,7 +10423,7 @@ module DE0_SOPC (
   wire             d1_clock_crossing_bridge_s1_end_xfer;
   wire             d1_cpu_jtag_debug_module_end_xfer;
   wire             d1_jtag_uart_avalon_jtag_slave_end_xfer;
-  wire             d1_keypad_0_keypad_end_xfer;
+  wire             d1_keypad_keypad_controller_slave_end_xfer;
   wire             d1_lcd_control_slave_end_xfer;
   wire             d1_lcd_light_s1_end_xfer;
   wire             d1_leds_s1_end_xfer;
@@ -10455,9 +10455,9 @@ module DE0_SOPC (
   wire             jtag_uart_avalon_jtag_slave_waitrequest_from_sa;
   wire             jtag_uart_avalon_jtag_slave_write_n;
   wire    [ 31: 0] jtag_uart_avalon_jtag_slave_writedata;
-  wire    [ 31: 0] keypad_0_keypad_readdata;
-  wire    [ 31: 0] keypad_0_keypad_readdata_from_sa;
-  wire             keypad_0_keypad_reset_n;
+  wire    [ 31: 0] keypad_keypad_controller_slave_readdata;
+  wire    [ 31: 0] keypad_keypad_controller_slave_readdata_from_sa;
+  wire             keypad_keypad_controller_slave_reset_n;
   wire    [  1: 0] lcd_control_slave_address;
   wire             lcd_control_slave_begintransfer;
   wire             lcd_control_slave_read;
@@ -10792,7 +10792,7 @@ module DE0_SOPC (
       .clock_crossing_bridge_m1_byteenable                                              (clock_crossing_bridge_m1_byteenable),
       .clock_crossing_bridge_m1_granted_Altera_UP_SD_Card_avalon_sdcard_slave           (clock_crossing_bridge_m1_granted_Altera_UP_SD_Card_avalon_sdcard_slave),
       .clock_crossing_bridge_m1_granted_buttons_s1                                      (clock_crossing_bridge_m1_granted_buttons_s1),
-      .clock_crossing_bridge_m1_granted_keypad_0_keypad                                 (clock_crossing_bridge_m1_granted_keypad_0_keypad),
+      .clock_crossing_bridge_m1_granted_keypad_keypad_controller_slave                  (clock_crossing_bridge_m1_granted_keypad_keypad_controller_slave),
       .clock_crossing_bridge_m1_granted_lcd_control_slave                               (clock_crossing_bridge_m1_granted_lcd_control_slave),
       .clock_crossing_bridge_m1_granted_lcd_light_s1                                    (clock_crossing_bridge_m1_granted_lcd_light_s1),
       .clock_crossing_bridge_m1_granted_leds_s1                                         (clock_crossing_bridge_m1_granted_leds_s1),
@@ -10804,7 +10804,7 @@ module DE0_SOPC (
       .clock_crossing_bridge_m1_latency_counter                                         (clock_crossing_bridge_m1_latency_counter),
       .clock_crossing_bridge_m1_qualified_request_Altera_UP_SD_Card_avalon_sdcard_slave (clock_crossing_bridge_m1_qualified_request_Altera_UP_SD_Card_avalon_sdcard_slave),
       .clock_crossing_bridge_m1_qualified_request_buttons_s1                            (clock_crossing_bridge_m1_qualified_request_buttons_s1),
-      .clock_crossing_bridge_m1_qualified_request_keypad_0_keypad                       (clock_crossing_bridge_m1_qualified_request_keypad_0_keypad),
+      .clock_crossing_bridge_m1_qualified_request_keypad_keypad_controller_slave        (clock_crossing_bridge_m1_qualified_request_keypad_keypad_controller_slave),
       .clock_crossing_bridge_m1_qualified_request_lcd_control_slave                     (clock_crossing_bridge_m1_qualified_request_lcd_control_slave),
       .clock_crossing_bridge_m1_qualified_request_lcd_light_s1                          (clock_crossing_bridge_m1_qualified_request_lcd_light_s1),
       .clock_crossing_bridge_m1_qualified_request_leds_s1                               (clock_crossing_bridge_m1_qualified_request_leds_s1),
@@ -10816,7 +10816,7 @@ module DE0_SOPC (
       .clock_crossing_bridge_m1_read                                                    (clock_crossing_bridge_m1_read),
       .clock_crossing_bridge_m1_read_data_valid_Altera_UP_SD_Card_avalon_sdcard_slave   (clock_crossing_bridge_m1_read_data_valid_Altera_UP_SD_Card_avalon_sdcard_slave),
       .clock_crossing_bridge_m1_read_data_valid_buttons_s1                              (clock_crossing_bridge_m1_read_data_valid_buttons_s1),
-      .clock_crossing_bridge_m1_read_data_valid_keypad_0_keypad                         (clock_crossing_bridge_m1_read_data_valid_keypad_0_keypad),
+      .clock_crossing_bridge_m1_read_data_valid_keypad_keypad_controller_slave          (clock_crossing_bridge_m1_read_data_valid_keypad_keypad_controller_slave),
       .clock_crossing_bridge_m1_read_data_valid_lcd_control_slave                       (clock_crossing_bridge_m1_read_data_valid_lcd_control_slave),
       .clock_crossing_bridge_m1_read_data_valid_lcd_light_s1                            (clock_crossing_bridge_m1_read_data_valid_lcd_light_s1),
       .clock_crossing_bridge_m1_read_data_valid_leds_s1                                 (clock_crossing_bridge_m1_read_data_valid_leds_s1),
@@ -10829,7 +10829,7 @@ module DE0_SOPC (
       .clock_crossing_bridge_m1_readdatavalid                                           (clock_crossing_bridge_m1_readdatavalid),
       .clock_crossing_bridge_m1_requests_Altera_UP_SD_Card_avalon_sdcard_slave          (clock_crossing_bridge_m1_requests_Altera_UP_SD_Card_avalon_sdcard_slave),
       .clock_crossing_bridge_m1_requests_buttons_s1                                     (clock_crossing_bridge_m1_requests_buttons_s1),
-      .clock_crossing_bridge_m1_requests_keypad_0_keypad                                (clock_crossing_bridge_m1_requests_keypad_0_keypad),
+      .clock_crossing_bridge_m1_requests_keypad_keypad_controller_slave                 (clock_crossing_bridge_m1_requests_keypad_keypad_controller_slave),
       .clock_crossing_bridge_m1_requests_lcd_control_slave                              (clock_crossing_bridge_m1_requests_lcd_control_slave),
       .clock_crossing_bridge_m1_requests_lcd_light_s1                                   (clock_crossing_bridge_m1_requests_lcd_light_s1),
       .clock_crossing_bridge_m1_requests_leds_s1                                        (clock_crossing_bridge_m1_requests_leds_s1),
@@ -10844,7 +10844,7 @@ module DE0_SOPC (
       .clock_crossing_bridge_m1_writedata                                               (clock_crossing_bridge_m1_writedata),
       .d1_Altera_UP_SD_Card_avalon_sdcard_slave_end_xfer                                (d1_Altera_UP_SD_Card_avalon_sdcard_slave_end_xfer),
       .d1_buttons_s1_end_xfer                                                           (d1_buttons_s1_end_xfer),
-      .d1_keypad_0_keypad_end_xfer                                                      (d1_keypad_0_keypad_end_xfer),
+      .d1_keypad_keypad_controller_slave_end_xfer                                       (d1_keypad_keypad_controller_slave_end_xfer),
       .d1_lcd_control_slave_end_xfer                                                    (d1_lcd_control_slave_end_xfer),
       .d1_lcd_light_s1_end_xfer                                                         (d1_lcd_light_s1_end_xfer),
       .d1_leds_s1_end_xfer                                                              (d1_leds_s1_end_xfer),
@@ -10853,7 +10853,7 @@ module DE0_SOPC (
       .d1_sysid_control_slave_end_xfer                                                  (d1_sysid_control_slave_end_xfer),
       .d1_timer_s1_end_xfer                                                             (d1_timer_s1_end_xfer),
       .d1_uart_s1_end_xfer                                                              (d1_uart_s1_end_xfer),
-      .keypad_0_keypad_readdata_from_sa                                                 (keypad_0_keypad_readdata_from_sa),
+      .keypad_keypad_controller_slave_readdata_from_sa                                  (keypad_keypad_controller_slave_readdata_from_sa),
       .lcd_control_slave_readdata_from_sa                                               (lcd_control_slave_readdata_from_sa),
       .lcd_control_slave_wait_counter_eq_0                                              (lcd_control_slave_wait_counter_eq_0),
       .lcd_light_s1_readdata_from_sa                                                    (lcd_light_s1_readdata_from_sa),
@@ -11124,30 +11124,30 @@ module DE0_SOPC (
       .rst_n          (jtag_uart_avalon_jtag_slave_reset_n)
     );
 
-  keypad_0_keypad_arbitrator the_keypad_0_keypad
+  keypad_keypad_controller_slave_arbitrator the_keypad_keypad_controller_slave
     (
-      .clk                                                        (pll_io),
-      .clock_crossing_bridge_m1_address_to_slave                  (clock_crossing_bridge_m1_address_to_slave),
-      .clock_crossing_bridge_m1_granted_keypad_0_keypad           (clock_crossing_bridge_m1_granted_keypad_0_keypad),
-      .clock_crossing_bridge_m1_latency_counter                   (clock_crossing_bridge_m1_latency_counter),
-      .clock_crossing_bridge_m1_qualified_request_keypad_0_keypad (clock_crossing_bridge_m1_qualified_request_keypad_0_keypad),
-      .clock_crossing_bridge_m1_read                              (clock_crossing_bridge_m1_read),
-      .clock_crossing_bridge_m1_read_data_valid_keypad_0_keypad   (clock_crossing_bridge_m1_read_data_valid_keypad_0_keypad),
-      .clock_crossing_bridge_m1_requests_keypad_0_keypad          (clock_crossing_bridge_m1_requests_keypad_0_keypad),
-      .clock_crossing_bridge_m1_write                             (clock_crossing_bridge_m1_write),
-      .d1_keypad_0_keypad_end_xfer                                (d1_keypad_0_keypad_end_xfer),
-      .keypad_0_keypad_readdata                                   (keypad_0_keypad_readdata),
-      .keypad_0_keypad_readdata_from_sa                           (keypad_0_keypad_readdata_from_sa),
-      .keypad_0_keypad_reset_n                                    (keypad_0_keypad_reset_n),
-      .reset_n                                                    (pll_io_reset_n)
+      .clk                                                                       (pll_io),
+      .clock_crossing_bridge_m1_address_to_slave                                 (clock_crossing_bridge_m1_address_to_slave),
+      .clock_crossing_bridge_m1_granted_keypad_keypad_controller_slave           (clock_crossing_bridge_m1_granted_keypad_keypad_controller_slave),
+      .clock_crossing_bridge_m1_latency_counter                                  (clock_crossing_bridge_m1_latency_counter),
+      .clock_crossing_bridge_m1_qualified_request_keypad_keypad_controller_slave (clock_crossing_bridge_m1_qualified_request_keypad_keypad_controller_slave),
+      .clock_crossing_bridge_m1_read                                             (clock_crossing_bridge_m1_read),
+      .clock_crossing_bridge_m1_read_data_valid_keypad_keypad_controller_slave   (clock_crossing_bridge_m1_read_data_valid_keypad_keypad_controller_slave),
+      .clock_crossing_bridge_m1_requests_keypad_keypad_controller_slave          (clock_crossing_bridge_m1_requests_keypad_keypad_controller_slave),
+      .clock_crossing_bridge_m1_write                                            (clock_crossing_bridge_m1_write),
+      .d1_keypad_keypad_controller_slave_end_xfer                                (d1_keypad_keypad_controller_slave_end_xfer),
+      .keypad_keypad_controller_slave_readdata                                   (keypad_keypad_controller_slave_readdata),
+      .keypad_keypad_controller_slave_readdata_from_sa                           (keypad_keypad_controller_slave_readdata_from_sa),
+      .keypad_keypad_controller_slave_reset_n                                    (keypad_keypad_controller_slave_reset_n),
+      .reset_n                                                                   (pll_io_reset_n)
     );
 
-  keypad_0 the_keypad_0
+  keypad the_keypad
     (
-      .col     (col_from_the_keypad_0),
-      .resetn  (keypad_0_keypad_reset_n),
-      .row     (row_to_the_keypad_0),
-      .shift   (keypad_0_keypad_readdata),
+      .col     (col_from_the_keypad),
+      .resetn  (keypad_keypad_controller_slave_reset_n),
+      .row     (row_to_the_keypad),
+      .shift   (keypad_keypad_controller_slave_readdata),
       .sys_clk (pll_io)
     );
 
@@ -11988,8 +11988,8 @@ endmodule
 `include "/altera/11.0/quartus/eda/sim_lib/220model.v"
 `include "/altera/11.0/quartus/eda/sim_lib/sgate.v"
 // Altera_UP_SD_Card.vhd
-// /home/netlab/prhemery/Altera_Systems_Labs/keypad/keypad.vhd
-// keypad_0.vhd
+// ip/keypad_controller/keypad_controller.vhd
+// keypad.vhd
 `include "pll.v"
 `include "altpllpll.v"
 `include "clock_crossing_bridge.v"
@@ -12033,7 +12033,7 @@ module test_bench
   reg              clk;
   wire             clock_crossing_bridge_m1_endofpacket;
   wire             clock_crossing_bridge_s1_endofpacket_from_sa;
-  wire    [  3: 0] col_from_the_keypad_0;
+  wire    [  3: 0] col_from_the_keypad;
   wire    [ 15: 0] data_to_and_from_the_cfi_flash;
   wire    [  2: 0] in_port_to_the_buttons;
   wire    [  9: 0] in_port_to_the_switches;
@@ -12049,7 +12049,7 @@ module test_bench
   wire             pll_vga;
   wire             read_n_to_the_cfi_flash;
   reg              reset_n;
-  wire    [  3: 0] row_to_the_keypad_0;
+  wire    [  3: 0] row_to_the_keypad;
   wire             rxd_to_the_uart;
   wire             select_n_to_the_cfi_flash;
   wire             sysid_control_slave_clock;
@@ -12084,7 +12084,7 @@ module test_bench
       .b_SD_dat3_to_and_from_the_Altera_UP_SD_Card (b_SD_dat3_to_and_from_the_Altera_UP_SD_Card),
       .b_SD_dat_to_and_from_the_Altera_UP_SD_Card  (b_SD_dat_to_and_from_the_Altera_UP_SD_Card),
       .clk                                         (clk),
-      .col_from_the_keypad_0                       (col_from_the_keypad_0),
+      .col_from_the_keypad                         (col_from_the_keypad),
       .data_to_and_from_the_cfi_flash              (data_to_and_from_the_cfi_flash),
       .in_port_to_the_buttons                      (in_port_to_the_buttons),
       .in_port_to_the_switches                     (in_port_to_the_switches),
@@ -12098,7 +12098,7 @@ module test_bench
       .pll_vga                                     (pll_vga),
       .read_n_to_the_cfi_flash                     (read_n_to_the_cfi_flash),
       .reset_n                                     (reset_n),
-      .row_to_the_keypad_0                         (row_to_the_keypad_0),
+      .row_to_the_keypad                           (row_to_the_keypad),
       .rxd_to_the_uart                             (rxd_to_the_uart),
       .select_n_to_the_cfi_flash                   (select_n_to_the_cfi_flash),
       .txd_from_the_uart                           (txd_from_the_uart),

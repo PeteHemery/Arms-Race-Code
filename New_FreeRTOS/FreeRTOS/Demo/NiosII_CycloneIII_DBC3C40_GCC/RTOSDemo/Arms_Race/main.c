@@ -76,16 +76,15 @@
 #include "waypoints.h"
 #include "keypad.h"
 #include "LCD.h"
+#include "sd_card.h"
 
 extern void vTaskSerial(void *pvParameters);
-extern void vTaskSDCard(void *pvParameters);
 
-extern void vSenderTask( void *pvParameters );
-extern void vReceiverTask( void *pvParameters );
+extern void vTesterTask( void *pvParameters );
 
 
-
-xQueueHandle xQueue;
+xQueueHandle xKeyPadQueue;
+xQueueHandle xLCDQueue;
 
 int main( void )
 {
@@ -98,17 +97,14 @@ int main( void )
     //size_t test;
     //test = xPortGetFreeHeapSize();
     
-    xQueue = xQueueCreate ( 5, sizeof (long) );
-    if (xQueue != NULL)
+    xKeyPadQueue = xQueueCreate ( 1, sizeof(unsigned short));
+    xLCDQueue = xQueueCreate ( 1, sizeof(struct LCDQueue_TYPE));
+    
+    if (xKeyPadQueue != NULL && xLCDQueue != NULL)
     {
-      //xTaskCreate(vTaskKeyPad, "Keypad", 1000, NULL, 1, NULL);
+      xTaskCreate(vTaskKeyPad, "Keypad", 1000, NULL, 1, NULL);
       xTaskCreate(vTaskLCD, "LCD", 1000, NULL, 1, NULL);
-      
-      /* Create two instances of the sender tasks */
-      //xTaskCreate( vSenderTask, "Sender1", 1000, ( void * ) 100, 1, NULL );
-      //xTaskCreate( vSenderTask, "Sender2", 1000, ( void * ) 200, 1, NULL );
-      /* Create the task to read from the queue */
-      //xTaskCreate( vReceive rTask, "Receiver", 1000, NULL, 2, NULL );
+      xTaskCreate(vTesterTask, "Tester", 1000, NULL, 1, NULL);
       
       //xTaskCreate( vTaskWayPointCreate, "WayPoints", 100, NULL, 1, NULL );
      
@@ -122,7 +118,7 @@ int main( void )
     }
     else
     {
-      printf("Queue could not be created\n");
+      printf("Queues could not be created\n");
     }
 //  }
 }

@@ -9,11 +9,11 @@ use IEEE.numeric_std.all;
 
 entity keypad_0 is
 	port (
-		shift   : out std_logic_vector(31 downto 0);                    --     keypad.readdata
-		sys_clk : in  std_logic                     := '0';             -- clock_sink.clk
-		resetn  : in  std_logic                     := '0';             -- reset_sink.reset_n
-		row     : in  std_logic_vector(3 downto 0)  := (others => '0'); --       rows.export
-		col     : out std_logic_vector(3 downto 0)                      --    columns.export
+		shift   : out std_logic_vector(31 downto 0);                    --  keypad.readdata
+		sys_clk : in  std_logic                     := '0';             --     clk.clk
+		resetn  : in  std_logic                     := '0';             -- reset_n.reset_n
+		row     : in  std_logic_vector(3 downto 0)  := (others => '0'); --    rows.export
+		col     : out std_logic_vector(3 downto 0)                      -- columns.export
 	);
 end entity keypad_0;
 
@@ -32,11 +32,11 @@ begin
 
 	keypad_0 : component keypad
 		port map (
-			shift   => shift,   --     keypad.readdata
-			sys_clk => sys_clk, -- clock_sink.clk
-			resetn  => resetn,  -- reset_sink.reset_n
-			row     => row,     --       rows.export
-			col     => col      --    columns.export
+			shift   => shift,   --  keypad.readdata
+			sys_clk => sys_clk, --     clk.clk
+			resetn  => resetn,  -- reset_n.reset_n
+			row     => row,     --    rows.export
+			col     => col      -- columns.export
 		);
 
 end architecture rtl; -- of keypad_0

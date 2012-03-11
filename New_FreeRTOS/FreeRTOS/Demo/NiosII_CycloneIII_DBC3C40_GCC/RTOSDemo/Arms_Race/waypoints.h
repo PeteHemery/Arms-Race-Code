@@ -18,11 +18,11 @@ enum {
 };
 #define KEYPAD_MODE SERVO
 
-enum {
+/*enum {
   NONE,
   RESET,
   ITEM_DELETED
-};
+};*/
 
 /* Macros */
 #define round(x) ((x)>=0?(long)((x)+5):(long)((x)-5))
@@ -36,6 +36,8 @@ struct servo_set_t {
   unsigned int s3: 1;
   unsigned int s4: 1;
   unsigned int s5: 1;
+  unsigned int time: 1;
+  unsigned int wait: 1;
 };
 
 struct workspace_set_t {
@@ -45,6 +47,8 @@ struct workspace_set_t {
   unsigned int wristR1: 1;
   unsigned int wristR2: 1;
   unsigned int hand: 1;
+  unsigned int time: 1;
+  unsigned int wait: 1;
 };
 
 union servo_or_ws_t {

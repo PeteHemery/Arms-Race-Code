@@ -1,0 +1,118 @@
+CLASS altera_avalon_lcd_16207
+{
+   ASSOCIATED_FILES
+   {
+      # Note: Currently this is a "wizard-less" component
+      #       with no parameters.
+
+      #Add_Program       ="add_edit_ui";
+      #Edit_Program      ="add_edit_ui";
+      Generator_Program ="em_lcd_16207.pl";
+   }
+   MODULE_DEFAULTS
+   {
+        class         = "altera_avalon_lcd_16207";
+        class_version = "7.08110";
+
+      	HDL_INFO
+      	{
+      	     # The list of files associated with this module (for synthesis
+      	     # and other purposes) depends on the users' wizard-choices.
+      	     # This section will be filled-in by the Generator_Program
+      	     # after the module logic has been created and the
+	     # various filenames are known.
+      	}
+      	PORT_WIRING
+      	{
+      	   # The top level ports
+      	   PORT LCD_data
+      	   {
+      	      direction = "inout";
+      	      width = "8";
+      	      Is_Enabled = "1";
+      	   }
+      	   PORT LCD_E
+      	   {
+      	      direction = "output";
+      	      width = "1";
+      	      Is_Enabled = "1";
+      	   }
+      	   PORT LCD_RS
+      	   {
+      	      direction = "output";
+      	      width = "1";
+      	      Is_Enabled = "1";
+      	   }
+      	   PORT LCD_RW
+      	   {
+      	      direction = "output";
+      	      width = "1";
+      	      Is_Enabled = "1";
+      	   }
+      	}
+        SLAVE control_slave
+        {
+           PORT_WIRING
+           {
+              # The number and kind of ports that appear on this module
+              # depends on the user's wizard-choices.
+    	      # This section will be filled-in by the Generator_Program
+              # after the module logic has been created and the ports are known.
+           }
+           SYSTEM_BUILDER_INFO
+           {
+              Bus_Type                    = "avalon";
+              Has_IRQ                      = "0";
+              IRQ_Number                   = "N/A";
+              Is_Printable_Device          = "1";
+              Address_Width                = "2";
+              Data_Width                   = "8";
+              Base_Address                 = "--unknown--";
+              Address_Alignment            = "native";
+              Read_Wait_States             = "250ns";
+              Write_Wait_States            = "250ns";
+              Setup_Time                   = "250ns";
+              Hold_Time                    = "250ns";
+              Read_Latency                 = "0";
+           }
+        }
+        SYSTEM_BUILDER_INFO
+        {
+           Date_Modified                = "";
+           Is_Enabled                   = "1";
+           Instantiate_In_System_Module = "1";
+           Top_Level_Ports_Are_Enumerated = "1";
+        }
+        WIZARD_SCRIPT_ARGUMENTS
+        {
+        }
+   }
+   USER_INTERFACE
+   {
+      USER_LABELS
+      {
+         name="Character LCD (16x2, Optrex 16207)";
+         technology = "Display";
+      }
+      LINKS
+      {
+         LINK help
+         {
+            title="Data Sheet";
+            url="http://www.altera.com/literature/hb/nios2/n2cpu_nii51019.pdf";
+         }
+      }
+      WIZARD_UI add_edit_ui
+      {
+
+         # This thing doesn't actually have any parameters
+      
+      }
+   }
+}
+
+
+
+
+
+

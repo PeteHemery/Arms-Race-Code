@@ -21,43 +21,58 @@
 /* Arms Race */
 #include "keypad.h"
 
-xQueueHandle xKeyPadQueue;
+extern int sd_card_read_names(void);
+extern int sd_card_read_file(char *);
 
+char *key_assignment[] = {
+  "RESET", "XUP", "BLANK1", "PLAY",
+  "XLEFT",  "UP", "XRIGHT", "PAUSE",
+  "LEFT", "DOWN", "RIGHT",  "BLANK2",
+  "STOP", "XDOWN", "CANCEL", "ENTER"
+};
 
 void vTaskKeyPad(void *pvParameters)
 {
   static unsigned char hold = 0;
-  unsigned int status = 0;
-  unsigned int prev_status = 0;
-  unsigned int press = 0;
-  const char *pcTaskName = "Control\n";
-  printf(pcTaskName);
+  unsigned short usKeyPadStatus = 0;
+  unsigned short usPreviousKeyPadStatus = 0;
+    
+  portBASE_TYPE xQueueStatus;
+  const portTickType xTicksToWait = 100 / portTICK_RATE_MS;
+  
   
   for (;;)
   {
-      vTaskDelay(50 / portTICK_RATE_MS); // Chill out the for loop a bit
-      status = IORD_ALTERA_AVALON_PIO_DATA(KEYPAD_0_BASE); // Read HW
+      vTaskDelay(xTicksToWait); // Chill out the for loop a bit
+      usKeyPadStatus = IORD_ALTERA_AVALON_PIO_DATA(KEYPAD_BASE); // Read HW
+      //printf("status: %d\n",status);
       
-      //printf("status: %02x\n",status);
-      //if (status != prev_status){ //Only do something if there's a chance
-        
-      if ((status >> 5) == 1){ // NKP set (No Key Pressed)
-        if (status != prev_status){ //Only do something if there's a chance
-          printf("no key pressed\n");
+      if (usKeyPadStatus < 0x10){ //value latched
+        if (usPreviousKeyPadStatus != usKeyPadStatus){
           hold = 0;
         }
-      }
-      if ((status >> 4) == 0){ // pulse bit set - value latched
         if(hold == 0 || hold >= THRESHOLD){
-          press = status & 0x0F;
-          printf("%d\n",press);
-          
+          printf("%d %s\n",usKeyPadStatus, key_assignment[usKeyPadStatus]);
+          printf("hold value: %d\n",hold);
+          xQueueStatus = xQueueSendToBack( xKeyPadQueue, &usKeyPadStatus, xTicksToWait);
+          if( xQueueStatus != pdPASS )
+          {
+            printf( "Could not send to the queue.\r\n");
+          }
         }
         if(++hold == 0){
           hold = THRESHOLD;
         }
       }
-      prev_status = status;
+      else
+      {
+        if (usPreviousKeyPadStatus < 0x0F){ //Only do something if there's a chance
+          printf("no key pressed\n");
+        }
+        hold = 0;
+      }
+      usPreviousKeyPadStatus = usKeyPadStatus;
+      taskYIELD();
   }
     
 }

@@ -35,7 +35,7 @@ struct waypoint_t * create_waypoint(int wp_num, BYTE control){
   int i;
 
   /* New program loaded */
-  switch(control){
+/*  switch(control){
     case RESET:
       tail = NULL;
       number_of_waypoints = 0;
@@ -49,7 +49,7 @@ struct waypoint_t * create_waypoint(int wp_num, BYTE control){
     default:
       break;
   }
-  
+*/
   /* Give me some memory */
   wp = (struct waypoint_t *) pvPortMalloc(sizeof(struct waypoint_t));
   wp->waypoint_number = wp_num; /* Remember your number! */
@@ -244,7 +244,7 @@ void vTaskWayPointCreate(void *pvParameters){
     if(input == '1'){
       while(getchar() != '\n');
       printf("waypoint: %d\n",++wp_count);
-      tail = create_waypoint(wp_count,NONE);
+      tail = create_waypoint(wp_count,0);
       if(wp_count == 1){
         head = tail;
       }

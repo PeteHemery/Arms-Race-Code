@@ -18,7 +18,7 @@
 #include "altera_avalon_pio_regs.h"
 #include "alt_types.h"
 
-extern xQueueHandle xQueue;
+extern xQueueHandle xKeyPadQueue;
 
 /* Blocking when Receiving from a Queue */
 void vSenderTask( void *pvParameters )
@@ -32,7 +32,7 @@ void vSenderTask( void *pvParameters )
 
   for(;;)
   {
-    xStatus = xQueueSendToBack( xQueue, &lValueToSend, xTicksToWait);
+    xStatus = xQueueSendToBack( xKeyPadQueue, &lValueToSend, xTicksToWait);
     if( xStatus != pdPASS )
     {
       printf( "Could not send to the queue.\r\n");
@@ -49,11 +49,11 @@ void vReceiverTask( void *pvParameters )
 
   for(;;)
   {
-    if( uxQueueMessagesWaiting( xQueue ) != 0)
+    if( uxQueueMessagesWaiting( xKeyPadQueue ) != 0)
     {
       printf( "Queue should have been empty!\r\n" );
     }
-    xStatus = xQueueReceive( xQueue, &lReceivedValue, xTicksToWait );
+    xStatus = xQueueReceive( xKeyPadQueue, &lReceivedValue, xTicksToWait );
     if( xStatus == pdPASS )
     {
       printf( "Received = %d\r\n", lReceivedValue );

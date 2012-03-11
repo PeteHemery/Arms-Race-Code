@@ -21,17 +21,60 @@
 /* Arms Race */
 #include "LCD.h"
 
+void vPrintToLCD(unsigned char ucLineNumber ,char *pcString)
+{
+  FILE *fp;
+  static char cFirstLine[STRING_MAX] = {0};
+  
+  fp = fopen(LCD_NAME, "w");
+
+  switch(ucLineNumber){
+    case 1:
+      strcpy(cFirstLine,pcString);
+      fprintf(fp,"\n\n\n%s\n \r",pcString);
+      break;
+    case 2:
+      fprintf(fp,"\n%s",cFirstLine);
+      fprintf(fp,"\n%s",pcString);
+      break;
+    case 3:
+      if ((char)pcString == '\n') {
+        fprintf(fp,"\n");
+      }
+      else {
+        fprintf(fp,"%s",(char)pcString);
+      }
+    case 0:
+    default:
+      fprintf(fp,"\n\n\n");
+      break;
+  }
+  fclose(fp);
+}
+
+
 void vTaskLCD(void *pvParameters)
 {
- const portTickType xTicksToWait = 50 / portTICK_RATE_MS;
- int i = 0;
- FILE *fd;
- 
- fd = fopen(LCD_NAME, "w");
- fprintf(fd,"Forward/Backwards\n");
- for (;;){
-  fprintf(fd,"%d\r",i++);
+  const portTickType xTicksToWait = 100 / portTICK_RATE_MS;
+  portBASE_TYPE xStatus;
+  struct LCDQueue_TYPE xLCDQueueItem;
   
-  vTaskDelay(xTicksToWait); // Chill out the for loop a bit
- }
+  for (;;){
+    if( uxQueueMessagesWaiting( xLCDQueue ) != 0)
+    {
+      printf( "Queue should have been empty!\r\n" );
+    }
+    xStatus = xQueueReceive( xLCDQueue, &xLCDQueueItem, xTicksToWait );
+    if( xStatus == pdPASS )
+    {
+      printf( "Received = %d %s\r\n", xLCDQueueItem.ucLineNumber,xLCDQueueItem.cString );
+      vPrintToLCD(xLCDQueueItem.ucLineNumber,xLCDQueueItem.cString);
+    }
+    else
+    {
+      //printf( "Could not receive to the queue.\r\n");
+    }
+    //vTaskDelay(xTicksToWait); // Chill out the for loop a bit
+    taskYIELD();
+  }
 }
