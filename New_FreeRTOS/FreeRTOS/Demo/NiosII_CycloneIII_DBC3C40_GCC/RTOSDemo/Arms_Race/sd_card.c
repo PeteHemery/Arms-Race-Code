@@ -25,6 +25,8 @@
 #include "sd_card.h"
 #include "LCD.h"
 
+/*-----------------------------------*/
+
 void * pvSDCardInit(void)
 {
   int connected = 0;
@@ -57,6 +59,7 @@ void * pvSDCardInit(void)
   return device_reference;
 }
 
+/*-----------------------------------*/
 
 int sd_card_read_names(void)
 {
@@ -76,21 +79,85 @@ int sd_card_read_names(void)
   return number_of_files;   
 }
 
+/*-----------------------------------*/
+
+short sd_card_write_file(char *file_name, char *chars_to_write)
+{
+  short handler = -1;
+  short i = 0;
+  short sStringLength = 0;
+  
+  sStringLength = strlen(file_name);
+  if ((handler = alt_up_sd_card_fopen(file_name, true)) != -1){
+    for (i=0;i<sStringLength;i++)
+    {
+      if ((alt_up_sd_card_write(handler, chars_to_write[i])) != 1)
+        printf("failed to write\n");
+    }
+    if ((alt_up_sd_card_write(handler, '\n')) != 1)
+      printf("new line fail\n");
+    
+    /* Should set the handler to true */
+    handler = alt_up_sd_card_fclose(handler);
+  }
+  else
+  {
+    printf("file already exists\n");
+  }
+  return handler;
+}
+
+/*-----------------------------------*/
+
+short sd_card_append_file(char *file_name, char *chars_to_write)
+{
+  short handler = -1;
+  short read;
+  short i = 0;
+  short sStringLength = 0;
+  
+  sStringLength = strlen(file_name);
+  if (sStringLength == 0)
+  {
+    printf("File name = 0\n");
+    return -1;
+  }
+  if ((handler = alt_up_sd_card_fopen(file_name, false)) != -1){
+    /* Read to the end of the file */
+    while ((read = alt_up_sd_card_read(handler)) != -1);
+    for (i=0;i<sStringLength;i++)
+    {
+      if ((alt_up_sd_card_write(handler, chars_to_write[i])) != 1)
+        printf("failed to write\n");
+    }
+    if ((alt_up_sd_card_write(handler, '\n')) != 1)
+      printf("new line fail\n");
+      
+    /* Should set the handler to true */
+    handler = alt_up_sd_card_fclose(handler);
+  }
+  else
+  {
+    printf("cannot open file\n");
+  }
+  return handler;
+}
+
+/*-----------------------------------*/
+
 int sd_card_read_file(char *file_name)
 {
   int number_of_chars = 0;
   short handler;
   short read;
-  int i = 0;
-  char cFileLine[50] = {0};
-  char *pLinePtr = cFileLine; 
+  char cFileLine[100] = {0};
   
-  vPrintToLCD(1,"tester");
   if ((handler = alt_up_sd_card_fopen(file_name, false)) != -1)
   {
     printf("looking for the file %s\n",file_name);
     while ((read = alt_up_sd_card_read(handler)) != -1){
       printf("%c", read);
+      cFileLine[number_of_chars] = (char)read;
       number_of_chars++;
     }
     printf("'EOF'\nnumber_of_chars = %d\n",number_of_chars);
@@ -100,35 +167,8 @@ int sd_card_read_file(char *file_name)
   if (handler == -1)
   {
     printf("File not found\n");
-  }
-  
-  if ((handler = alt_up_sd_card_fopen("test2.txt", false)) != -1){
-    while ((read = alt_up_sd_card_read(handler)) != -1);
-    for (i=0;i<10;i++)
-    {
-      if ((alt_up_sd_card_write(handler, '0'+i)) == 0) printf("fail\n");
-    }
-    if ((alt_up_sd_card_write(handler, '\r')) == 0) printf("carriage return fail\n");
-    if ((alt_up_sd_card_write(handler, '\n')) == 0) printf("new line fail\n");
-    alt_up_sd_card_fclose(handler);
-  }
-  handler = alt_up_sd_card_fopen("test.txt", false);
-  while ((read = alt_up_sd_card_read(handler)) != -1) printf("%c", read);
-  printf("\nend of test 1\n");
-  handler = alt_up_sd_card_fopen("test2.txt", false);
-  while ((read = alt_up_sd_card_read(handler)) != -1){
-     printf("%c", read);
-     *pLinePtr = (char)read;
-     if (*pLinePtr == '\n') {
-       vPrintToLCD(2,cFileLine);
-       bzero(cFileLine,50);
-       pLinePtr = cFileLine; 
-     }
-     pLinePtr++;
-  }
-  
-  printf("\nend of test 2\n");
-  
+  }    
+    
   /*
     handler = alt_up_sd_card_find_first("/.", buffer_name);
     printf("%d,  %s \n", handler, buffer_name);
@@ -157,29 +197,6 @@ int sd_card_read_file(char *file_name)
       printf("File not found\n");
     }*/
     
-    
-    
-    /*else
-    //while ((handler = alt_up_sd_card_find_next(buffer_name)) != -1)
-    {
-      //printf("%d,  %s \n", handler, buffer_name);
-      //if (strcmp(buffer_name,"DEMO1.TXT") == 0)
-      //{
-        printf("buffer_name pre %s \n",buffer_name);
-        while (ptr != NULL){
-          temp = tolower(*ptr);
-          *ptr = temp;
-          ptr++;
-        }
-        printf("buffer_name post %s \n",buffer_name);
-        handler = alt_up_sd_card_fopen(buffer_name, false);
-        printf("%d,  %s \n", handler, buffer_name);
-        
-        
-        //break;
-      //}
-    }*/
-    
   return number_of_chars;   
 }
 
@@ -190,27 +207,30 @@ void vTaskSDCard(void *pvParameters)
   
   //printf(pcTaskName);
   status = (unsigned int)pvSDCardInit();
-  
-  status = sd_card_read_names();
-  status = sd_card_read_file("test1.TXT");
   printf("SD card status = %d\n",status);
+  
 
   for(;;){
+    
     if(alt_up_sd_card_is_Present() == false) {
       status = 0;
     }
     else {
       status = 1;
     }
+    
     if (status != prev_status) {
       if (status == 0) {
         printf("Card disconnected.\n");
       }
       else {
         pvSDCardInit();
+        sd_card_read_names();
       }
     }
     prev_status = status;
+    
+    taskYIELD();
   }
   vTaskDelete(NULL);   
 }
@@ -247,9 +267,4 @@ spare code to use one day
       }
       while ((read = alt_up_sd_card_read(handler)) != -1) printf("%c \n", read);
       //create_file("whoops.txt", file_record, t_file_record *home_dir);
-*/
-
-/*  Original Example
- * 
-
 */

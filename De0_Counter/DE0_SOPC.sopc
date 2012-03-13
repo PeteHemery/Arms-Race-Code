@@ -87,6 +87,14 @@
          type = "String";
       }
    }
+   element tristate_bridge.clk
+   {
+      datum _tags
+      {
+         value = "";
+         type = "String";
+      }
+   }
    element clk
    {
       datum _sortIndex
@@ -104,7 +112,7 @@
       }
       datum megawizard_uipreferences
       {
-         value = "{}";
+         value = "{output_language=VERILOG, output_directory=/home/netlab/prhemery/Altera_Systems_Labs/De0_Counter}";
          type = "String";
       }
    }
@@ -133,7 +141,7 @@
       }
       datum megawizard_uipreferences
       {
-         value = "{}";
+         value = "{output_language=VERILOG, output_directory=/home/netlab/prhemery/Altera_Systems_Labs/De0_Counter}";
          type = "String";
       }
    }
@@ -239,11 +247,19 @@
          type = "String";
       }
    }
-   element sd_clk.s1
+   element onchip_mem.s1
    {
       datum baseAddress
       {
-         value = "192";
+         value = "41975808";
+         type = "long";
+      }
+   }
+   element cfi_flash.s1
+   {
+      datum baseAddress
+      {
+         value = "37748736";
          type = "long";
       }
    }
@@ -252,6 +268,14 @@
       datum baseAddress
       {
          value = "208";
+         type = "long";
+      }
+   }
+   element sd_clk.s1
+   {
+      datum baseAddress
+      {
+         value = "192";
          type = "long";
       }
    }
@@ -271,27 +295,27 @@
          type = "long";
       }
    }
-   element onchip_mem.s1
-   {
-      datum baseAddress
-      {
-         value = "41975808";
-         type = "long";
-      }
-   }
-   element clock_crossing_bridge.s1
-   {
-      datum baseAddress
-      {
-         value = "0";
-         type = "long";
-      }
-   }
    element sd_wp_n.s1
    {
       datum baseAddress
       {
          value = "144";
+         type = "long";
+      }
+   }
+   element buttons.s1
+   {
+      datum baseAddress
+      {
+         value = "1120";
+         type = "long";
+      }
+   }
+   element seg7.s1
+   {
+      datum baseAddress
+      {
+         value = "1168";
          type = "long";
       }
    }
@@ -303,11 +327,11 @@
          type = "long";
       }
    }
-   element cfi_flash.s1
+   element pll.s1
    {
       datum baseAddress
       {
-         value = "37748736";
+         value = "42012672";
          type = "long";
       }
    }
@@ -316,6 +340,22 @@
       datum baseAddress
       {
          value = "160";
+         type = "long";
+      }
+   }
+   element clock_crossing_bridge.s1
+   {
+      datum baseAddress
+      {
+         value = "0";
+         type = "long";
+      }
+   }
+   element switches.s1
+   {
+      datum baseAddress
+      {
+         value = "1104";
          type = "long";
       }
    }
@@ -332,38 +372,6 @@
       datum baseAddress
       {
          value = "1056";
-         type = "long";
-      }
-   }
-   element seg7.s1
-   {
-      datum baseAddress
-      {
-         value = "1168";
-         type = "long";
-      }
-   }
-   element buttons.s1
-   {
-      datum baseAddress
-      {
-         value = "1120";
-         type = "long";
-      }
-   }
-   element switches.s1
-   {
-      datum baseAddress
-      {
-         value = "1104";
-         type = "long";
-      }
-   }
-   element pll.s1
-   {
-      datum baseAddress
-      {
-         value = "42012672";
          type = "long";
       }
    }
@@ -528,7 +536,7 @@
  <parameter name="projectName" value="DE0_TOP.qpf" />
  <parameter name="sopcBorderPoints" value="true" />
  <parameter name="systemHash" value="20321087996" />
- <parameter name="timeStamp" value="1331475756949" />
+ <parameter name="timeStamp" value="1331670559449" />
  <module kind="clock_source" version="11.0" enabled="1" name="clk">
   <parameter name="clockFrequency" value="50000000" />
   <parameter name="clockFrequencyKnown" value="true" />

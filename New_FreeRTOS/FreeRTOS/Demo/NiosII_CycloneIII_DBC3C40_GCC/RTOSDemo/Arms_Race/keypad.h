@@ -8,7 +8,7 @@
 #ifndef KEYPAD_H_
 #define KEYPAD_H_
 
-#define THRESHOLD 15
+#define THRESHOLD 20
 
 enum {
   RESET, XUP, BLANK1, PLAY,

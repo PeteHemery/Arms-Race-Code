@@ -18,6 +18,7 @@
 #include "waypoints.h"
 #include "keypad.h"
 #include "LCD.h"
+#include "sd_card.h"
 
 void vTesterTask( void *pvParameters )
 {
@@ -25,7 +26,7 @@ void vTesterTask( void *pvParameters )
   struct LCDQueue_TYPE xLCDQueueItem;
   portBASE_TYPE xKeyPadQueueStatus;
   portBASE_TYPE xLCDQueueStatus;
-  const portTickType xTicksToWait = 100 / portTICK_RATE_MS;
+  const portTickType xTicksToWait = 1000 / portTICK_RATE_MS;
 
   for(;;)
   {
@@ -57,14 +58,18 @@ void vTesterTask( void *pvParameters )
           
         case 8:
           vPrintToLCD(2,"tester!");
+          xLCDQueueStatus = pdPASS;
           break;
         case 9:
           vPrintToLCD(2,"Second line mc mutha tester");
+          xLCDQueueStatus = pdPASS;
           break;
         case 10:
           vPrintToLCD(1,"really Really reallY long string and if it ");
+          xLCDQueueStatus = pdPASS;
           break;
         default:
+          xLCDQueueStatus = pdPASS;
           break;
       }
       

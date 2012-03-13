@@ -21,6 +21,13 @@
 /* Arms Race */
 #include "LCD.h"
 
+
+
+
+
+/* --------------------------------------------------------------------- */
+
+
 void vPrintToLCD(unsigned char ucLineNumber ,char *pcString)
 {
   FILE *fp;
@@ -52,13 +59,12 @@ void vPrintToLCD(unsigned char ucLineNumber ,char *pcString)
   fclose(fp);
 }
 
-
 void vTaskLCD(void *pvParameters)
 {
-  const portTickType xTicksToWait = 100 / portTICK_RATE_MS;
+  const portTickType xTicksToWait = 1000 / portTICK_RATE_MS;
   portBASE_TYPE xStatus;
   struct LCDQueue_TYPE xLCDQueueItem;
-  
+
   for (;;){
     if( uxQueueMessagesWaiting( xLCDQueue ) != 0)
     {
@@ -67,14 +73,14 @@ void vTaskLCD(void *pvParameters)
     xStatus = xQueueReceive( xLCDQueue, &xLCDQueueItem, xTicksToWait );
     if( xStatus == pdPASS )
     {
-      printf( "Received = %d %s\r\n", xLCDQueueItem.ucLineNumber,xLCDQueueItem.cString );
+      printf( "LCD Received = %d %s\r\n", xLCDQueueItem.ucLineNumber,xLCDQueueItem.cString );
       vPrintToLCD(xLCDQueueItem.ucLineNumber,xLCDQueueItem.cString);
     }
     else
     {
       //printf( "Could not receive to the queue.\r\n");
     }
-    //vTaskDelay(xTicksToWait); // Chill out the for loop a bit
+    
     taskYIELD();
   }
 }

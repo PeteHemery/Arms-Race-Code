@@ -38,7 +38,7 @@ void vTaskKeyPad(void *pvParameters)
   unsigned short usPreviousKeyPadStatus = 0;
     
   portBASE_TYPE xQueueStatus;
-  const portTickType xTicksToWait = 100 / portTICK_RATE_MS;
+  const portTickType xTicksToWait = 50 / portTICK_RATE_MS;
   
   
   for (;;)
@@ -52,12 +52,19 @@ void vTaskKeyPad(void *pvParameters)
           hold = 0;
         }
         if(hold == 0 || hold >= THRESHOLD){
+#ifdef DEBUG
           printf("%d %s\n",usKeyPadStatus, key_assignment[usKeyPadStatus]);
           printf("hold value: %d\n",hold);
+#endif
           xQueueStatus = xQueueSendToBack( xKeyPadQueue, &usKeyPadStatus, xTicksToWait);
           if( xQueueStatus != pdPASS )
           {
+#ifdef DEBUG
             printf( "Could not send to the queue.\r\n");
+#endif
+          }
+          if (hold == THRESHOLD){
+            hold = THRESHOLD - 3;
           }
         }
         if(++hold == 0){
@@ -66,8 +73,11 @@ void vTaskKeyPad(void *pvParameters)
       }
       else
       {
-        if (usPreviousKeyPadStatus < 0x0F){ //Only do something if there's a chance
+        if (usPreviousKeyPadStatus < 0x10){ //Only do something if there's a chance
+          
+#ifdef DEBUG
           printf("no key pressed\n");
+#endif
         }
         hold = 0;
       }

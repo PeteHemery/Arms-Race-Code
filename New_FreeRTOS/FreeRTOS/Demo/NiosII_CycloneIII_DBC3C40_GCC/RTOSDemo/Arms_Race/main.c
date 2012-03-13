@@ -81,6 +81,7 @@
 extern void vTaskSerial(void *pvParameters);
 
 extern void vTesterTask( void *pvParameters );
+extern void vTaskRecord( void *pvParameters );
 
 
 xQueueHandle xKeyPadQueue;
@@ -104,7 +105,8 @@ int main( void )
     {
       xTaskCreate(vTaskKeyPad, "Keypad", 1000, NULL, 1, NULL);
       xTaskCreate(vTaskLCD, "LCD", 1000, NULL, 1, NULL);
-      xTaskCreate(vTesterTask, "Tester", 1000, NULL, 1, NULL);
+      //xTaskCreate(vTesterTask, "Tester", 1000, NULL, 1, NULL);
+      xTaskCreate(vTaskRecord, "Tester", 1000, NULL, 1, NULL);
       
       //xTaskCreate( vTaskWayPointCreate, "WayPoints", 100, NULL, 1, NULL );
      
@@ -120,7 +122,6 @@ int main( void )
     {
       printf("Queues could not be created\n");
     }
-//  }
 }
 
 

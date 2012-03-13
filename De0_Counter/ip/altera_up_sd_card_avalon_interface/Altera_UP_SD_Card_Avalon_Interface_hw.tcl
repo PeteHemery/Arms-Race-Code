@@ -36,7 +36,7 @@ set_module_property LIBRARIES {ieee.std_logic_1164.all ieee.std_logic_arith.all 
 set_module_property TOP_LEVEL_HDL_FILE "hdl/Altera_UP_SD_Card_Avalon_Interface.vhd"
 set_module_property TOP_LEVEL_HDL_MODULE Altera_UP_SD_Card_Avalon_Interface
 set_module_property INSTANTIATE_IN_SYSTEM_MODULE true
-set_module_property EDITABLE false
+set_module_property EDITABLE true
 #set_module_property ANALYZE_HDL false
 set_module_property SIMULATION_MODEL_IN_VERILOG false
 set_module_property SIMULATION_MODEL_IN_VHDL false
