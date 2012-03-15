@@ -4,7 +4,6 @@
 #include <string.h>
 #include <unistd.h>
 
-#include "altera_avalon_lcd_16207_mod.h"
 /* Scheduler includes. */
 #include "FreeRTOS.h"
 #include "task.h"
@@ -13,24 +12,36 @@
 /* Altera specific */
 #include "altera_avalon_pio_regs.h"
 #include "alt_types.h"
+#include "altera_avalon_lcd_16207_mod.h"
 
 /* Pete written */
 #include "waypoints.h"
 #include "keypad.h"
 #include "LCD.h"
 #include "sd_card.h"
+#include "record.h"
 
 void vTaskRecord( void *pvParameters )
 {
   unsigned short lReceivedValue;
   //struct LCDQueue_TYPE xLCDQueueItem;
   portBASE_TYPE xKeyPadQueueStatus;
-  portBASE_TYPE xLCDQueueStatus;
+  //portBASE_TYPE xLCDQueueStatus;
   const portTickType xTicksToWait = 1000 / portTICK_RATE_MS;
+  
+  portSHORT psX = 1;
+  portSHORT psY = 1;
+  portSHORT psZ = 1;
 
   printf("Record a Program\n");
-  vPrintToLCD(1,"Record a Program");
+  //vPrintToLCD(1,"Record a Program");
 
+  xInverseStruct_t xInverseStruct = {psX, psY, psZ, ""};
+  strcpy(xInverseStruct.pcOutput,"Hi");
+printf("psX=%d psY=%d psZ=%d pcOutput=%s\n",xInverseStruct.X,
+                                                    xInverseStruct.Y,
+                                                    xInverseStruct.Z,
+                                                    xInverseStruct.pcOutput);
   for(;;)
   {
     if( uxQueueMessagesWaiting( xKeyPadQueue ) != 0)
@@ -54,26 +65,54 @@ void vTaskRecord( void *pvParameters )
           break;
           
         case ENTER:
+          xInverseStruct.X = psX;
+          xInverseStruct.Y = psY;
+          xInverseStruct.Z = psZ;
+          strcpy(xInverseStruct.pcOutput,"");
+          
+          if ((xTaskCreate(vTaskCalculateInverse, "Inverse Kinematics", 2000, &xInverseStruct, 1, NULL))
+            != pdPASS) printf("couldn't run inverse in\n"); 
           break;
         case CANCEL:
           break;
           
         case XUP:
-        case UP:
-          break;
-        case XLEFT:
-        case LEFT:
+          psZ++;
+          printf("%d psZ++;\n",psZ);
           break;
         case XDOWN:
-        case DOWN:
+          psZ--;
+          printf("%d psZ--;\n",psZ);
           break;
+          
+        case UP:
+          psY++;
+          printf("%d psY++;\n",psY);
+          break;
+        case DOWN:
+          psY--;
+          printf("%d psY--;\n",psY);
+          break;
+          
         case XRIGHT:
         case RIGHT:
+          psX++;
+          printf("%d psX++;\n",psX);
+          break;
+          
+        case XLEFT:
+        case LEFT:
+          psX--;
+          printf("%d psX--;\n",psX);
           break;
           
         default:
           break;
       }
+      printf("psX=%d psY=%d psZ=%d pcOutput=%s\n",xInverseStruct.X,
+                                                    xInverseStruct.Y,
+                                                    xInverseStruct.Z,
+                                                    xInverseStruct.pcOutput);
     }
     else
     {

@@ -19,10 +19,15 @@ void vPrintToLCD(unsigned char ucLineNumber ,char *pcString);
 
 extern xQueueHandle xLCDQueue;
 
-struct LCDQueue_TYPE
+typedef struct 
 {
   unsigned char ucLineNumber;
   char cString[STRING_MAX];
-};
+} LCDQueue_TYPE;
+
+
+/* Included by Pete 15/03/2012 */
+extern altera_avalon_lcd_16207_state* pxSp;
+
 
 #endif /*LCD_H_*/

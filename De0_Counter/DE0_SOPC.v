@@ -328,8 +328,10 @@ module DE0_SOPC_clock_0_in_arbitrator (
                                          clk,
                                          cpu_data_master_address_to_slave,
                                          cpu_data_master_byteenable,
+                                         cpu_data_master_latency_counter,
                                          cpu_data_master_read,
-                                         cpu_data_master_waitrequest,
+                                         cpu_data_master_read_data_valid_clock_crossing_bridge_s1_shift_register,
+                                         cpu_data_master_read_data_valid_sdram_s1_shift_register,
                                          cpu_data_master_write,
                                          cpu_data_master_writedata,
                                          reset_n,
@@ -374,8 +376,10 @@ module DE0_SOPC_clock_0_in_arbitrator (
   input            clk;
   input   [ 25: 0] cpu_data_master_address_to_slave;
   input   [  3: 0] cpu_data_master_byteenable;
+  input   [  1: 0] cpu_data_master_latency_counter;
   input            cpu_data_master_read;
-  input            cpu_data_master_waitrequest;
+  input            cpu_data_master_read_data_valid_clock_crossing_bridge_s1_shift_register;
+  input            cpu_data_master_read_data_valid_sdram_s1_shift_register;
   input            cpu_data_master_write;
   input   [ 31: 0] cpu_data_master_writedata;
   input            reset_n;
@@ -505,7 +509,10 @@ module DE0_SOPC_clock_0_in_arbitrator (
   //cpu_data_master_continuerequest continued request, which is an e_assign
   assign cpu_data_master_continuerequest = 1;
 
-  assign cpu_data_master_qualified_request_DE0_SOPC_clock_0_in = cpu_data_master_requests_DE0_SOPC_clock_0_in & ~((cpu_data_master_read & (~cpu_data_master_waitrequest)) | ((~cpu_data_master_waitrequest) & cpu_data_master_write));
+  assign cpu_data_master_qualified_request_DE0_SOPC_clock_0_in = cpu_data_master_requests_DE0_SOPC_clock_0_in & ~((cpu_data_master_read & ((cpu_data_master_latency_counter != 0) | (|cpu_data_master_read_data_valid_clock_crossing_bridge_s1_shift_register) | (|cpu_data_master_read_data_valid_sdram_s1_shift_register))));
+  //local readdatavalid cpu_data_master_read_data_valid_DE0_SOPC_clock_0_in, which is an e_mux
+  assign cpu_data_master_read_data_valid_DE0_SOPC_clock_0_in = cpu_data_master_granted_DE0_SOPC_clock_0_in & cpu_data_master_read & ~DE0_SOPC_clock_0_in_waits_for_read;
+
   //DE0_SOPC_clock_0_in_writedata mux, which is an e_mux
   assign DE0_SOPC_clock_0_in_writedata = cpu_data_master_writedata;
 
@@ -2422,8 +2429,9 @@ module clock_crossing_bridge_s1_arbitrator (
                                               clock_crossing_bridge_s1_waitrequest,
                                               cpu_data_master_address_to_slave,
                                               cpu_data_master_byteenable,
+                                              cpu_data_master_latency_counter,
                                               cpu_data_master_read,
-                                              cpu_data_master_waitrequest,
+                                              cpu_data_master_read_data_valid_sdram_s1_shift_register,
                                               cpu_data_master_write,
                                               cpu_data_master_writedata,
                                               reset_n,
@@ -2471,8 +2479,9 @@ module clock_crossing_bridge_s1_arbitrator (
   input            clock_crossing_bridge_s1_waitrequest;
   input   [ 25: 0] cpu_data_master_address_to_slave;
   input   [  3: 0] cpu_data_master_byteenable;
+  input   [  1: 0] cpu_data_master_latency_counter;
   input            cpu_data_master_read;
-  input            cpu_data_master_waitrequest;
+  input            cpu_data_master_read_data_valid_sdram_s1_shift_register;
   input            cpu_data_master_write;
   input   [ 31: 0] cpu_data_master_writedata;
   input            reset_n;
@@ -2541,15 +2550,15 @@ module clock_crossing_bridge_s1_arbitrator (
 
 
   assign clock_crossing_bridge_s1_begins_xfer = ~d1_reasons_to_wait & ((cpu_data_master_qualified_request_clock_crossing_bridge_s1));
+  //assign clock_crossing_bridge_s1_readdatavalid_from_sa = clock_crossing_bridge_s1_readdatavalid so that symbol knows where to group signals which may go to master only, which is an e_assign
+  assign clock_crossing_bridge_s1_readdatavalid_from_sa = clock_crossing_bridge_s1_readdatavalid;
+
   //assign clock_crossing_bridge_s1_readdata_from_sa = clock_crossing_bridge_s1_readdata so that symbol knows where to group signals which may go to master only, which is an e_assign
   assign clock_crossing_bridge_s1_readdata_from_sa = clock_crossing_bridge_s1_readdata;
 
   assign cpu_data_master_requests_clock_crossing_bridge_s1 = ({cpu_data_master_address_to_slave[25 : 11] , 11'b0} == 26'h0) & (cpu_data_master_read | cpu_data_master_write);
   //assign clock_crossing_bridge_s1_waitrequest_from_sa = clock_crossing_bridge_s1_waitrequest so that symbol knows where to group signals which may go to master only, which is an e_assign
   assign clock_crossing_bridge_s1_waitrequest_from_sa = clock_crossing_bridge_s1_waitrequest;
-
-  //assign clock_crossing_bridge_s1_readdatavalid_from_sa = clock_crossing_bridge_s1_readdatavalid so that symbol knows where to group signals which may go to master only, which is an e_assign
-  assign clock_crossing_bridge_s1_readdatavalid_from_sa = clock_crossing_bridge_s1_readdatavalid;
 
   //clock_crossing_bridge_s1_arb_share_counter set values, which is an e_mux
   assign clock_crossing_bridge_s1_arb_share_set_values = 1;
@@ -2610,7 +2619,7 @@ module clock_crossing_bridge_s1_arbitrator (
   //cpu_data_master_continuerequest continued request, which is an e_assign
   assign cpu_data_master_continuerequest = 1;
 
-  assign cpu_data_master_qualified_request_clock_crossing_bridge_s1 = cpu_data_master_requests_clock_crossing_bridge_s1 & ~((cpu_data_master_read & (~cpu_data_master_waitrequest | (|cpu_data_master_read_data_valid_clock_crossing_bridge_s1_shift_register))) | ((~cpu_data_master_waitrequest) & cpu_data_master_write));
+  assign cpu_data_master_qualified_request_clock_crossing_bridge_s1 = cpu_data_master_requests_clock_crossing_bridge_s1 & ~((cpu_data_master_read & ((cpu_data_master_latency_counter != 0) | (1 < cpu_data_master_latency_counter) | (|cpu_data_master_read_data_valid_sdram_s1_shift_register))));
   //unique name for clock_crossing_bridge_s1_move_on_to_next_transaction, which is an e_assign
   assign clock_crossing_bridge_s1_move_on_to_next_transaction = clock_crossing_bridge_s1_readdatavalid_from_sa;
 
@@ -3212,12 +3221,16 @@ module cpu_jtag_debug_module_arbitrator (
                                            cpu_data_master_address_to_slave,
                                            cpu_data_master_byteenable,
                                            cpu_data_master_debugaccess,
+                                           cpu_data_master_latency_counter,
                                            cpu_data_master_read,
-                                           cpu_data_master_waitrequest,
+                                           cpu_data_master_read_data_valid_clock_crossing_bridge_s1_shift_register,
+                                           cpu_data_master_read_data_valid_sdram_s1_shift_register,
                                            cpu_data_master_write,
                                            cpu_data_master_writedata,
                                            cpu_instruction_master_address_to_slave,
+                                           cpu_instruction_master_latency_counter,
                                            cpu_instruction_master_read,
+                                           cpu_instruction_master_read_data_valid_sdram_s1_shift_register,
                                            cpu_jtag_debug_module_readdata,
                                            cpu_jtag_debug_module_resetrequest,
                                            reset_n,
@@ -3237,7 +3250,6 @@ module cpu_jtag_debug_module_arbitrator (
                                            cpu_jtag_debug_module_chipselect,
                                            cpu_jtag_debug_module_debugaccess,
                                            cpu_jtag_debug_module_readdata_from_sa,
-                                           cpu_jtag_debug_module_reset_n,
                                            cpu_jtag_debug_module_resetrequest_from_sa,
                                            cpu_jtag_debug_module_write,
                                            cpu_jtag_debug_module_writedata,
@@ -3259,7 +3271,6 @@ module cpu_jtag_debug_module_arbitrator (
   output           cpu_jtag_debug_module_chipselect;
   output           cpu_jtag_debug_module_debugaccess;
   output  [ 31: 0] cpu_jtag_debug_module_readdata_from_sa;
-  output           cpu_jtag_debug_module_reset_n;
   output           cpu_jtag_debug_module_resetrequest_from_sa;
   output           cpu_jtag_debug_module_write;
   output  [ 31: 0] cpu_jtag_debug_module_writedata;
@@ -3268,12 +3279,16 @@ module cpu_jtag_debug_module_arbitrator (
   input   [ 25: 0] cpu_data_master_address_to_slave;
   input   [  3: 0] cpu_data_master_byteenable;
   input            cpu_data_master_debugaccess;
+  input   [  1: 0] cpu_data_master_latency_counter;
   input            cpu_data_master_read;
-  input            cpu_data_master_waitrequest;
+  input            cpu_data_master_read_data_valid_clock_crossing_bridge_s1_shift_register;
+  input            cpu_data_master_read_data_valid_sdram_s1_shift_register;
   input            cpu_data_master_write;
   input   [ 31: 0] cpu_data_master_writedata;
   input   [ 25: 0] cpu_instruction_master_address_to_slave;
+  input   [  1: 0] cpu_instruction_master_latency_counter;
   input            cpu_instruction_master_read;
+  input            cpu_instruction_master_read_data_valid_sdram_s1_shift_register;
   input   [ 31: 0] cpu_jtag_debug_module_readdata;
   input            cpu_jtag_debug_module_resetrequest;
   input            reset_n;
@@ -3323,7 +3338,6 @@ module cpu_jtag_debug_module_arbitrator (
   wire             cpu_jtag_debug_module_non_bursting_master_requests;
   wire    [ 31: 0] cpu_jtag_debug_module_readdata_from_sa;
   reg              cpu_jtag_debug_module_reg_firsttransfer;
-  wire             cpu_jtag_debug_module_reset_n;
   wire             cpu_jtag_debug_module_resetrequest_from_sa;
   reg     [  1: 0] cpu_jtag_debug_module_saved_chosen_master_vector;
   reg              cpu_jtag_debug_module_slavearbiterlockenable;
@@ -3440,7 +3454,10 @@ module cpu_jtag_debug_module_arbitrator (
   assign cpu_jtag_debug_module_any_continuerequest = cpu_instruction_master_continuerequest |
     cpu_data_master_continuerequest;
 
-  assign cpu_data_master_qualified_request_cpu_jtag_debug_module = cpu_data_master_requests_cpu_jtag_debug_module & ~(((~cpu_data_master_waitrequest) & cpu_data_master_write) | cpu_instruction_master_arbiterlock);
+  assign cpu_data_master_qualified_request_cpu_jtag_debug_module = cpu_data_master_requests_cpu_jtag_debug_module & ~((cpu_data_master_read & ((cpu_data_master_latency_counter != 0) | (|cpu_data_master_read_data_valid_clock_crossing_bridge_s1_shift_register) | (|cpu_data_master_read_data_valid_sdram_s1_shift_register))) | cpu_instruction_master_arbiterlock);
+  //local readdatavalid cpu_data_master_read_data_valid_cpu_jtag_debug_module, which is an e_mux
+  assign cpu_data_master_read_data_valid_cpu_jtag_debug_module = cpu_data_master_granted_cpu_jtag_debug_module & cpu_data_master_read & ~cpu_jtag_debug_module_waits_for_read;
+
   //cpu_jtag_debug_module_writedata mux, which is an e_mux
   assign cpu_jtag_debug_module_writedata = cpu_data_master_writedata;
 
@@ -3458,7 +3475,10 @@ module cpu_jtag_debug_module_arbitrator (
   //cpu_data_master_continuerequest continued request, which is an e_mux
   assign cpu_data_master_continuerequest = last_cycle_cpu_data_master_granted_slave_cpu_jtag_debug_module & cpu_data_master_requests_cpu_jtag_debug_module;
 
-  assign cpu_instruction_master_qualified_request_cpu_jtag_debug_module = cpu_instruction_master_requests_cpu_jtag_debug_module & ~(cpu_data_master_arbiterlock);
+  assign cpu_instruction_master_qualified_request_cpu_jtag_debug_module = cpu_instruction_master_requests_cpu_jtag_debug_module & ~((cpu_instruction_master_read & ((cpu_instruction_master_latency_counter != 0) | (|cpu_instruction_master_read_data_valid_sdram_s1_shift_register))) | cpu_data_master_arbiterlock);
+  //local readdatavalid cpu_instruction_master_read_data_valid_cpu_jtag_debug_module, which is an e_mux
+  assign cpu_instruction_master_read_data_valid_cpu_jtag_debug_module = cpu_instruction_master_granted_cpu_jtag_debug_module & cpu_instruction_master_read & ~cpu_jtag_debug_module_waits_for_read;
+
   //allow new arb cycle for cpu/jtag_debug_module, which is an e_assign
   assign cpu_jtag_debug_module_allow_new_arb_cycle = ~cpu_data_master_arbiterlock & ~cpu_instruction_master_arbiterlock;
 
@@ -3514,9 +3534,6 @@ module cpu_jtag_debug_module_arbitrator (
 
 
   assign cpu_jtag_debug_module_begintransfer = cpu_jtag_debug_module_begins_xfer;
-  //cpu_jtag_debug_module_reset_n assignment, which is an e_assign
-  assign cpu_jtag_debug_module_reset_n = reset_n;
-
   //assign cpu_jtag_debug_module_resetrequest_from_sa = cpu_jtag_debug_module_resetrequest so that symbol knows where to group signals which may go to master only, which is an e_assign
   assign cpu_jtag_debug_module_resetrequest_from_sa = cpu_jtag_debug_module_resetrequest;
 
@@ -3628,6 +3645,62 @@ module cpu_jtag_debug_module_arbitrator (
 //////////////// END SIMULATION-ONLY CONTENTS
 
 //synthesis translate_on
+
+endmodule
+
+
+// synthesis translate_off
+`timescale 1ns / 1ps
+// synthesis translate_on
+
+// turn off superfluous verilog processor warnings 
+// altera message_level Level1 
+// altera message_off 10034 10035 10036 10037 10230 10240 10030 
+
+module cpu_custom_instruction_master_arbitrator (
+                                                  // inputs:
+                                                   clk,
+                                                   cpu_altera_nios_custom_instr_floating_point_inst_s1_done_from_sa,
+                                                   cpu_altera_nios_custom_instr_floating_point_inst_s1_result_from_sa,
+                                                   cpu_custom_instruction_master_multi_start,
+                                                   reset_n,
+
+                                                  // outputs:
+                                                   cpu_altera_nios_custom_instr_floating_point_inst_s1_select,
+                                                   cpu_custom_instruction_master_multi_done,
+                                                   cpu_custom_instruction_master_multi_result,
+                                                   cpu_custom_instruction_master_reset_n,
+                                                   cpu_custom_instruction_master_start_cpu_altera_nios_custom_instr_floating_point_inst_s1
+                                                )
+;
+
+  output           cpu_altera_nios_custom_instr_floating_point_inst_s1_select;
+  output           cpu_custom_instruction_master_multi_done;
+  output  [ 31: 0] cpu_custom_instruction_master_multi_result;
+  output           cpu_custom_instruction_master_reset_n;
+  output           cpu_custom_instruction_master_start_cpu_altera_nios_custom_instr_floating_point_inst_s1;
+  input            clk;
+  input            cpu_altera_nios_custom_instr_floating_point_inst_s1_done_from_sa;
+  input   [ 31: 0] cpu_altera_nios_custom_instr_floating_point_inst_s1_result_from_sa;
+  input            cpu_custom_instruction_master_multi_start;
+  input            reset_n;
+
+  wire             cpu_altera_nios_custom_instr_floating_point_inst_s1_select;
+  wire             cpu_custom_instruction_master_multi_done;
+  wire    [ 31: 0] cpu_custom_instruction_master_multi_result;
+  wire             cpu_custom_instruction_master_reset_n;
+  wire             cpu_custom_instruction_master_start_cpu_altera_nios_custom_instr_floating_point_inst_s1;
+  assign cpu_altera_nios_custom_instr_floating_point_inst_s1_select = 1'b1;
+  assign cpu_custom_instruction_master_start_cpu_altera_nios_custom_instr_floating_point_inst_s1 = cpu_altera_nios_custom_instr_floating_point_inst_s1_select & cpu_custom_instruction_master_multi_start;
+  //cpu_custom_instruction_master_multi_result mux, which is an e_mux
+  assign cpu_custom_instruction_master_multi_result = {32 {cpu_altera_nios_custom_instr_floating_point_inst_s1_select}} & cpu_altera_nios_custom_instr_floating_point_inst_s1_result_from_sa;
+
+  //multi_done mux, which is an e_mux
+  assign cpu_custom_instruction_master_multi_done = {1 {cpu_altera_nios_custom_instr_floating_point_inst_s1_select}} & cpu_altera_nios_custom_instr_floating_point_inst_s1_done_from_sa;
+
+  //cpu_custom_instruction_master_reset_n local reset_n, which is an e_assign
+  assign cpu_custom_instruction_master_reset_n = reset_n;
+
 
 endmodule
 
@@ -3838,11 +3911,11 @@ module cpu_data_master_arbitrator (
                                      DE0_SOPC_clock_0_in_waitrequest_from_sa,
                                      buttons_s1_irq_from_sa,
                                      cfi_flash_s1_wait_counter_eq_0,
-                                     cfi_flash_s1_wait_counter_eq_1,
                                      clk,
                                      clock_crossing_bridge_s1_readdata_from_sa,
                                      clock_crossing_bridge_s1_waitrequest_from_sa,
                                      cpu_data_master_address,
+                                     cpu_data_master_byteenable,
                                      cpu_data_master_byteenable_cfi_flash_s1,
                                      cpu_data_master_byteenable_sdram_s1,
                                      cpu_data_master_granted_DE0_SOPC_clock_0_in,
@@ -3893,8 +3966,6 @@ module cpu_data_master_arbitrator (
                                      onchip_mem_s1_readdata_from_sa,
                                      pll_cpu,
                                      pll_cpu_reset_n,
-                                     registered_cpu_data_master_read_data_valid_cfi_flash_s1,
-                                     registered_cpu_data_master_read_data_valid_onchip_mem_s1,
                                      reset_n,
                                      sdram_s1_readdata_from_sa,
                                      sdram_s1_waitrequest_from_sa,
@@ -3907,8 +3978,9 @@ module cpu_data_master_arbitrator (
                                      cpu_data_master_dbs_address,
                                      cpu_data_master_dbs_write_16,
                                      cpu_data_master_irq,
-                                     cpu_data_master_no_byte_enables_and_last_term,
+                                     cpu_data_master_latency_counter,
                                      cpu_data_master_readdata,
+                                     cpu_data_master_readdatavalid,
                                      cpu_data_master_waitrequest
                                   )
 ;
@@ -3917,18 +3989,19 @@ module cpu_data_master_arbitrator (
   output  [  1: 0] cpu_data_master_dbs_address;
   output  [ 15: 0] cpu_data_master_dbs_write_16;
   output  [ 31: 0] cpu_data_master_irq;
-  output           cpu_data_master_no_byte_enables_and_last_term;
+  output  [  1: 0] cpu_data_master_latency_counter;
   output  [ 31: 0] cpu_data_master_readdata;
+  output           cpu_data_master_readdatavalid;
   output           cpu_data_master_waitrequest;
   input   [ 15: 0] DE0_SOPC_clock_0_in_readdata_from_sa;
   input            DE0_SOPC_clock_0_in_waitrequest_from_sa;
   input            buttons_s1_irq_from_sa;
   input            cfi_flash_s1_wait_counter_eq_0;
-  input            cfi_flash_s1_wait_counter_eq_1;
   input            clk;
   input   [ 31: 0] clock_crossing_bridge_s1_readdata_from_sa;
   input            clock_crossing_bridge_s1_waitrequest_from_sa;
   input   [ 25: 0] cpu_data_master_address;
+  input   [  3: 0] cpu_data_master_byteenable;
   input   [  1: 0] cpu_data_master_byteenable_cfi_flash_s1;
   input   [  1: 0] cpu_data_master_byteenable_sdram_s1;
   input            cpu_data_master_granted_DE0_SOPC_clock_0_in;
@@ -3979,8 +4052,6 @@ module cpu_data_master_arbitrator (
   input   [ 31: 0] onchip_mem_s1_readdata_from_sa;
   input            pll_cpu;
   input            pll_cpu_reset_n;
-  input            registered_cpu_data_master_read_data_valid_cfi_flash_s1;
-  input            registered_cpu_data_master_read_data_valid_onchip_mem_s1;
   input            reset_n;
   input   [ 15: 0] sdram_s1_readdata_from_sa;
   input            sdram_s1_waitrequest_from_sa;
@@ -3988,82 +4059,136 @@ module cpu_data_master_arbitrator (
   input            timer_s1_irq_from_sa;
   input            uart_s1_irq_from_sa;
 
+  reg              active_and_waiting_last_time;
+  reg     [ 25: 0] cpu_data_master_address_last_time;
   wire    [ 25: 0] cpu_data_master_address_to_slave;
+  reg     [  3: 0] cpu_data_master_byteenable_last_time;
   reg     [  1: 0] cpu_data_master_dbs_address;
   wire    [  1: 0] cpu_data_master_dbs_increment;
+  reg     [  1: 0] cpu_data_master_dbs_rdv_counter;
+  wire    [  1: 0] cpu_data_master_dbs_rdv_counter_inc;
   wire    [ 15: 0] cpu_data_master_dbs_write_16;
   wire    [ 31: 0] cpu_data_master_irq;
-  reg              cpu_data_master_no_byte_enables_and_last_term;
+  wire             cpu_data_master_is_granted_some_slave;
+  reg     [  1: 0] cpu_data_master_latency_counter;
+  wire    [  1: 0] cpu_data_master_next_dbs_rdv_counter;
+  reg              cpu_data_master_read_but_no_slave_selected;
+  reg              cpu_data_master_read_last_time;
   wire    [ 31: 0] cpu_data_master_readdata;
+  wire             cpu_data_master_readdatavalid;
   wire             cpu_data_master_run;
-  reg              cpu_data_master_waitrequest;
-  reg     [ 15: 0] dbs_16_reg_segment_0;
+  wire             cpu_data_master_waitrequest;
+  reg              cpu_data_master_write_last_time;
+  reg     [ 31: 0] cpu_data_master_writedata_last_time;
   wire             dbs_count_enable;
   wire             dbs_counter_overflow;
-  wire             last_dbs_term_and_run;
+  reg     [ 15: 0] dbs_latent_16_reg_segment_0;
+  wire             dbs_rdv_count_enable;
+  wire             dbs_rdv_counter_overflow;
+  wire    [  1: 0] latency_load_value;
   wire    [  1: 0] next_dbs_address;
-  wire    [ 15: 0] p1_dbs_16_reg_segment_0;
-  wire    [ 31: 0] p1_registered_cpu_data_master_readdata;
+  wire    [  1: 0] p1_cpu_data_master_latency_counter;
+  wire    [ 15: 0] p1_dbs_latent_16_reg_segment_0;
   wire             pll_cpu_buttons_s1_irq_from_sa;
   wire             pll_cpu_switches_s1_irq_from_sa;
   wire             pll_cpu_timer_s1_irq_from_sa;
   wire             pll_cpu_uart_s1_irq_from_sa;
   wire             pre_dbs_count_enable;
+  wire             pre_flush_cpu_data_master_readdatavalid;
   wire             r_0;
   wire             r_1;
   wire             r_2;
-  reg     [ 31: 0] registered_cpu_data_master_readdata;
   //r_0 master_run cascaded wait assignment, which is an e_assign
-  assign r_0 = 1 & (cpu_data_master_qualified_request_DE0_SOPC_clock_0_in | ~cpu_data_master_requests_DE0_SOPC_clock_0_in) & ((~cpu_data_master_qualified_request_DE0_SOPC_clock_0_in | ~(cpu_data_master_read | cpu_data_master_write) | (1 & ~DE0_SOPC_clock_0_in_waitrequest_from_sa & (cpu_data_master_read | cpu_data_master_write)))) & ((~cpu_data_master_qualified_request_DE0_SOPC_clock_0_in | ~(cpu_data_master_read | cpu_data_master_write) | (1 & ~DE0_SOPC_clock_0_in_waitrequest_from_sa & (cpu_data_master_read | cpu_data_master_write)))) & 1 & (cpu_data_master_qualified_request_clock_crossing_bridge_s1 | cpu_data_master_read_data_valid_clock_crossing_bridge_s1 | ~cpu_data_master_requests_clock_crossing_bridge_s1) & ((~cpu_data_master_qualified_request_clock_crossing_bridge_s1 | ~cpu_data_master_read | (cpu_data_master_read_data_valid_clock_crossing_bridge_s1 & cpu_data_master_read))) & ((~cpu_data_master_qualified_request_clock_crossing_bridge_s1 | ~(cpu_data_master_read | cpu_data_master_write) | (1 & ~clock_crossing_bridge_s1_waitrequest_from_sa & (cpu_data_master_read | cpu_data_master_write)))) & 1 & (cpu_data_master_qualified_request_cpu_jtag_debug_module | ~cpu_data_master_requests_cpu_jtag_debug_module) & (cpu_data_master_granted_cpu_jtag_debug_module | ~cpu_data_master_qualified_request_cpu_jtag_debug_module) & ((~cpu_data_master_qualified_request_cpu_jtag_debug_module | ~cpu_data_master_read | (1 & 1 & cpu_data_master_read))) & ((~cpu_data_master_qualified_request_cpu_jtag_debug_module | ~cpu_data_master_write | (1 & cpu_data_master_write))) & 1 & (cpu_data_master_qualified_request_jtag_uart_avalon_jtag_slave | ~cpu_data_master_requests_jtag_uart_avalon_jtag_slave) & ((~cpu_data_master_qualified_request_jtag_uart_avalon_jtag_slave | ~(cpu_data_master_read | cpu_data_master_write) | (1 & ~jtag_uart_avalon_jtag_slave_waitrequest_from_sa & (cpu_data_master_read | cpu_data_master_write)))) & ((~cpu_data_master_qualified_request_jtag_uart_avalon_jtag_slave | ~(cpu_data_master_read | cpu_data_master_write) | (1 & ~jtag_uart_avalon_jtag_slave_waitrequest_from_sa & (cpu_data_master_read | cpu_data_master_write))));
+  assign r_0 = 1 & (cpu_data_master_qualified_request_DE0_SOPC_clock_0_in | ~cpu_data_master_requests_DE0_SOPC_clock_0_in) & ((~cpu_data_master_qualified_request_DE0_SOPC_clock_0_in | ~(cpu_data_master_read | cpu_data_master_write) | (1 & ~DE0_SOPC_clock_0_in_waitrequest_from_sa & (cpu_data_master_read | cpu_data_master_write)))) & ((~cpu_data_master_qualified_request_DE0_SOPC_clock_0_in | ~(cpu_data_master_read | cpu_data_master_write) | (1 & ~DE0_SOPC_clock_0_in_waitrequest_from_sa & (cpu_data_master_read | cpu_data_master_write)))) & 1 & (cpu_data_master_qualified_request_clock_crossing_bridge_s1 | ~cpu_data_master_requests_clock_crossing_bridge_s1) & ((~cpu_data_master_qualified_request_clock_crossing_bridge_s1 | ~(cpu_data_master_read | cpu_data_master_write) | (1 & ~clock_crossing_bridge_s1_waitrequest_from_sa & (cpu_data_master_read | cpu_data_master_write)))) & ((~cpu_data_master_qualified_request_clock_crossing_bridge_s1 | ~(cpu_data_master_read | cpu_data_master_write) | (1 & ~clock_crossing_bridge_s1_waitrequest_from_sa & (cpu_data_master_read | cpu_data_master_write)))) & 1 & (cpu_data_master_qualified_request_cpu_jtag_debug_module | ~cpu_data_master_requests_cpu_jtag_debug_module) & (cpu_data_master_granted_cpu_jtag_debug_module | ~cpu_data_master_qualified_request_cpu_jtag_debug_module) & ((~cpu_data_master_qualified_request_cpu_jtag_debug_module | ~cpu_data_master_read | (1 & ~d1_cpu_jtag_debug_module_end_xfer & cpu_data_master_read))) & ((~cpu_data_master_qualified_request_cpu_jtag_debug_module | ~cpu_data_master_write | (1 & cpu_data_master_write))) & 1 & (cpu_data_master_qualified_request_jtag_uart_avalon_jtag_slave | ~cpu_data_master_requests_jtag_uart_avalon_jtag_slave) & ((~cpu_data_master_qualified_request_jtag_uart_avalon_jtag_slave | ~(cpu_data_master_read | cpu_data_master_write) | (1 & ~jtag_uart_avalon_jtag_slave_waitrequest_from_sa & (cpu_data_master_read | cpu_data_master_write)))) & ((~cpu_data_master_qualified_request_jtag_uart_avalon_jtag_slave | ~(cpu_data_master_read | cpu_data_master_write) | (1 & ~jtag_uart_avalon_jtag_slave_waitrequest_from_sa & (cpu_data_master_read | cpu_data_master_write))));
 
   //cascaded wait assignment, which is an e_assign
   assign cpu_data_master_run = r_0 & r_1 & r_2;
 
   //r_1 master_run cascaded wait assignment, which is an e_assign
-  assign r_1 = 1 & (cpu_data_master_qualified_request_onchip_mem_s1 | registered_cpu_data_master_read_data_valid_onchip_mem_s1 | ~cpu_data_master_requests_onchip_mem_s1) & (cpu_data_master_granted_onchip_mem_s1 | ~cpu_data_master_qualified_request_onchip_mem_s1) & ((~cpu_data_master_qualified_request_onchip_mem_s1 | ~cpu_data_master_read | (registered_cpu_data_master_read_data_valid_onchip_mem_s1 & cpu_data_master_read))) & ((~cpu_data_master_qualified_request_onchip_mem_s1 | ~(cpu_data_master_read | cpu_data_master_write) | (1 & (cpu_data_master_read | cpu_data_master_write)))) & 1 & (cpu_data_master_qualified_request_sdram_s1 | (cpu_data_master_read_data_valid_sdram_s1 & cpu_data_master_dbs_address[1]) | (cpu_data_master_write & !cpu_data_master_byteenable_sdram_s1 & cpu_data_master_dbs_address[1]) | ~cpu_data_master_requests_sdram_s1) & (cpu_data_master_granted_sdram_s1 | ~cpu_data_master_qualified_request_sdram_s1) & ((~cpu_data_master_qualified_request_sdram_s1 | ~cpu_data_master_read | (cpu_data_master_read_data_valid_sdram_s1 & (cpu_data_master_dbs_address[1]) & cpu_data_master_read))) & ((~cpu_data_master_qualified_request_sdram_s1 | ~cpu_data_master_write | (1 & ~sdram_s1_waitrequest_from_sa & (cpu_data_master_dbs_address[1]) & cpu_data_master_write)));
+  assign r_1 = 1 & (cpu_data_master_qualified_request_onchip_mem_s1 | ~cpu_data_master_requests_onchip_mem_s1) & (cpu_data_master_granted_onchip_mem_s1 | ~cpu_data_master_qualified_request_onchip_mem_s1) & ((~cpu_data_master_qualified_request_onchip_mem_s1 | ~(cpu_data_master_read | cpu_data_master_write) | (1 & (cpu_data_master_read | cpu_data_master_write)))) & ((~cpu_data_master_qualified_request_onchip_mem_s1 | ~(cpu_data_master_read | cpu_data_master_write) | (1 & (cpu_data_master_read | cpu_data_master_write)))) & 1 & (cpu_data_master_qualified_request_sdram_s1 | (cpu_data_master_write & !cpu_data_master_byteenable_sdram_s1 & cpu_data_master_dbs_address[1]) | ~cpu_data_master_requests_sdram_s1) & (cpu_data_master_granted_sdram_s1 | ~cpu_data_master_qualified_request_sdram_s1) & ((~cpu_data_master_qualified_request_sdram_s1 | ~cpu_data_master_read | (1 & ~sdram_s1_waitrequest_from_sa & (cpu_data_master_dbs_address[1]) & cpu_data_master_read))) & ((~cpu_data_master_qualified_request_sdram_s1 | ~cpu_data_master_write | (1 & ~sdram_s1_waitrequest_from_sa & (cpu_data_master_dbs_address[1]) & cpu_data_master_write)));
 
   //r_2 master_run cascaded wait assignment, which is an e_assign
-  assign r_2 = 1 & (cpu_data_master_qualified_request_cfi_flash_s1 | (registered_cpu_data_master_read_data_valid_cfi_flash_s1 & cpu_data_master_dbs_address[1]) | (cpu_data_master_write & !cpu_data_master_byteenable_cfi_flash_s1 & cpu_data_master_dbs_address[1]) | ~cpu_data_master_requests_cfi_flash_s1) & (cpu_data_master_granted_cfi_flash_s1 | ~cpu_data_master_qualified_request_cfi_flash_s1) & ((~cpu_data_master_qualified_request_cfi_flash_s1 | ~cpu_data_master_read | (registered_cpu_data_master_read_data_valid_cfi_flash_s1 & (cpu_data_master_dbs_address[1]) & cpu_data_master_read))) & ((~cpu_data_master_qualified_request_cfi_flash_s1 | ~cpu_data_master_write | (1 & cfi_flash_s1_wait_counter_eq_1 & (cpu_data_master_dbs_address[1]) & cpu_data_master_write)));
+  assign r_2 = 1 & (cpu_data_master_qualified_request_cfi_flash_s1 | (cpu_data_master_write & !cpu_data_master_byteenable_cfi_flash_s1 & cpu_data_master_dbs_address[1]) | ~cpu_data_master_requests_cfi_flash_s1) & (cpu_data_master_granted_cfi_flash_s1 | ~cpu_data_master_qualified_request_cfi_flash_s1) & ((~cpu_data_master_qualified_request_cfi_flash_s1 | ~cpu_data_master_read | (1 & ((cfi_flash_s1_wait_counter_eq_0 & ~d1_tristate_bridge_avalon_slave_end_xfer)) & (cpu_data_master_dbs_address[1]) & cpu_data_master_read))) & ((~cpu_data_master_qualified_request_cfi_flash_s1 | ~cpu_data_master_write | (1 & ((cfi_flash_s1_wait_counter_eq_0 & ~d1_tristate_bridge_avalon_slave_end_xfer)) & (cpu_data_master_dbs_address[1]) & cpu_data_master_write)));
 
   //optimize select-logic by passing only those address bits which matter.
   assign cpu_data_master_address_to_slave = cpu_data_master_address[25 : 0];
 
-  //unpredictable registered wait state incoming data, which is an e_register
+  //cpu_data_master_read_but_no_slave_selected assignment, which is an e_register
   always @(posedge clk or negedge reset_n)
     begin
       if (reset_n == 0)
-          registered_cpu_data_master_readdata <= 0;
+          cpu_data_master_read_but_no_slave_selected <= 0;
       else 
-        registered_cpu_data_master_readdata <= p1_registered_cpu_data_master_readdata;
+        cpu_data_master_read_but_no_slave_selected <= cpu_data_master_read & cpu_data_master_run & ~cpu_data_master_is_granted_some_slave;
     end
 
 
-  //registered readdata mux, which is an e_mux
-  assign p1_registered_cpu_data_master_readdata = ({32 {~cpu_data_master_requests_DE0_SOPC_clock_0_in}} | DE0_SOPC_clock_0_in_readdata_from_sa) &
-    ({32 {~cpu_data_master_requests_clock_crossing_bridge_s1}} | clock_crossing_bridge_s1_readdata_from_sa) &
-    ({32 {~cpu_data_master_requests_jtag_uart_avalon_jtag_slave}} | jtag_uart_avalon_jtag_slave_readdata_from_sa) &
-    ({32 {~cpu_data_master_requests_sdram_s1}} | {sdram_s1_readdata_from_sa[15 : 0],
-    dbs_16_reg_segment_0});
+  //some slave is getting selected, which is an e_mux
+  assign cpu_data_master_is_granted_some_slave = cpu_data_master_granted_DE0_SOPC_clock_0_in |
+    cpu_data_master_granted_clock_crossing_bridge_s1 |
+    cpu_data_master_granted_cpu_jtag_debug_module |
+    cpu_data_master_granted_jtag_uart_avalon_jtag_slave |
+    cpu_data_master_granted_onchip_mem_s1 |
+    cpu_data_master_granted_sdram_s1 |
+    cpu_data_master_granted_cfi_flash_s1;
+
+  //latent slave read data valids which may be flushed, which is an e_mux
+  assign pre_flush_cpu_data_master_readdatavalid = cpu_data_master_read_data_valid_clock_crossing_bridge_s1 |
+    cpu_data_master_read_data_valid_onchip_mem_s1 |
+    (cpu_data_master_read_data_valid_sdram_s1 & dbs_rdv_counter_overflow) |
+    (cpu_data_master_read_data_valid_cfi_flash_s1 & dbs_rdv_counter_overflow);
+
+  //latent slave read data valid which is not flushed, which is an e_mux
+  assign cpu_data_master_readdatavalid = cpu_data_master_read_but_no_slave_selected |
+    pre_flush_cpu_data_master_readdatavalid |
+    cpu_data_master_read_data_valid_DE0_SOPC_clock_0_in |
+    cpu_data_master_read_but_no_slave_selected |
+    pre_flush_cpu_data_master_readdatavalid |
+    cpu_data_master_read_but_no_slave_selected |
+    pre_flush_cpu_data_master_readdatavalid |
+    cpu_data_master_read_data_valid_cpu_jtag_debug_module |
+    cpu_data_master_read_but_no_slave_selected |
+    pre_flush_cpu_data_master_readdatavalid |
+    cpu_data_master_read_data_valid_jtag_uart_avalon_jtag_slave |
+    cpu_data_master_read_but_no_slave_selected |
+    pre_flush_cpu_data_master_readdatavalid |
+    cpu_data_master_read_but_no_slave_selected |
+    pre_flush_cpu_data_master_readdatavalid |
+    cpu_data_master_read_but_no_slave_selected |
+    pre_flush_cpu_data_master_readdatavalid;
 
   //cpu/data_master readdata mux, which is an e_mux
-  assign cpu_data_master_readdata = ({32 {~cpu_data_master_requests_DE0_SOPC_clock_0_in}} | registered_cpu_data_master_readdata) &
-    ({32 {~cpu_data_master_requests_clock_crossing_bridge_s1}} | registered_cpu_data_master_readdata) &
-    ({32 {~cpu_data_master_requests_cpu_jtag_debug_module}} | cpu_jtag_debug_module_readdata_from_sa) &
-    ({32 {~cpu_data_master_requests_jtag_uart_avalon_jtag_slave}} | registered_cpu_data_master_readdata) &
-    ({32 {~cpu_data_master_requests_onchip_mem_s1}} | onchip_mem_s1_readdata_from_sa) &
-    ({32 {~cpu_data_master_requests_sdram_s1}} | registered_cpu_data_master_readdata) &
-    ({32 {~cpu_data_master_requests_cfi_flash_s1}} | {incoming_data_to_and_from_the_cfi_flash_with_Xs_converted_to_0[15 : 0],
-    dbs_16_reg_segment_0});
+  assign cpu_data_master_readdata = ({32 {~(cpu_data_master_qualified_request_DE0_SOPC_clock_0_in & cpu_data_master_read)}} | DE0_SOPC_clock_0_in_readdata_from_sa) &
+    ({32 {~cpu_data_master_read_data_valid_clock_crossing_bridge_s1}} | clock_crossing_bridge_s1_readdata_from_sa) &
+    ({32 {~(cpu_data_master_qualified_request_cpu_jtag_debug_module & cpu_data_master_read)}} | cpu_jtag_debug_module_readdata_from_sa) &
+    ({32 {~(cpu_data_master_qualified_request_jtag_uart_avalon_jtag_slave & cpu_data_master_read)}} | jtag_uart_avalon_jtag_slave_readdata_from_sa) &
+    ({32 {~cpu_data_master_read_data_valid_onchip_mem_s1}} | onchip_mem_s1_readdata_from_sa) &
+    ({32 {~cpu_data_master_read_data_valid_sdram_s1}} | {sdram_s1_readdata_from_sa[15 : 0],
+    dbs_latent_16_reg_segment_0}) &
+    ({32 {~cpu_data_master_read_data_valid_cfi_flash_s1}} | {incoming_data_to_and_from_the_cfi_flash_with_Xs_converted_to_0[15 : 0],
+    dbs_latent_16_reg_segment_0});
 
-  //actual waitrequest port, which is an e_register
+  //actual waitrequest port, which is an e_assign
+  assign cpu_data_master_waitrequest = ~cpu_data_master_run;
+
+  //latent max counter, which is an e_register
   always @(posedge clk or negedge reset_n)
     begin
       if (reset_n == 0)
-          cpu_data_master_waitrequest <= ~0;
+          cpu_data_master_latency_counter <= 0;
       else 
-        cpu_data_master_waitrequest <= ~((~(cpu_data_master_read | cpu_data_master_write))? 0: (cpu_data_master_run & cpu_data_master_waitrequest));
+        cpu_data_master_latency_counter <= p1_cpu_data_master_latency_counter;
     end
 
+
+  //latency counter load mux, which is an e_mux
+  assign p1_cpu_data_master_latency_counter = ((cpu_data_master_run & cpu_data_master_read))? latency_load_value :
+    (cpu_data_master_latency_counter)? cpu_data_master_latency_counter - 1 :
+    0;
+
+  //read latency load values, which is an e_mux
+  assign latency_load_value = ({2 {cpu_data_master_requests_onchip_mem_s1}} & 1) |
+    ({2 {cpu_data_master_requests_cfi_flash_s1}} & 2);
 
   //buttons_s1_irq_from_sa from pll_io to pll_cpu
   buttons_s1_irq_from_sa_clock_crossing_cpu_data_master_module buttons_s1_irq_from_sa_clock_crossing_cpu_data_master
@@ -4108,39 +4233,25 @@ module cpu_data_master_arbitrator (
     pll_cpu_switches_s1_irq_from_sa,
     jtag_uart_avalon_jtag_slave_irq_from_sa};
 
-  //no_byte_enables_and_last_term, which is an e_register
-  always @(posedge clk or negedge reset_n)
-    begin
-      if (reset_n == 0)
-          cpu_data_master_no_byte_enables_and_last_term <= 0;
-      else 
-        cpu_data_master_no_byte_enables_and_last_term <= last_dbs_term_and_run;
-    end
-
-
-  //compute the last dbs term, which is an e_mux
-  assign last_dbs_term_and_run = (cpu_data_master_requests_sdram_s1)? (((cpu_data_master_dbs_address == 2'b10) & cpu_data_master_write & !cpu_data_master_byteenable_sdram_s1)) :
-    (((cpu_data_master_dbs_address == 2'b10) & cpu_data_master_write & !cpu_data_master_byteenable_cfi_flash_s1));
-
   //pre dbs count enable, which is an e_mux
-  assign pre_dbs_count_enable = (((~cpu_data_master_no_byte_enables_and_last_term) & cpu_data_master_requests_sdram_s1 & cpu_data_master_write & !cpu_data_master_byteenable_sdram_s1)) |
-    cpu_data_master_read_data_valid_sdram_s1 |
+  assign pre_dbs_count_enable = (((~0) & cpu_data_master_requests_sdram_s1 & cpu_data_master_write & !cpu_data_master_byteenable_sdram_s1)) |
+    (cpu_data_master_granted_sdram_s1 & cpu_data_master_read & 1 & 1 & ~sdram_s1_waitrequest_from_sa) |
     (cpu_data_master_granted_sdram_s1 & cpu_data_master_write & 1 & 1 & ~sdram_s1_waitrequest_from_sa) |
-    (((~cpu_data_master_no_byte_enables_and_last_term) & cpu_data_master_requests_cfi_flash_s1 & cpu_data_master_write & !cpu_data_master_byteenable_cfi_flash_s1)) |
-    cpu_data_master_read_data_valid_cfi_flash_s1 |
+    (((~0) & cpu_data_master_requests_cfi_flash_s1 & cpu_data_master_write & !cpu_data_master_byteenable_cfi_flash_s1)) |
+    ((cpu_data_master_granted_cfi_flash_s1 & cpu_data_master_read & 1 & 1 & ({cfi_flash_s1_wait_counter_eq_0 & ~d1_tristate_bridge_avalon_slave_end_xfer}))) |
     ((cpu_data_master_granted_cfi_flash_s1 & cpu_data_master_write & 1 & 1 & ({cfi_flash_s1_wait_counter_eq_0 & ~d1_tristate_bridge_avalon_slave_end_xfer})));
 
-  //input to dbs-16 stored 0, which is an e_mux
-  assign p1_dbs_16_reg_segment_0 = (cpu_data_master_requests_sdram_s1)? sdram_s1_readdata_from_sa :
+  //input to latent dbs-16 stored 0, which is an e_mux
+  assign p1_dbs_latent_16_reg_segment_0 = (cpu_data_master_read_data_valid_sdram_s1)? sdram_s1_readdata_from_sa :
     incoming_data_to_and_from_the_cfi_flash_with_Xs_converted_to_0;
 
-  //dbs register for dbs-16 segment 0, which is an e_register
+  //dbs register for latent dbs-16 segment 0, which is an e_register
   always @(posedge clk or negedge reset_n)
     begin
       if (reset_n == 0)
-          dbs_16_reg_segment_0 <= 0;
-      else if (dbs_count_enable & ((cpu_data_master_dbs_address[1]) == 0))
-          dbs_16_reg_segment_0 <= p1_dbs_16_reg_segment_0;
+          dbs_latent_16_reg_segment_0 <= 0;
+      else if (dbs_rdv_count_enable & ((cpu_data_master_dbs_rdv_counter[1]) == 0))
+          dbs_latent_16_reg_segment_0 <= p1_dbs_latent_16_reg_segment_0;
     end
 
 
@@ -4162,8 +4273,7 @@ module cpu_data_master_arbitrator (
   assign next_dbs_address = cpu_data_master_dbs_address + cpu_data_master_dbs_increment;
 
   //dbs count enable, which is an e_mux
-  assign dbs_count_enable = pre_dbs_count_enable &
-    (~(cpu_data_master_requests_sdram_s1 & ~cpu_data_master_waitrequest));
+  assign dbs_count_enable = pre_dbs_count_enable;
 
   //dbs counter, which is an e_register
   always @(posedge clk or negedge reset_n)
@@ -4174,6 +4284,30 @@ module cpu_data_master_arbitrator (
           cpu_data_master_dbs_address <= next_dbs_address;
     end
 
+
+  //p1 dbs rdv counter, which is an e_assign
+  assign cpu_data_master_next_dbs_rdv_counter = cpu_data_master_dbs_rdv_counter + cpu_data_master_dbs_rdv_counter_inc;
+
+  //cpu_data_master_rdv_inc_mux, which is an e_mux
+  assign cpu_data_master_dbs_rdv_counter_inc = (cpu_data_master_read_data_valid_sdram_s1)? 2 :
+    2;
+
+  //master any slave rdv, which is an e_mux
+  assign dbs_rdv_count_enable = cpu_data_master_read_data_valid_sdram_s1 |
+    cpu_data_master_read_data_valid_cfi_flash_s1;
+
+  //dbs rdv counter, which is an e_register
+  always @(posedge clk or negedge reset_n)
+    begin
+      if (reset_n == 0)
+          cpu_data_master_dbs_rdv_counter <= 0;
+      else if (dbs_rdv_count_enable)
+          cpu_data_master_dbs_rdv_counter <= cpu_data_master_next_dbs_rdv_counter;
+    end
+
+
+  //dbs rdv counter overflow, which is an e_assign
+  assign dbs_rdv_counter_overflow = cpu_data_master_dbs_rdv_counter[1] & ~cpu_data_master_next_dbs_rdv_counter[1];
 
   //switches_s1_irq_from_sa from pll_io to pll_cpu
   switches_s1_irq_from_sa_clock_crossing_cpu_data_master_module switches_s1_irq_from_sa_clock_crossing_cpu_data_master
@@ -4203,6 +4337,128 @@ module cpu_data_master_arbitrator (
     );
 
 
+//synthesis translate_off
+//////////////// SIMULATION-ONLY CONTENTS
+  //cpu_data_master_address check against wait, which is an e_register
+  always @(posedge clk or negedge reset_n)
+    begin
+      if (reset_n == 0)
+          cpu_data_master_address_last_time <= 0;
+      else 
+        cpu_data_master_address_last_time <= cpu_data_master_address;
+    end
+
+
+  //cpu/data_master waited last time, which is an e_register
+  always @(posedge clk or negedge reset_n)
+    begin
+      if (reset_n == 0)
+          active_and_waiting_last_time <= 0;
+      else 
+        active_and_waiting_last_time <= cpu_data_master_waitrequest & (cpu_data_master_read | cpu_data_master_write);
+    end
+
+
+  //cpu_data_master_address matches last port_name, which is an e_process
+  always @(posedge clk)
+    begin
+      if (active_and_waiting_last_time & (cpu_data_master_address != cpu_data_master_address_last_time))
+        begin
+          $write("%0d ns: cpu_data_master_address did not heed wait!!!", $time);
+          $stop;
+        end
+    end
+
+
+  //cpu_data_master_byteenable check against wait, which is an e_register
+  always @(posedge clk or negedge reset_n)
+    begin
+      if (reset_n == 0)
+          cpu_data_master_byteenable_last_time <= 0;
+      else 
+        cpu_data_master_byteenable_last_time <= cpu_data_master_byteenable;
+    end
+
+
+  //cpu_data_master_byteenable matches last port_name, which is an e_process
+  always @(posedge clk)
+    begin
+      if (active_and_waiting_last_time & (cpu_data_master_byteenable != cpu_data_master_byteenable_last_time))
+        begin
+          $write("%0d ns: cpu_data_master_byteenable did not heed wait!!!", $time);
+          $stop;
+        end
+    end
+
+
+  //cpu_data_master_read check against wait, which is an e_register
+  always @(posedge clk or negedge reset_n)
+    begin
+      if (reset_n == 0)
+          cpu_data_master_read_last_time <= 0;
+      else 
+        cpu_data_master_read_last_time <= cpu_data_master_read;
+    end
+
+
+  //cpu_data_master_read matches last port_name, which is an e_process
+  always @(posedge clk)
+    begin
+      if (active_and_waiting_last_time & (cpu_data_master_read != cpu_data_master_read_last_time))
+        begin
+          $write("%0d ns: cpu_data_master_read did not heed wait!!!", $time);
+          $stop;
+        end
+    end
+
+
+  //cpu_data_master_write check against wait, which is an e_register
+  always @(posedge clk or negedge reset_n)
+    begin
+      if (reset_n == 0)
+          cpu_data_master_write_last_time <= 0;
+      else 
+        cpu_data_master_write_last_time <= cpu_data_master_write;
+    end
+
+
+  //cpu_data_master_write matches last port_name, which is an e_process
+  always @(posedge clk)
+    begin
+      if (active_and_waiting_last_time & (cpu_data_master_write != cpu_data_master_write_last_time))
+        begin
+          $write("%0d ns: cpu_data_master_write did not heed wait!!!", $time);
+          $stop;
+        end
+    end
+
+
+  //cpu_data_master_writedata check against wait, which is an e_register
+  always @(posedge clk or negedge reset_n)
+    begin
+      if (reset_n == 0)
+          cpu_data_master_writedata_last_time <= 0;
+      else 
+        cpu_data_master_writedata_last_time <= cpu_data_master_writedata;
+    end
+
+
+  //cpu_data_master_writedata matches last port_name, which is an e_process
+  always @(posedge clk)
+    begin
+      if (active_and_waiting_last_time & (cpu_data_master_writedata != cpu_data_master_writedata_last_time) & cpu_data_master_write)
+        begin
+          $write("%0d ns: cpu_data_master_writedata did not heed wait!!!", $time);
+          $stop;
+        end
+    end
+
+
+
+//////////////// END SIMULATION-ONLY CONTENTS
+
+//synthesis translate_on
+
 endmodule
 
 
@@ -4217,7 +4473,6 @@ endmodule
 module cpu_instruction_master_arbitrator (
                                            // inputs:
                                             cfi_flash_s1_wait_counter_eq_0,
-                                            cfi_flash_s1_wait_counter_eq_1,
                                             clk,
                                             cpu_instruction_master_address,
                                             cpu_instruction_master_granted_cfi_flash_s1,
@@ -4252,17 +4507,20 @@ module cpu_instruction_master_arbitrator (
                                            // outputs:
                                             cpu_instruction_master_address_to_slave,
                                             cpu_instruction_master_dbs_address,
+                                            cpu_instruction_master_latency_counter,
                                             cpu_instruction_master_readdata,
+                                            cpu_instruction_master_readdatavalid,
                                             cpu_instruction_master_waitrequest
                                          )
 ;
 
   output  [ 25: 0] cpu_instruction_master_address_to_slave;
   output  [  1: 0] cpu_instruction_master_dbs_address;
+  output  [  1: 0] cpu_instruction_master_latency_counter;
   output  [ 31: 0] cpu_instruction_master_readdata;
+  output           cpu_instruction_master_readdatavalid;
   output           cpu_instruction_master_waitrequest;
   input            cfi_flash_s1_wait_counter_eq_0;
-  input            cfi_flash_s1_wait_counter_eq_1;
   input            clk;
   input   [ 25: 0] cpu_instruction_master_address;
   input            cpu_instruction_master_granted_cfi_flash_s1;
@@ -4299,16 +4557,28 @@ module cpu_instruction_master_arbitrator (
   wire    [ 25: 0] cpu_instruction_master_address_to_slave;
   reg     [  1: 0] cpu_instruction_master_dbs_address;
   wire    [  1: 0] cpu_instruction_master_dbs_increment;
+  reg     [  1: 0] cpu_instruction_master_dbs_rdv_counter;
+  wire    [  1: 0] cpu_instruction_master_dbs_rdv_counter_inc;
+  wire             cpu_instruction_master_is_granted_some_slave;
+  reg     [  1: 0] cpu_instruction_master_latency_counter;
+  wire    [  1: 0] cpu_instruction_master_next_dbs_rdv_counter;
+  reg              cpu_instruction_master_read_but_no_slave_selected;
   reg              cpu_instruction_master_read_last_time;
   wire    [ 31: 0] cpu_instruction_master_readdata;
+  wire             cpu_instruction_master_readdatavalid;
   wire             cpu_instruction_master_run;
   wire             cpu_instruction_master_waitrequest;
-  reg     [ 15: 0] dbs_16_reg_segment_0;
   wire             dbs_count_enable;
   wire             dbs_counter_overflow;
+  reg     [ 15: 0] dbs_latent_16_reg_segment_0;
+  wire             dbs_rdv_count_enable;
+  wire             dbs_rdv_counter_overflow;
+  wire    [  1: 0] latency_load_value;
   wire    [  1: 0] next_dbs_address;
-  wire    [ 15: 0] p1_dbs_16_reg_segment_0;
+  wire    [  1: 0] p1_cpu_instruction_master_latency_counter;
+  wire    [ 15: 0] p1_dbs_latent_16_reg_segment_0;
   wire             pre_dbs_count_enable;
+  wire             pre_flush_cpu_instruction_master_readdatavalid;
   wire             r_0;
   wire             r_1;
   wire             r_2;
@@ -4319,36 +4589,87 @@ module cpu_instruction_master_arbitrator (
   assign cpu_instruction_master_run = r_0 & r_1 & r_2;
 
   //r_1 master_run cascaded wait assignment, which is an e_assign
-  assign r_1 = 1 & (cpu_instruction_master_qualified_request_onchip_mem_s1 | cpu_instruction_master_read_data_valid_onchip_mem_s1 | ~cpu_instruction_master_requests_onchip_mem_s1) & (cpu_instruction_master_granted_onchip_mem_s1 | ~cpu_instruction_master_qualified_request_onchip_mem_s1) & ((~cpu_instruction_master_qualified_request_onchip_mem_s1 | ~cpu_instruction_master_read | (cpu_instruction_master_read_data_valid_onchip_mem_s1 & cpu_instruction_master_read))) & 1 & (cpu_instruction_master_qualified_request_sdram_s1 | (cpu_instruction_master_read_data_valid_sdram_s1 & cpu_instruction_master_dbs_address[1]) | ~cpu_instruction_master_requests_sdram_s1) & (cpu_instruction_master_granted_sdram_s1 | ~cpu_instruction_master_qualified_request_sdram_s1) & ((~cpu_instruction_master_qualified_request_sdram_s1 | ~cpu_instruction_master_read | (cpu_instruction_master_read_data_valid_sdram_s1 & (cpu_instruction_master_dbs_address[1]) & cpu_instruction_master_read)));
+  assign r_1 = 1 & (cpu_instruction_master_qualified_request_onchip_mem_s1 | ~cpu_instruction_master_requests_onchip_mem_s1) & (cpu_instruction_master_granted_onchip_mem_s1 | ~cpu_instruction_master_qualified_request_onchip_mem_s1) & ((~cpu_instruction_master_qualified_request_onchip_mem_s1 | ~(cpu_instruction_master_read) | (1 & (cpu_instruction_master_read)))) & 1 & (cpu_instruction_master_qualified_request_sdram_s1 | ~cpu_instruction_master_requests_sdram_s1) & (cpu_instruction_master_granted_sdram_s1 | ~cpu_instruction_master_qualified_request_sdram_s1) & ((~cpu_instruction_master_qualified_request_sdram_s1 | ~cpu_instruction_master_read | (1 & ~sdram_s1_waitrequest_from_sa & (cpu_instruction_master_dbs_address[1]) & cpu_instruction_master_read)));
 
   //r_2 master_run cascaded wait assignment, which is an e_assign
-  assign r_2 = 1 & (cpu_instruction_master_qualified_request_cfi_flash_s1 | (cpu_instruction_master_read_data_valid_cfi_flash_s1 & cpu_instruction_master_dbs_address[1]) | ~cpu_instruction_master_requests_cfi_flash_s1) & (cpu_instruction_master_granted_cfi_flash_s1 | ~cpu_instruction_master_qualified_request_cfi_flash_s1) & ((~cpu_instruction_master_qualified_request_cfi_flash_s1 | ~cpu_instruction_master_read | (cpu_instruction_master_read_data_valid_cfi_flash_s1 & (cpu_instruction_master_dbs_address[1]) & cpu_instruction_master_read)));
+  assign r_2 = 1 & (cpu_instruction_master_qualified_request_cfi_flash_s1 | ~cpu_instruction_master_requests_cfi_flash_s1) & (cpu_instruction_master_granted_cfi_flash_s1 | ~cpu_instruction_master_qualified_request_cfi_flash_s1) & ((~cpu_instruction_master_qualified_request_cfi_flash_s1 | ~cpu_instruction_master_read | (1 & ((cfi_flash_s1_wait_counter_eq_0 & ~d1_tristate_bridge_avalon_slave_end_xfer)) & (cpu_instruction_master_dbs_address[1]) & cpu_instruction_master_read)));
 
   //optimize select-logic by passing only those address bits which matter.
   assign cpu_instruction_master_address_to_slave = cpu_instruction_master_address[25 : 0];
 
+  //cpu_instruction_master_read_but_no_slave_selected assignment, which is an e_register
+  always @(posedge clk or negedge reset_n)
+    begin
+      if (reset_n == 0)
+          cpu_instruction_master_read_but_no_slave_selected <= 0;
+      else 
+        cpu_instruction_master_read_but_no_slave_selected <= cpu_instruction_master_read & cpu_instruction_master_run & ~cpu_instruction_master_is_granted_some_slave;
+    end
+
+
+  //some slave is getting selected, which is an e_mux
+  assign cpu_instruction_master_is_granted_some_slave = cpu_instruction_master_granted_cpu_jtag_debug_module |
+    cpu_instruction_master_granted_onchip_mem_s1 |
+    cpu_instruction_master_granted_sdram_s1 |
+    cpu_instruction_master_granted_cfi_flash_s1;
+
+  //latent slave read data valids which may be flushed, which is an e_mux
+  assign pre_flush_cpu_instruction_master_readdatavalid = cpu_instruction_master_read_data_valid_onchip_mem_s1 |
+    (cpu_instruction_master_read_data_valid_sdram_s1 & dbs_rdv_counter_overflow) |
+    (cpu_instruction_master_read_data_valid_cfi_flash_s1 & dbs_rdv_counter_overflow);
+
+  //latent slave read data valid which is not flushed, which is an e_mux
+  assign cpu_instruction_master_readdatavalid = cpu_instruction_master_read_but_no_slave_selected |
+    pre_flush_cpu_instruction_master_readdatavalid |
+    cpu_instruction_master_read_data_valid_cpu_jtag_debug_module |
+    cpu_instruction_master_read_but_no_slave_selected |
+    pre_flush_cpu_instruction_master_readdatavalid |
+    cpu_instruction_master_read_but_no_slave_selected |
+    pre_flush_cpu_instruction_master_readdatavalid |
+    cpu_instruction_master_read_but_no_slave_selected |
+    pre_flush_cpu_instruction_master_readdatavalid;
+
   //cpu/instruction_master readdata mux, which is an e_mux
-  assign cpu_instruction_master_readdata = ({32 {~cpu_instruction_master_requests_cpu_jtag_debug_module}} | cpu_jtag_debug_module_readdata_from_sa) &
-    ({32 {~cpu_instruction_master_requests_onchip_mem_s1}} | onchip_mem_s1_readdata_from_sa) &
-    ({32 {~cpu_instruction_master_requests_sdram_s1}} | {sdram_s1_readdata_from_sa[15 : 0],
-    dbs_16_reg_segment_0}) &
-    ({32 {~cpu_instruction_master_requests_cfi_flash_s1}} | {incoming_data_to_and_from_the_cfi_flash[15 : 0],
-    dbs_16_reg_segment_0});
+  assign cpu_instruction_master_readdata = ({32 {~(cpu_instruction_master_qualified_request_cpu_jtag_debug_module & cpu_instruction_master_read)}} | cpu_jtag_debug_module_readdata_from_sa) &
+    ({32 {~cpu_instruction_master_read_data_valid_onchip_mem_s1}} | onchip_mem_s1_readdata_from_sa) &
+    ({32 {~cpu_instruction_master_read_data_valid_sdram_s1}} | {sdram_s1_readdata_from_sa[15 : 0],
+    dbs_latent_16_reg_segment_0}) &
+    ({32 {~cpu_instruction_master_read_data_valid_cfi_flash_s1}} | {incoming_data_to_and_from_the_cfi_flash[15 : 0],
+    dbs_latent_16_reg_segment_0});
 
   //actual waitrequest port, which is an e_assign
   assign cpu_instruction_master_waitrequest = ~cpu_instruction_master_run;
 
-  //input to dbs-16 stored 0, which is an e_mux
-  assign p1_dbs_16_reg_segment_0 = (cpu_instruction_master_requests_sdram_s1)? sdram_s1_readdata_from_sa :
-    incoming_data_to_and_from_the_cfi_flash;
-
-  //dbs register for dbs-16 segment 0, which is an e_register
+  //latent max counter, which is an e_register
   always @(posedge clk or negedge reset_n)
     begin
       if (reset_n == 0)
-          dbs_16_reg_segment_0 <= 0;
-      else if (dbs_count_enable & ((cpu_instruction_master_dbs_address[1]) == 0))
-          dbs_16_reg_segment_0 <= p1_dbs_16_reg_segment_0;
+          cpu_instruction_master_latency_counter <= 0;
+      else 
+        cpu_instruction_master_latency_counter <= p1_cpu_instruction_master_latency_counter;
+    end
+
+
+  //latency counter load mux, which is an e_mux
+  assign p1_cpu_instruction_master_latency_counter = ((cpu_instruction_master_run & cpu_instruction_master_read))? latency_load_value :
+    (cpu_instruction_master_latency_counter)? cpu_instruction_master_latency_counter - 1 :
+    0;
+
+  //read latency load values, which is an e_mux
+  assign latency_load_value = ({2 {cpu_instruction_master_requests_onchip_mem_s1}} & 1) |
+    ({2 {cpu_instruction_master_requests_cfi_flash_s1}} & 2);
+
+  //input to latent dbs-16 stored 0, which is an e_mux
+  assign p1_dbs_latent_16_reg_segment_0 = (cpu_instruction_master_read_data_valid_sdram_s1)? sdram_s1_readdata_from_sa :
+    incoming_data_to_and_from_the_cfi_flash;
+
+  //dbs register for latent dbs-16 segment 0, which is an e_register
+  always @(posedge clk or negedge reset_n)
+    begin
+      if (reset_n == 0)
+          dbs_latent_16_reg_segment_0 <= 0;
+      else if (dbs_rdv_count_enable & ((cpu_instruction_master_dbs_rdv_counter[1]) == 0))
+          dbs_latent_16_reg_segment_0 <= p1_dbs_latent_16_reg_segment_0;
     end
 
 
@@ -4376,9 +4697,33 @@ module cpu_instruction_master_arbitrator (
     end
 
 
-  //pre dbs count enable, which is an e_mux
-  assign pre_dbs_count_enable = cpu_instruction_master_read_data_valid_sdram_s1 |
+  //p1 dbs rdv counter, which is an e_assign
+  assign cpu_instruction_master_next_dbs_rdv_counter = cpu_instruction_master_dbs_rdv_counter + cpu_instruction_master_dbs_rdv_counter_inc;
+
+  //cpu_instruction_master_rdv_inc_mux, which is an e_mux
+  assign cpu_instruction_master_dbs_rdv_counter_inc = (cpu_instruction_master_read_data_valid_sdram_s1)? 2 :
+    2;
+
+  //master any slave rdv, which is an e_mux
+  assign dbs_rdv_count_enable = cpu_instruction_master_read_data_valid_sdram_s1 |
     cpu_instruction_master_read_data_valid_cfi_flash_s1;
+
+  //dbs rdv counter, which is an e_register
+  always @(posedge clk or negedge reset_n)
+    begin
+      if (reset_n == 0)
+          cpu_instruction_master_dbs_rdv_counter <= 0;
+      else if (dbs_rdv_count_enable)
+          cpu_instruction_master_dbs_rdv_counter <= cpu_instruction_master_next_dbs_rdv_counter;
+    end
+
+
+  //dbs rdv counter overflow, which is an e_assign
+  assign dbs_rdv_counter_overflow = cpu_instruction_master_dbs_rdv_counter[1] & ~cpu_instruction_master_next_dbs_rdv_counter[1];
+
+  //pre dbs count enable, which is an e_mux
+  assign pre_dbs_count_enable = (cpu_instruction_master_granted_sdram_s1 & cpu_instruction_master_read & 1 & 1 & ~sdram_s1_waitrequest_from_sa) |
+    ((cpu_instruction_master_granted_cfi_flash_s1 & cpu_instruction_master_read & 1 & 1 & ({cfi_flash_s1_wait_counter_eq_0 & ~d1_tristate_bridge_avalon_slave_end_xfer})));
 
 
 //synthesis translate_off
@@ -4451,12 +4796,92 @@ endmodule
 // altera message_level Level1 
 // altera message_off 10034 10035 10036 10037 10230 10240 10030 
 
+module cpu_altera_nios_custom_instr_floating_point_inst_s1_arbitrator (
+                                                                        // inputs:
+                                                                         clk,
+                                                                         cpu_altera_nios_custom_instr_floating_point_inst_s1_done,
+                                                                         cpu_altera_nios_custom_instr_floating_point_inst_s1_result,
+                                                                         cpu_altera_nios_custom_instr_floating_point_inst_s1_select,
+                                                                         cpu_custom_instruction_master_multi_clk_en,
+                                                                         cpu_custom_instruction_master_multi_dataa,
+                                                                         cpu_custom_instruction_master_multi_datab,
+                                                                         cpu_custom_instruction_master_multi_n,
+                                                                         cpu_custom_instruction_master_start_cpu_altera_nios_custom_instr_floating_point_inst_s1,
+                                                                         reset_n,
+
+                                                                        // outputs:
+                                                                         cpu_altera_nios_custom_instr_floating_point_inst_s1_clk_en,
+                                                                         cpu_altera_nios_custom_instr_floating_point_inst_s1_dataa,
+                                                                         cpu_altera_nios_custom_instr_floating_point_inst_s1_datab,
+                                                                         cpu_altera_nios_custom_instr_floating_point_inst_s1_done_from_sa,
+                                                                         cpu_altera_nios_custom_instr_floating_point_inst_s1_n,
+                                                                         cpu_altera_nios_custom_instr_floating_point_inst_s1_reset,
+                                                                         cpu_altera_nios_custom_instr_floating_point_inst_s1_result_from_sa,
+                                                                         cpu_altera_nios_custom_instr_floating_point_inst_s1_start
+                                                                      )
+;
+
+  output           cpu_altera_nios_custom_instr_floating_point_inst_s1_clk_en;
+  output  [ 31: 0] cpu_altera_nios_custom_instr_floating_point_inst_s1_dataa;
+  output  [ 31: 0] cpu_altera_nios_custom_instr_floating_point_inst_s1_datab;
+  output           cpu_altera_nios_custom_instr_floating_point_inst_s1_done_from_sa;
+  output  [  1: 0] cpu_altera_nios_custom_instr_floating_point_inst_s1_n;
+  output           cpu_altera_nios_custom_instr_floating_point_inst_s1_reset;
+  output  [ 31: 0] cpu_altera_nios_custom_instr_floating_point_inst_s1_result_from_sa;
+  output           cpu_altera_nios_custom_instr_floating_point_inst_s1_start;
+  input            clk;
+  input            cpu_altera_nios_custom_instr_floating_point_inst_s1_done;
+  input   [ 31: 0] cpu_altera_nios_custom_instr_floating_point_inst_s1_result;
+  input            cpu_altera_nios_custom_instr_floating_point_inst_s1_select;
+  input            cpu_custom_instruction_master_multi_clk_en;
+  input   [ 31: 0] cpu_custom_instruction_master_multi_dataa;
+  input   [ 31: 0] cpu_custom_instruction_master_multi_datab;
+  input   [  7: 0] cpu_custom_instruction_master_multi_n;
+  input            cpu_custom_instruction_master_start_cpu_altera_nios_custom_instr_floating_point_inst_s1;
+  input            reset_n;
+
+  wire             cpu_altera_nios_custom_instr_floating_point_inst_s1_clk_en;
+  wire    [ 31: 0] cpu_altera_nios_custom_instr_floating_point_inst_s1_dataa;
+  wire    [ 31: 0] cpu_altera_nios_custom_instr_floating_point_inst_s1_datab;
+  wire             cpu_altera_nios_custom_instr_floating_point_inst_s1_done_from_sa;
+  wire    [  1: 0] cpu_altera_nios_custom_instr_floating_point_inst_s1_n;
+  wire             cpu_altera_nios_custom_instr_floating_point_inst_s1_reset;
+  wire    [ 31: 0] cpu_altera_nios_custom_instr_floating_point_inst_s1_result_from_sa;
+  wire             cpu_altera_nios_custom_instr_floating_point_inst_s1_start;
+  assign cpu_altera_nios_custom_instr_floating_point_inst_s1_clk_en = cpu_custom_instruction_master_multi_clk_en;
+  assign cpu_altera_nios_custom_instr_floating_point_inst_s1_dataa = cpu_custom_instruction_master_multi_dataa;
+  assign cpu_altera_nios_custom_instr_floating_point_inst_s1_datab = cpu_custom_instruction_master_multi_datab;
+  assign cpu_altera_nios_custom_instr_floating_point_inst_s1_n = cpu_custom_instruction_master_multi_n;
+  assign cpu_altera_nios_custom_instr_floating_point_inst_s1_start = cpu_custom_instruction_master_start_cpu_altera_nios_custom_instr_floating_point_inst_s1;
+  //assign cpu_altera_nios_custom_instr_floating_point_inst_s1_result_from_sa = cpu_altera_nios_custom_instr_floating_point_inst_s1_result so that symbol knows where to group signals which may go to master only, which is an e_assign
+  assign cpu_altera_nios_custom_instr_floating_point_inst_s1_result_from_sa = cpu_altera_nios_custom_instr_floating_point_inst_s1_result;
+
+  //assign cpu_altera_nios_custom_instr_floating_point_inst_s1_done_from_sa = cpu_altera_nios_custom_instr_floating_point_inst_s1_done so that symbol knows where to group signals which may go to master only, which is an e_assign
+  assign cpu_altera_nios_custom_instr_floating_point_inst_s1_done_from_sa = cpu_altera_nios_custom_instr_floating_point_inst_s1_done;
+
+  //cpu_altera_nios_custom_instr_floating_point_inst/s1 local reset_n, which is an e_assign
+  assign cpu_altera_nios_custom_instr_floating_point_inst_s1_reset = ~reset_n;
+
+
+endmodule
+
+
+// synthesis translate_off
+`timescale 1ns / 1ps
+// synthesis translate_on
+
+// turn off superfluous verilog processor warnings 
+// altera message_level Level1 
+// altera message_off 10034 10035 10036 10037 10230 10240 10030 
+
 module jtag_uart_avalon_jtag_slave_arbitrator (
                                                 // inputs:
                                                  clk,
                                                  cpu_data_master_address_to_slave,
+                                                 cpu_data_master_latency_counter,
                                                  cpu_data_master_read,
-                                                 cpu_data_master_waitrequest,
+                                                 cpu_data_master_read_data_valid_clock_crossing_bridge_s1_shift_register,
+                                                 cpu_data_master_read_data_valid_sdram_s1_shift_register,
                                                  cpu_data_master_write,
                                                  cpu_data_master_writedata,
                                                  jtag_uart_avalon_jtag_slave_dataavailable,
@@ -4504,8 +4929,10 @@ module jtag_uart_avalon_jtag_slave_arbitrator (
   output  [ 31: 0] jtag_uart_avalon_jtag_slave_writedata;
   input            clk;
   input   [ 25: 0] cpu_data_master_address_to_slave;
+  input   [  1: 0] cpu_data_master_latency_counter;
   input            cpu_data_master_read;
-  input            cpu_data_master_waitrequest;
+  input            cpu_data_master_read_data_valid_clock_crossing_bridge_s1_shift_register;
+  input            cpu_data_master_read_data_valid_sdram_s1_shift_register;
   input            cpu_data_master_write;
   input   [ 31: 0] cpu_data_master_writedata;
   input            jtag_uart_avalon_jtag_slave_dataavailable;
@@ -4647,7 +5074,10 @@ module jtag_uart_avalon_jtag_slave_arbitrator (
   //cpu_data_master_continuerequest continued request, which is an e_assign
   assign cpu_data_master_continuerequest = 1;
 
-  assign cpu_data_master_qualified_request_jtag_uart_avalon_jtag_slave = cpu_data_master_requests_jtag_uart_avalon_jtag_slave & ~((cpu_data_master_read & (~cpu_data_master_waitrequest)) | ((~cpu_data_master_waitrequest) & cpu_data_master_write));
+  assign cpu_data_master_qualified_request_jtag_uart_avalon_jtag_slave = cpu_data_master_requests_jtag_uart_avalon_jtag_slave & ~((cpu_data_master_read & ((cpu_data_master_latency_counter != 0) | (|cpu_data_master_read_data_valid_clock_crossing_bridge_s1_shift_register) | (|cpu_data_master_read_data_valid_sdram_s1_shift_register))));
+  //local readdatavalid cpu_data_master_read_data_valid_jtag_uart_avalon_jtag_slave, which is an e_mux
+  assign cpu_data_master_read_data_valid_jtag_uart_avalon_jtag_slave = cpu_data_master_granted_jtag_uart_avalon_jtag_slave & cpu_data_master_read & ~jtag_uart_avalon_jtag_slave_waits_for_read;
+
   //jtag_uart_avalon_jtag_slave_writedata mux, which is an e_mux
   assign jtag_uart_avalon_jtag_slave_writedata = cpu_data_master_writedata;
 
@@ -5870,12 +6300,16 @@ module onchip_mem_s1_arbitrator (
                                    clk,
                                    cpu_data_master_address_to_slave,
                                    cpu_data_master_byteenable,
+                                   cpu_data_master_latency_counter,
                                    cpu_data_master_read,
-                                   cpu_data_master_waitrequest,
+                                   cpu_data_master_read_data_valid_clock_crossing_bridge_s1_shift_register,
+                                   cpu_data_master_read_data_valid_sdram_s1_shift_register,
                                    cpu_data_master_write,
                                    cpu_data_master_writedata,
                                    cpu_instruction_master_address_to_slave,
+                                   cpu_instruction_master_latency_counter,
                                    cpu_instruction_master_read,
+                                   cpu_instruction_master_read_data_valid_sdram_s1_shift_register,
                                    onchip_mem_s1_readdata,
                                    reset_n,
 
@@ -5896,8 +6330,7 @@ module onchip_mem_s1_arbitrator (
                                    onchip_mem_s1_readdata_from_sa,
                                    onchip_mem_s1_reset,
                                    onchip_mem_s1_write,
-                                   onchip_mem_s1_writedata,
-                                   registered_cpu_data_master_read_data_valid_onchip_mem_s1
+                                   onchip_mem_s1_writedata
                                 )
 ;
 
@@ -5918,16 +6351,19 @@ module onchip_mem_s1_arbitrator (
   output           onchip_mem_s1_reset;
   output           onchip_mem_s1_write;
   output  [ 31: 0] onchip_mem_s1_writedata;
-  output           registered_cpu_data_master_read_data_valid_onchip_mem_s1;
   input            clk;
   input   [ 25: 0] cpu_data_master_address_to_slave;
   input   [  3: 0] cpu_data_master_byteenable;
+  input   [  1: 0] cpu_data_master_latency_counter;
   input            cpu_data_master_read;
-  input            cpu_data_master_waitrequest;
+  input            cpu_data_master_read_data_valid_clock_crossing_bridge_s1_shift_register;
+  input            cpu_data_master_read_data_valid_sdram_s1_shift_register;
   input            cpu_data_master_write;
   input   [ 31: 0] cpu_data_master_writedata;
   input   [ 25: 0] cpu_instruction_master_address_to_slave;
+  input   [  1: 0] cpu_instruction_master_latency_counter;
   input            cpu_instruction_master_read;
+  input            cpu_instruction_master_read_data_valid_sdram_s1_shift_register;
   input   [ 31: 0] onchip_mem_s1_readdata;
   input            reset_n;
 
@@ -5998,7 +6434,6 @@ module onchip_mem_s1_arbitrator (
   wire    [ 31: 0] onchip_mem_s1_writedata;
   wire             p1_cpu_data_master_read_data_valid_onchip_mem_s1_shift_register;
   wire             p1_cpu_instruction_master_read_data_valid_onchip_mem_s1_shift_register;
-  wire             registered_cpu_data_master_read_data_valid_onchip_mem_s1;
   wire    [ 25: 0] shifted_address_to_onchip_mem_s1_from_cpu_data_master;
   wire    [ 25: 0] shifted_address_to_onchip_mem_s1_from_cpu_instruction_master;
   wire             wait_for_onchip_mem_s1_counter;
@@ -6016,9 +6451,6 @@ module onchip_mem_s1_arbitrator (
   assign onchip_mem_s1_readdata_from_sa = onchip_mem_s1_readdata;
 
   assign cpu_data_master_requests_onchip_mem_s1 = ({cpu_data_master_address_to_slave[25 : 15] , 15'b0} == 26'h2808000) & (cpu_data_master_read | cpu_data_master_write);
-  //registered rdv signal_name registered_cpu_data_master_read_data_valid_onchip_mem_s1 assignment, which is an e_assign
-  assign registered_cpu_data_master_read_data_valid_onchip_mem_s1 = cpu_data_master_read_data_valid_onchip_mem_s1_shift_register_in;
-
   //onchip_mem_s1_arb_share_counter set values, which is an e_mux
   assign onchip_mem_s1_arb_share_set_values = 1;
 
@@ -6101,9 +6533,9 @@ module onchip_mem_s1_arbitrator (
   assign onchip_mem_s1_any_continuerequest = cpu_instruction_master_continuerequest |
     cpu_data_master_continuerequest;
 
-  assign cpu_data_master_qualified_request_onchip_mem_s1 = cpu_data_master_requests_onchip_mem_s1 & ~((cpu_data_master_read & ((|cpu_data_master_read_data_valid_onchip_mem_s1_shift_register))) | ((~cpu_data_master_waitrequest) & cpu_data_master_write) | cpu_instruction_master_arbiterlock);
+  assign cpu_data_master_qualified_request_onchip_mem_s1 = cpu_data_master_requests_onchip_mem_s1 & ~((cpu_data_master_read & ((1 < cpu_data_master_latency_counter) | (|cpu_data_master_read_data_valid_clock_crossing_bridge_s1_shift_register) | (|cpu_data_master_read_data_valid_sdram_s1_shift_register))) | cpu_instruction_master_arbiterlock);
   //cpu_data_master_read_data_valid_onchip_mem_s1_shift_register_in mux for readlatency shift register, which is an e_mux
-  assign cpu_data_master_read_data_valid_onchip_mem_s1_shift_register_in = cpu_data_master_granted_onchip_mem_s1 & cpu_data_master_read & ~onchip_mem_s1_waits_for_read & ~(|cpu_data_master_read_data_valid_onchip_mem_s1_shift_register);
+  assign cpu_data_master_read_data_valid_onchip_mem_s1_shift_register_in = cpu_data_master_granted_onchip_mem_s1 & cpu_data_master_read & ~onchip_mem_s1_waits_for_read;
 
   //shift register p1 cpu_data_master_read_data_valid_onchip_mem_s1_shift_register in if flush, otherwise shift left, which is an e_mux
   assign p1_cpu_data_master_read_data_valid_onchip_mem_s1_shift_register = {cpu_data_master_read_data_valid_onchip_mem_s1_shift_register, cpu_data_master_read_data_valid_onchip_mem_s1_shift_register_in};
@@ -6141,9 +6573,9 @@ module onchip_mem_s1_arbitrator (
   //cpu_data_master_continuerequest continued request, which is an e_mux
   assign cpu_data_master_continuerequest = last_cycle_cpu_data_master_granted_slave_onchip_mem_s1 & cpu_data_master_requests_onchip_mem_s1;
 
-  assign cpu_instruction_master_qualified_request_onchip_mem_s1 = cpu_instruction_master_requests_onchip_mem_s1 & ~((cpu_instruction_master_read & ((|cpu_instruction_master_read_data_valid_onchip_mem_s1_shift_register))) | cpu_data_master_arbiterlock);
+  assign cpu_instruction_master_qualified_request_onchip_mem_s1 = cpu_instruction_master_requests_onchip_mem_s1 & ~((cpu_instruction_master_read & ((1 < cpu_instruction_master_latency_counter) | (|cpu_instruction_master_read_data_valid_sdram_s1_shift_register))) | cpu_data_master_arbiterlock);
   //cpu_instruction_master_read_data_valid_onchip_mem_s1_shift_register_in mux for readlatency shift register, which is an e_mux
-  assign cpu_instruction_master_read_data_valid_onchip_mem_s1_shift_register_in = cpu_instruction_master_granted_onchip_mem_s1 & cpu_instruction_master_read & ~onchip_mem_s1_waits_for_read & ~(|cpu_instruction_master_read_data_valid_onchip_mem_s1_shift_register);
+  assign cpu_instruction_master_read_data_valid_onchip_mem_s1_shift_register_in = cpu_instruction_master_granted_onchip_mem_s1 & cpu_instruction_master_read & ~onchip_mem_s1_waits_for_read;
 
   //shift register p1 cpu_instruction_master_read_data_valid_onchip_mem_s1_shift_register in if flush, otherwise shift left, which is an e_mux
   assign p1_cpu_instruction_master_read_data_valid_onchip_mem_s1_shift_register = {cpu_instruction_master_read_data_valid_onchip_mem_s1_shift_register, cpu_instruction_master_read_data_valid_onchip_mem_s1_shift_register_in};
@@ -7326,12 +7758,13 @@ module sdram_s1_arbitrator (
                               cpu_data_master_byteenable,
                               cpu_data_master_dbs_address,
                               cpu_data_master_dbs_write_16,
-                              cpu_data_master_no_byte_enables_and_last_term,
+                              cpu_data_master_latency_counter,
                               cpu_data_master_read,
-                              cpu_data_master_waitrequest,
+                              cpu_data_master_read_data_valid_clock_crossing_bridge_s1_shift_register,
                               cpu_data_master_write,
                               cpu_instruction_master_address_to_slave,
                               cpu_instruction_master_dbs_address,
+                              cpu_instruction_master_latency_counter,
                               cpu_instruction_master_read,
                               reset_n,
                               sdram_s1_readdata,
@@ -7389,12 +7822,13 @@ module sdram_s1_arbitrator (
   input   [  3: 0] cpu_data_master_byteenable;
   input   [  1: 0] cpu_data_master_dbs_address;
   input   [ 15: 0] cpu_data_master_dbs_write_16;
-  input            cpu_data_master_no_byte_enables_and_last_term;
+  input   [  1: 0] cpu_data_master_latency_counter;
   input            cpu_data_master_read;
-  input            cpu_data_master_waitrequest;
+  input            cpu_data_master_read_data_valid_clock_crossing_bridge_s1_shift_register;
   input            cpu_data_master_write;
   input   [ 25: 0] cpu_instruction_master_address_to_slave;
   input   [  1: 0] cpu_instruction_master_dbs_address;
+  input   [  1: 0] cpu_instruction_master_latency_counter;
   input            cpu_instruction_master_read;
   input            reset_n;
   input   [ 15: 0] sdram_s1_readdata;
@@ -7487,15 +7921,15 @@ module sdram_s1_arbitrator (
 
 
   assign sdram_s1_begins_xfer = ~d1_reasons_to_wait & ((cpu_data_master_qualified_request_sdram_s1 | cpu_instruction_master_qualified_request_sdram_s1));
+  //assign sdram_s1_readdatavalid_from_sa = sdram_s1_readdatavalid so that symbol knows where to group signals which may go to master only, which is an e_assign
+  assign sdram_s1_readdatavalid_from_sa = sdram_s1_readdatavalid;
+
   //assign sdram_s1_readdata_from_sa = sdram_s1_readdata so that symbol knows where to group signals which may go to master only, which is an e_assign
   assign sdram_s1_readdata_from_sa = sdram_s1_readdata;
 
   assign cpu_data_master_requests_sdram_s1 = ({cpu_data_master_address_to_slave[25 : 23] , 23'b0} == 26'h1800000) & (cpu_data_master_read | cpu_data_master_write);
   //assign sdram_s1_waitrequest_from_sa = sdram_s1_waitrequest so that symbol knows where to group signals which may go to master only, which is an e_assign
   assign sdram_s1_waitrequest_from_sa = sdram_s1_waitrequest;
-
-  //assign sdram_s1_readdatavalid_from_sa = sdram_s1_readdatavalid so that symbol knows where to group signals which may go to master only, which is an e_assign
-  assign sdram_s1_readdatavalid_from_sa = sdram_s1_readdatavalid;
 
   //sdram_s1_arb_share_counter set values, which is an e_mux
   assign sdram_s1_arb_share_set_values = (cpu_data_master_granted_sdram_s1)? 2 :
@@ -7583,7 +8017,7 @@ module sdram_s1_arbitrator (
   assign sdram_s1_any_continuerequest = cpu_instruction_master_continuerequest |
     cpu_data_master_continuerequest;
 
-  assign cpu_data_master_qualified_request_sdram_s1 = cpu_data_master_requests_sdram_s1 & ~((cpu_data_master_read & (~cpu_data_master_waitrequest | (|cpu_data_master_read_data_valid_sdram_s1_shift_register))) | ((~cpu_data_master_waitrequest | cpu_data_master_no_byte_enables_and_last_term | !cpu_data_master_byteenable_sdram_s1) & cpu_data_master_write) | cpu_instruction_master_arbiterlock);
+  assign cpu_data_master_qualified_request_sdram_s1 = cpu_data_master_requests_sdram_s1 & ~((cpu_data_master_read & ((cpu_data_master_latency_counter != 0) | (1 < cpu_data_master_latency_counter) | (|cpu_data_master_read_data_valid_clock_crossing_bridge_s1_shift_register))) | ((!cpu_data_master_byteenable_sdram_s1) & cpu_data_master_write) | cpu_instruction_master_arbiterlock);
   //unique name for sdram_s1_move_on_to_next_transaction, which is an e_assign
   assign sdram_s1_move_on_to_next_transaction = sdram_s1_readdatavalid_from_sa;
 
@@ -7624,7 +8058,7 @@ module sdram_s1_arbitrator (
   //cpu_data_master_continuerequest continued request, which is an e_mux
   assign cpu_data_master_continuerequest = last_cycle_cpu_data_master_granted_slave_sdram_s1 & cpu_data_master_requests_sdram_s1;
 
-  assign cpu_instruction_master_qualified_request_sdram_s1 = cpu_instruction_master_requests_sdram_s1 & ~((cpu_instruction_master_read & ((|cpu_instruction_master_read_data_valid_sdram_s1_shift_register))) | cpu_data_master_arbiterlock);
+  assign cpu_instruction_master_qualified_request_sdram_s1 = cpu_instruction_master_requests_sdram_s1 & ~((cpu_instruction_master_read & ((cpu_instruction_master_latency_counter != 0) | (1 < cpu_instruction_master_latency_counter))) | cpu_data_master_arbiterlock);
   //rdv_fifo_for_cpu_instruction_master_to_sdram_s1, which is an e_fifo_with_registered_outputs
   rdv_fifo_for_cpu_instruction_master_to_sdram_s1_module rdv_fifo_for_cpu_instruction_master_to_sdram_s1
     (
@@ -8933,18 +9367,21 @@ module tristate_bridge_avalon_slave_arbitrator (
                                                   cpu_data_master_byteenable,
                                                   cpu_data_master_dbs_address,
                                                   cpu_data_master_dbs_write_16,
-                                                  cpu_data_master_no_byte_enables_and_last_term,
+                                                  cpu_data_master_latency_counter,
                                                   cpu_data_master_read,
+                                                  cpu_data_master_read_data_valid_clock_crossing_bridge_s1_shift_register,
+                                                  cpu_data_master_read_data_valid_sdram_s1_shift_register,
                                                   cpu_data_master_write,
                                                   cpu_instruction_master_address_to_slave,
                                                   cpu_instruction_master_dbs_address,
+                                                  cpu_instruction_master_latency_counter,
                                                   cpu_instruction_master_read,
+                                                  cpu_instruction_master_read_data_valid_sdram_s1_shift_register,
                                                   reset_n,
 
                                                  // outputs:
                                                   address_to_the_cfi_flash,
                                                   cfi_flash_s1_wait_counter_eq_0,
-                                                  cfi_flash_s1_wait_counter_eq_1,
                                                   cpu_data_master_byteenable_cfi_flash_s1,
                                                   cpu_data_master_granted_cfi_flash_s1,
                                                   cpu_data_master_qualified_request_cfi_flash_s1,
@@ -8959,7 +9396,6 @@ module tristate_bridge_avalon_slave_arbitrator (
                                                   incoming_data_to_and_from_the_cfi_flash,
                                                   incoming_data_to_and_from_the_cfi_flash_with_Xs_converted_to_0,
                                                   read_n_to_the_cfi_flash,
-                                                  registered_cpu_data_master_read_data_valid_cfi_flash_s1,
                                                   select_n_to_the_cfi_flash,
                                                   write_n_to_the_cfi_flash
                                                )
@@ -8967,7 +9403,6 @@ module tristate_bridge_avalon_slave_arbitrator (
 
   output  [ 21: 0] address_to_the_cfi_flash;
   output           cfi_flash_s1_wait_counter_eq_0;
-  output           cfi_flash_s1_wait_counter_eq_1;
   output  [  1: 0] cpu_data_master_byteenable_cfi_flash_s1;
   output           cpu_data_master_granted_cfi_flash_s1;
   output           cpu_data_master_qualified_request_cfi_flash_s1;
@@ -8982,7 +9417,6 @@ module tristate_bridge_avalon_slave_arbitrator (
   output  [ 15: 0] incoming_data_to_and_from_the_cfi_flash;
   output  [ 15: 0] incoming_data_to_and_from_the_cfi_flash_with_Xs_converted_to_0;
   output           read_n_to_the_cfi_flash;
-  output           registered_cpu_data_master_read_data_valid_cfi_flash_s1;
   output           select_n_to_the_cfi_flash;
   output           write_n_to_the_cfi_flash;
   input            clk;
@@ -8990,12 +9424,16 @@ module tristate_bridge_avalon_slave_arbitrator (
   input   [  3: 0] cpu_data_master_byteenable;
   input   [  1: 0] cpu_data_master_dbs_address;
   input   [ 15: 0] cpu_data_master_dbs_write_16;
-  input            cpu_data_master_no_byte_enables_and_last_term;
+  input   [  1: 0] cpu_data_master_latency_counter;
   input            cpu_data_master_read;
+  input            cpu_data_master_read_data_valid_clock_crossing_bridge_s1_shift_register;
+  input            cpu_data_master_read_data_valid_sdram_s1_shift_register;
   input            cpu_data_master_write;
   input   [ 25: 0] cpu_instruction_master_address_to_slave;
   input   [  1: 0] cpu_instruction_master_dbs_address;
+  input   [  1: 0] cpu_instruction_master_latency_counter;
   input            cpu_instruction_master_read;
+  input            cpu_instruction_master_read_data_valid_sdram_s1_shift_register;
   input            reset_n;
 
   reg     [ 21: 0] address_to_the_cfi_flash /* synthesis ALTERA_ATTRIBUTE = "FAST_OUTPUT_REGISTER=ON"  */;
@@ -9004,7 +9442,6 @@ module tristate_bridge_avalon_slave_arbitrator (
   wire             cfi_flash_s1_in_a_write_cycle;
   reg     [  3: 0] cfi_flash_s1_wait_counter;
   wire             cfi_flash_s1_wait_counter_eq_0;
-  wire             cfi_flash_s1_wait_counter_eq_1;
   wire             cfi_flash_s1_waits_for_read;
   wire             cfi_flash_s1_waits_for_write;
   wire             cfi_flash_s1_with_write_latency;
@@ -9068,7 +9505,6 @@ module tristate_bridge_avalon_slave_arbitrator (
   wire             p1_select_n_to_the_cfi_flash;
   wire             p1_write_n_to_the_cfi_flash;
   reg              read_n_to_the_cfi_flash /* synthesis ALTERA_ATTRIBUTE = "FAST_OUTPUT_REGISTER=ON"  */;
-  wire             registered_cpu_data_master_read_data_valid_cfi_flash_s1;
   reg              select_n_to_the_cfi_flash /* synthesis ALTERA_ATTRIBUTE = "FAST_OUTPUT_REGISTER=ON"  */;
   wire             time_to_write;
   wire             tristate_bridge_avalon_slave_allgrants;
@@ -9124,9 +9560,6 @@ module tristate_bridge_avalon_slave_arbitrator (
   assign tristate_bridge_avalon_slave_write_pending = 0;
   //tristate_bridge/avalon_slave read pending calc, which is an e_assign
   assign tristate_bridge_avalon_slave_read_pending = 0;
-
-  //registered rdv signal_name registered_cpu_data_master_read_data_valid_cfi_flash_s1 assignment, which is an e_assign
-  assign registered_cpu_data_master_read_data_valid_cfi_flash_s1 = cpu_data_master_read_data_valid_cfi_flash_s1_shift_register[0];
 
   //tristate_bridge_avalon_slave_arb_share_counter set values, which is an e_mux
   assign tristate_bridge_avalon_slave_arb_share_set_values = (cpu_data_master_granted_cfi_flash_s1)? 2 :
@@ -9214,9 +9647,9 @@ module tristate_bridge_avalon_slave_arbitrator (
   assign tristate_bridge_avalon_slave_any_continuerequest = cpu_instruction_master_continuerequest |
     cpu_data_master_continuerequest;
 
-  assign cpu_data_master_qualified_request_cfi_flash_s1 = cpu_data_master_requests_cfi_flash_s1 & ~((cpu_data_master_read & (tristate_bridge_avalon_slave_write_pending | (tristate_bridge_avalon_slave_read_pending) | (|cpu_data_master_read_data_valid_cfi_flash_s1_shift_register))) | ((tristate_bridge_avalon_slave_read_pending | cpu_data_master_no_byte_enables_and_last_term | !cpu_data_master_byteenable_cfi_flash_s1) & cpu_data_master_write) | cpu_instruction_master_arbiterlock);
+  assign cpu_data_master_qualified_request_cfi_flash_s1 = cpu_data_master_requests_cfi_flash_s1 & ~((cpu_data_master_read & (tristate_bridge_avalon_slave_write_pending | (tristate_bridge_avalon_slave_read_pending) | (2 < cpu_data_master_latency_counter) | (|cpu_data_master_read_data_valid_clock_crossing_bridge_s1_shift_register) | (|cpu_data_master_read_data_valid_sdram_s1_shift_register))) | ((tristate_bridge_avalon_slave_read_pending | !cpu_data_master_byteenable_cfi_flash_s1) & cpu_data_master_write) | cpu_instruction_master_arbiterlock);
   //cpu_data_master_read_data_valid_cfi_flash_s1_shift_register_in mux for readlatency shift register, which is an e_mux
-  assign cpu_data_master_read_data_valid_cfi_flash_s1_shift_register_in = cpu_data_master_granted_cfi_flash_s1 & cpu_data_master_read & ~cfi_flash_s1_waits_for_read & ~(|cpu_data_master_read_data_valid_cfi_flash_s1_shift_register);
+  assign cpu_data_master_read_data_valid_cfi_flash_s1_shift_register_in = cpu_data_master_granted_cfi_flash_s1 & cpu_data_master_read & ~cfi_flash_s1_waits_for_read;
 
   //shift register p1 cpu_data_master_read_data_valid_cfi_flash_s1_shift_register in if flush, otherwise shift left, which is an e_mux
   assign p1_cpu_data_master_read_data_valid_cfi_flash_s1_shift_register = {cpu_data_master_read_data_valid_cfi_flash_s1_shift_register, cpu_data_master_read_data_valid_cfi_flash_s1_shift_register_in};
@@ -9291,9 +9724,9 @@ module tristate_bridge_avalon_slave_arbitrator (
   //cpu_data_master_continuerequest continued request, which is an e_mux
   assign cpu_data_master_continuerequest = last_cycle_cpu_data_master_granted_slave_cfi_flash_s1 & cpu_data_master_requests_cfi_flash_s1;
 
-  assign cpu_instruction_master_qualified_request_cfi_flash_s1 = cpu_instruction_master_requests_cfi_flash_s1 & ~((cpu_instruction_master_read & (tristate_bridge_avalon_slave_write_pending | (tristate_bridge_avalon_slave_read_pending) | (|cpu_instruction_master_read_data_valid_cfi_flash_s1_shift_register))) | cpu_data_master_arbiterlock);
+  assign cpu_instruction_master_qualified_request_cfi_flash_s1 = cpu_instruction_master_requests_cfi_flash_s1 & ~((cpu_instruction_master_read & (tristate_bridge_avalon_slave_write_pending | (tristate_bridge_avalon_slave_read_pending) | (2 < cpu_instruction_master_latency_counter) | (|cpu_instruction_master_read_data_valid_sdram_s1_shift_register))) | cpu_data_master_arbiterlock);
   //cpu_instruction_master_read_data_valid_cfi_flash_s1_shift_register_in mux for readlatency shift register, which is an e_mux
-  assign cpu_instruction_master_read_data_valid_cfi_flash_s1_shift_register_in = cpu_instruction_master_granted_cfi_flash_s1 & cpu_instruction_master_read & ~cfi_flash_s1_waits_for_read & ~(|cpu_instruction_master_read_data_valid_cfi_flash_s1_shift_register);
+  assign cpu_instruction_master_read_data_valid_cfi_flash_s1_shift_register_in = cpu_instruction_master_granted_cfi_flash_s1 & cpu_instruction_master_read & ~cfi_flash_s1_waits_for_read;
 
   //shift register p1 cpu_instruction_master_read_data_valid_cfi_flash_s1_shift_register in if flush, otherwise shift left, which is an e_mux
   assign p1_cpu_instruction_master_read_data_valid_cfi_flash_s1_shift_register = {cpu_instruction_master_read_data_valid_cfi_flash_s1_shift_register, cpu_instruction_master_read_data_valid_cfi_flash_s1_shift_register_in};
@@ -9441,9 +9874,6 @@ module tristate_bridge_avalon_slave_arbitrator (
         d1_tristate_bridge_avalon_slave_end_xfer <= tristate_bridge_avalon_slave_end_xfer;
     end
 
-
-  //cfi_flash_s1_wait_counter_eq_1 assignment, which is an e_assign
-  assign cfi_flash_s1_wait_counter_eq_1 = cfi_flash_s1_wait_counter == 1;
 
   //cfi_flash_s1_waits_for_read in a cycle, which is an e_mux
   assign cfi_flash_s1_waits_for_read = cfi_flash_s1_in_a_read_cycle & wait_for_cfi_flash_s1_counter;
@@ -10263,7 +10693,6 @@ module DE0_SOPC (
   wire             buttons_s1_write_n;
   wire    [ 31: 0] buttons_s1_writedata;
   wire             cfi_flash_s1_wait_counter_eq_0;
-  wire             cfi_flash_s1_wait_counter_eq_1;
   wire             clk_reset_n;
   wire    [ 10: 0] clock_crossing_bridge_m1_address;
   wire    [ 10: 0] clock_crossing_bridge_m1_address_to_slave;
@@ -10337,6 +10766,37 @@ module DE0_SOPC (
   wire             clock_crossing_bridge_s1_write;
   wire    [ 31: 0] clock_crossing_bridge_s1_writedata;
   wire    [  3: 0] col_from_the_keypad;
+  wire             cpu_altera_nios_custom_instr_floating_point_inst_s1_clk_en;
+  wire    [ 31: 0] cpu_altera_nios_custom_instr_floating_point_inst_s1_dataa;
+  wire    [ 31: 0] cpu_altera_nios_custom_instr_floating_point_inst_s1_datab;
+  wire             cpu_altera_nios_custom_instr_floating_point_inst_s1_done;
+  wire             cpu_altera_nios_custom_instr_floating_point_inst_s1_done_from_sa;
+  wire    [  1: 0] cpu_altera_nios_custom_instr_floating_point_inst_s1_n;
+  wire             cpu_altera_nios_custom_instr_floating_point_inst_s1_reset;
+  wire    [ 31: 0] cpu_altera_nios_custom_instr_floating_point_inst_s1_result;
+  wire    [ 31: 0] cpu_altera_nios_custom_instr_floating_point_inst_s1_result_from_sa;
+  wire             cpu_altera_nios_custom_instr_floating_point_inst_s1_select;
+  wire             cpu_altera_nios_custom_instr_floating_point_inst_s1_start;
+  wire    [  4: 0] cpu_custom_instruction_master_multi_a;
+  wire    [  4: 0] cpu_custom_instruction_master_multi_b;
+  wire    [  4: 0] cpu_custom_instruction_master_multi_c;
+  wire             cpu_custom_instruction_master_multi_clk;
+  wire             cpu_custom_instruction_master_multi_clk_en;
+  wire    [ 31: 0] cpu_custom_instruction_master_multi_dataa;
+  wire    [ 31: 0] cpu_custom_instruction_master_multi_datab;
+  wire             cpu_custom_instruction_master_multi_done;
+  wire             cpu_custom_instruction_master_multi_estatus;
+  wire    [ 31: 0] cpu_custom_instruction_master_multi_ipending;
+  wire    [  7: 0] cpu_custom_instruction_master_multi_n;
+  wire             cpu_custom_instruction_master_multi_readra;
+  wire             cpu_custom_instruction_master_multi_readrb;
+  wire             cpu_custom_instruction_master_multi_reset;
+  wire    [ 31: 0] cpu_custom_instruction_master_multi_result;
+  wire             cpu_custom_instruction_master_multi_start;
+  wire             cpu_custom_instruction_master_multi_status;
+  wire             cpu_custom_instruction_master_multi_writerc;
+  wire             cpu_custom_instruction_master_reset_n;
+  wire             cpu_custom_instruction_master_start_cpu_altera_nios_custom_instr_floating_point_inst_s1;
   wire    [ 25: 0] cpu_data_master_address;
   wire    [ 25: 0] cpu_data_master_address_to_slave;
   wire    [  3: 0] cpu_data_master_byteenable;
@@ -10353,7 +10813,7 @@ module DE0_SOPC (
   wire             cpu_data_master_granted_onchip_mem_s1;
   wire             cpu_data_master_granted_sdram_s1;
   wire    [ 31: 0] cpu_data_master_irq;
-  wire             cpu_data_master_no_byte_enables_and_last_term;
+  wire    [  1: 0] cpu_data_master_latency_counter;
   wire             cpu_data_master_qualified_request_DE0_SOPC_clock_0_in;
   wire             cpu_data_master_qualified_request_cfi_flash_s1;
   wire             cpu_data_master_qualified_request_clock_crossing_bridge_s1;
@@ -10372,6 +10832,7 @@ module DE0_SOPC (
   wire             cpu_data_master_read_data_valid_sdram_s1;
   wire             cpu_data_master_read_data_valid_sdram_s1_shift_register;
   wire    [ 31: 0] cpu_data_master_readdata;
+  wire             cpu_data_master_readdatavalid;
   wire             cpu_data_master_requests_DE0_SOPC_clock_0_in;
   wire             cpu_data_master_requests_cfi_flash_s1;
   wire             cpu_data_master_requests_clock_crossing_bridge_s1;
@@ -10389,6 +10850,7 @@ module DE0_SOPC (
   wire             cpu_instruction_master_granted_cpu_jtag_debug_module;
   wire             cpu_instruction_master_granted_onchip_mem_s1;
   wire             cpu_instruction_master_granted_sdram_s1;
+  wire    [  1: 0] cpu_instruction_master_latency_counter;
   wire             cpu_instruction_master_qualified_request_cfi_flash_s1;
   wire             cpu_instruction_master_qualified_request_cpu_jtag_debug_module;
   wire             cpu_instruction_master_qualified_request_onchip_mem_s1;
@@ -10400,6 +10862,7 @@ module DE0_SOPC (
   wire             cpu_instruction_master_read_data_valid_sdram_s1;
   wire             cpu_instruction_master_read_data_valid_sdram_s1_shift_register;
   wire    [ 31: 0] cpu_instruction_master_readdata;
+  wire             cpu_instruction_master_readdatavalid;
   wire             cpu_instruction_master_requests_cfi_flash_s1;
   wire             cpu_instruction_master_requests_cpu_jtag_debug_module;
   wire             cpu_instruction_master_requests_onchip_mem_s1;
@@ -10412,7 +10875,6 @@ module DE0_SOPC (
   wire             cpu_jtag_debug_module_debugaccess;
   wire    [ 31: 0] cpu_jtag_debug_module_readdata;
   wire    [ 31: 0] cpu_jtag_debug_module_readdata_from_sa;
-  wire             cpu_jtag_debug_module_reset_n;
   wire             cpu_jtag_debug_module_resetrequest;
   wire             cpu_jtag_debug_module_resetrequest_from_sa;
   wire             cpu_jtag_debug_module_write;
@@ -10515,8 +10977,6 @@ module DE0_SOPC (
   wire             pll_sdram;
   wire             pll_vga;
   wire             read_n_to_the_cfi_flash;
-  wire             registered_cpu_data_master_read_data_valid_cfi_flash_s1;
-  wire             registered_cpu_data_master_read_data_valid_onchip_mem_s1;
   wire             reset_n_sources;
   wire    [ 21: 0] sdram_s1_address;
   wire    [  1: 0] sdram_s1_byteenable_n;
@@ -10635,32 +11095,34 @@ module DE0_SOPC (
 
   DE0_SOPC_clock_0_in_arbitrator the_DE0_SOPC_clock_0_in
     (
-      .DE0_SOPC_clock_0_in_address                           (DE0_SOPC_clock_0_in_address),
-      .DE0_SOPC_clock_0_in_byteenable                        (DE0_SOPC_clock_0_in_byteenable),
-      .DE0_SOPC_clock_0_in_endofpacket                       (DE0_SOPC_clock_0_in_endofpacket),
-      .DE0_SOPC_clock_0_in_endofpacket_from_sa               (DE0_SOPC_clock_0_in_endofpacket_from_sa),
-      .DE0_SOPC_clock_0_in_nativeaddress                     (DE0_SOPC_clock_0_in_nativeaddress),
-      .DE0_SOPC_clock_0_in_read                              (DE0_SOPC_clock_0_in_read),
-      .DE0_SOPC_clock_0_in_readdata                          (DE0_SOPC_clock_0_in_readdata),
-      .DE0_SOPC_clock_0_in_readdata_from_sa                  (DE0_SOPC_clock_0_in_readdata_from_sa),
-      .DE0_SOPC_clock_0_in_reset_n                           (DE0_SOPC_clock_0_in_reset_n),
-      .DE0_SOPC_clock_0_in_waitrequest                       (DE0_SOPC_clock_0_in_waitrequest),
-      .DE0_SOPC_clock_0_in_waitrequest_from_sa               (DE0_SOPC_clock_0_in_waitrequest_from_sa),
-      .DE0_SOPC_clock_0_in_write                             (DE0_SOPC_clock_0_in_write),
-      .DE0_SOPC_clock_0_in_writedata                         (DE0_SOPC_clock_0_in_writedata),
-      .clk                                                   (pll_cpu),
-      .cpu_data_master_address_to_slave                      (cpu_data_master_address_to_slave),
-      .cpu_data_master_byteenable                            (cpu_data_master_byteenable),
-      .cpu_data_master_granted_DE0_SOPC_clock_0_in           (cpu_data_master_granted_DE0_SOPC_clock_0_in),
-      .cpu_data_master_qualified_request_DE0_SOPC_clock_0_in (cpu_data_master_qualified_request_DE0_SOPC_clock_0_in),
-      .cpu_data_master_read                                  (cpu_data_master_read),
-      .cpu_data_master_read_data_valid_DE0_SOPC_clock_0_in   (cpu_data_master_read_data_valid_DE0_SOPC_clock_0_in),
-      .cpu_data_master_requests_DE0_SOPC_clock_0_in          (cpu_data_master_requests_DE0_SOPC_clock_0_in),
-      .cpu_data_master_waitrequest                           (cpu_data_master_waitrequest),
-      .cpu_data_master_write                                 (cpu_data_master_write),
-      .cpu_data_master_writedata                             (cpu_data_master_writedata),
-      .d1_DE0_SOPC_clock_0_in_end_xfer                       (d1_DE0_SOPC_clock_0_in_end_xfer),
-      .reset_n                                               (pll_cpu_reset_n)
+      .DE0_SOPC_clock_0_in_address                                             (DE0_SOPC_clock_0_in_address),
+      .DE0_SOPC_clock_0_in_byteenable                                          (DE0_SOPC_clock_0_in_byteenable),
+      .DE0_SOPC_clock_0_in_endofpacket                                         (DE0_SOPC_clock_0_in_endofpacket),
+      .DE0_SOPC_clock_0_in_endofpacket_from_sa                                 (DE0_SOPC_clock_0_in_endofpacket_from_sa),
+      .DE0_SOPC_clock_0_in_nativeaddress                                       (DE0_SOPC_clock_0_in_nativeaddress),
+      .DE0_SOPC_clock_0_in_read                                                (DE0_SOPC_clock_0_in_read),
+      .DE0_SOPC_clock_0_in_readdata                                            (DE0_SOPC_clock_0_in_readdata),
+      .DE0_SOPC_clock_0_in_readdata_from_sa                                    (DE0_SOPC_clock_0_in_readdata_from_sa),
+      .DE0_SOPC_clock_0_in_reset_n                                             (DE0_SOPC_clock_0_in_reset_n),
+      .DE0_SOPC_clock_0_in_waitrequest                                         (DE0_SOPC_clock_0_in_waitrequest),
+      .DE0_SOPC_clock_0_in_waitrequest_from_sa                                 (DE0_SOPC_clock_0_in_waitrequest_from_sa),
+      .DE0_SOPC_clock_0_in_write                                               (DE0_SOPC_clock_0_in_write),
+      .DE0_SOPC_clock_0_in_writedata                                           (DE0_SOPC_clock_0_in_writedata),
+      .clk                                                                     (pll_cpu),
+      .cpu_data_master_address_to_slave                                        (cpu_data_master_address_to_slave),
+      .cpu_data_master_byteenable                                              (cpu_data_master_byteenable),
+      .cpu_data_master_granted_DE0_SOPC_clock_0_in                             (cpu_data_master_granted_DE0_SOPC_clock_0_in),
+      .cpu_data_master_latency_counter                                         (cpu_data_master_latency_counter),
+      .cpu_data_master_qualified_request_DE0_SOPC_clock_0_in                   (cpu_data_master_qualified_request_DE0_SOPC_clock_0_in),
+      .cpu_data_master_read                                                    (cpu_data_master_read),
+      .cpu_data_master_read_data_valid_DE0_SOPC_clock_0_in                     (cpu_data_master_read_data_valid_DE0_SOPC_clock_0_in),
+      .cpu_data_master_read_data_valid_clock_crossing_bridge_s1_shift_register (cpu_data_master_read_data_valid_clock_crossing_bridge_s1_shift_register),
+      .cpu_data_master_read_data_valid_sdram_s1_shift_register                 (cpu_data_master_read_data_valid_sdram_s1_shift_register),
+      .cpu_data_master_requests_DE0_SOPC_clock_0_in                            (cpu_data_master_requests_DE0_SOPC_clock_0_in),
+      .cpu_data_master_write                                                   (cpu_data_master_write),
+      .cpu_data_master_writedata                                               (cpu_data_master_writedata),
+      .d1_DE0_SOPC_clock_0_in_end_xfer                                         (d1_DE0_SOPC_clock_0_in_end_xfer),
+      .reset_n                                                                 (pll_cpu_reset_n)
     );
 
   DE0_SOPC_clock_0_out_arbitrator the_DE0_SOPC_clock_0_out
@@ -10769,12 +11231,13 @@ module DE0_SOPC (
       .cpu_data_master_address_to_slave                                        (cpu_data_master_address_to_slave),
       .cpu_data_master_byteenable                                              (cpu_data_master_byteenable),
       .cpu_data_master_granted_clock_crossing_bridge_s1                        (cpu_data_master_granted_clock_crossing_bridge_s1),
+      .cpu_data_master_latency_counter                                         (cpu_data_master_latency_counter),
       .cpu_data_master_qualified_request_clock_crossing_bridge_s1              (cpu_data_master_qualified_request_clock_crossing_bridge_s1),
       .cpu_data_master_read                                                    (cpu_data_master_read),
       .cpu_data_master_read_data_valid_clock_crossing_bridge_s1                (cpu_data_master_read_data_valid_clock_crossing_bridge_s1),
       .cpu_data_master_read_data_valid_clock_crossing_bridge_s1_shift_register (cpu_data_master_read_data_valid_clock_crossing_bridge_s1_shift_register),
+      .cpu_data_master_read_data_valid_sdram_s1_shift_register                 (cpu_data_master_read_data_valid_sdram_s1_shift_register),
       .cpu_data_master_requests_clock_crossing_bridge_s1                       (cpu_data_master_requests_clock_crossing_bridge_s1),
-      .cpu_data_master_waitrequest                                             (cpu_data_master_waitrequest),
       .cpu_data_master_write                                                   (cpu_data_master_write),
       .cpu_data_master_writedata                                               (cpu_data_master_writedata),
       .d1_clock_crossing_bridge_s1_end_xfer                                    (d1_clock_crossing_bridge_s1_end_xfer),
@@ -10896,38 +11359,55 @@ module DE0_SOPC (
 
   cpu_jtag_debug_module_arbitrator the_cpu_jtag_debug_module
     (
-      .clk                                                            (pll_cpu),
-      .cpu_data_master_address_to_slave                               (cpu_data_master_address_to_slave),
-      .cpu_data_master_byteenable                                     (cpu_data_master_byteenable),
-      .cpu_data_master_debugaccess                                    (cpu_data_master_debugaccess),
-      .cpu_data_master_granted_cpu_jtag_debug_module                  (cpu_data_master_granted_cpu_jtag_debug_module),
-      .cpu_data_master_qualified_request_cpu_jtag_debug_module        (cpu_data_master_qualified_request_cpu_jtag_debug_module),
-      .cpu_data_master_read                                           (cpu_data_master_read),
-      .cpu_data_master_read_data_valid_cpu_jtag_debug_module          (cpu_data_master_read_data_valid_cpu_jtag_debug_module),
-      .cpu_data_master_requests_cpu_jtag_debug_module                 (cpu_data_master_requests_cpu_jtag_debug_module),
-      .cpu_data_master_waitrequest                                    (cpu_data_master_waitrequest),
-      .cpu_data_master_write                                          (cpu_data_master_write),
-      .cpu_data_master_writedata                                      (cpu_data_master_writedata),
-      .cpu_instruction_master_address_to_slave                        (cpu_instruction_master_address_to_slave),
-      .cpu_instruction_master_granted_cpu_jtag_debug_module           (cpu_instruction_master_granted_cpu_jtag_debug_module),
-      .cpu_instruction_master_qualified_request_cpu_jtag_debug_module (cpu_instruction_master_qualified_request_cpu_jtag_debug_module),
-      .cpu_instruction_master_read                                    (cpu_instruction_master_read),
-      .cpu_instruction_master_read_data_valid_cpu_jtag_debug_module   (cpu_instruction_master_read_data_valid_cpu_jtag_debug_module),
-      .cpu_instruction_master_requests_cpu_jtag_debug_module          (cpu_instruction_master_requests_cpu_jtag_debug_module),
-      .cpu_jtag_debug_module_address                                  (cpu_jtag_debug_module_address),
-      .cpu_jtag_debug_module_begintransfer                            (cpu_jtag_debug_module_begintransfer),
-      .cpu_jtag_debug_module_byteenable                               (cpu_jtag_debug_module_byteenable),
-      .cpu_jtag_debug_module_chipselect                               (cpu_jtag_debug_module_chipselect),
-      .cpu_jtag_debug_module_debugaccess                              (cpu_jtag_debug_module_debugaccess),
-      .cpu_jtag_debug_module_readdata                                 (cpu_jtag_debug_module_readdata),
-      .cpu_jtag_debug_module_readdata_from_sa                         (cpu_jtag_debug_module_readdata_from_sa),
-      .cpu_jtag_debug_module_reset_n                                  (cpu_jtag_debug_module_reset_n),
-      .cpu_jtag_debug_module_resetrequest                             (cpu_jtag_debug_module_resetrequest),
-      .cpu_jtag_debug_module_resetrequest_from_sa                     (cpu_jtag_debug_module_resetrequest_from_sa),
-      .cpu_jtag_debug_module_write                                    (cpu_jtag_debug_module_write),
-      .cpu_jtag_debug_module_writedata                                (cpu_jtag_debug_module_writedata),
-      .d1_cpu_jtag_debug_module_end_xfer                              (d1_cpu_jtag_debug_module_end_xfer),
-      .reset_n                                                        (pll_cpu_reset_n)
+      .clk                                                                     (pll_cpu),
+      .cpu_data_master_address_to_slave                                        (cpu_data_master_address_to_slave),
+      .cpu_data_master_byteenable                                              (cpu_data_master_byteenable),
+      .cpu_data_master_debugaccess                                             (cpu_data_master_debugaccess),
+      .cpu_data_master_granted_cpu_jtag_debug_module                           (cpu_data_master_granted_cpu_jtag_debug_module),
+      .cpu_data_master_latency_counter                                         (cpu_data_master_latency_counter),
+      .cpu_data_master_qualified_request_cpu_jtag_debug_module                 (cpu_data_master_qualified_request_cpu_jtag_debug_module),
+      .cpu_data_master_read                                                    (cpu_data_master_read),
+      .cpu_data_master_read_data_valid_clock_crossing_bridge_s1_shift_register (cpu_data_master_read_data_valid_clock_crossing_bridge_s1_shift_register),
+      .cpu_data_master_read_data_valid_cpu_jtag_debug_module                   (cpu_data_master_read_data_valid_cpu_jtag_debug_module),
+      .cpu_data_master_read_data_valid_sdram_s1_shift_register                 (cpu_data_master_read_data_valid_sdram_s1_shift_register),
+      .cpu_data_master_requests_cpu_jtag_debug_module                          (cpu_data_master_requests_cpu_jtag_debug_module),
+      .cpu_data_master_write                                                   (cpu_data_master_write),
+      .cpu_data_master_writedata                                               (cpu_data_master_writedata),
+      .cpu_instruction_master_address_to_slave                                 (cpu_instruction_master_address_to_slave),
+      .cpu_instruction_master_granted_cpu_jtag_debug_module                    (cpu_instruction_master_granted_cpu_jtag_debug_module),
+      .cpu_instruction_master_latency_counter                                  (cpu_instruction_master_latency_counter),
+      .cpu_instruction_master_qualified_request_cpu_jtag_debug_module          (cpu_instruction_master_qualified_request_cpu_jtag_debug_module),
+      .cpu_instruction_master_read                                             (cpu_instruction_master_read),
+      .cpu_instruction_master_read_data_valid_cpu_jtag_debug_module            (cpu_instruction_master_read_data_valid_cpu_jtag_debug_module),
+      .cpu_instruction_master_read_data_valid_sdram_s1_shift_register          (cpu_instruction_master_read_data_valid_sdram_s1_shift_register),
+      .cpu_instruction_master_requests_cpu_jtag_debug_module                   (cpu_instruction_master_requests_cpu_jtag_debug_module),
+      .cpu_jtag_debug_module_address                                           (cpu_jtag_debug_module_address),
+      .cpu_jtag_debug_module_begintransfer                                     (cpu_jtag_debug_module_begintransfer),
+      .cpu_jtag_debug_module_byteenable                                        (cpu_jtag_debug_module_byteenable),
+      .cpu_jtag_debug_module_chipselect                                        (cpu_jtag_debug_module_chipselect),
+      .cpu_jtag_debug_module_debugaccess                                       (cpu_jtag_debug_module_debugaccess),
+      .cpu_jtag_debug_module_readdata                                          (cpu_jtag_debug_module_readdata),
+      .cpu_jtag_debug_module_readdata_from_sa                                  (cpu_jtag_debug_module_readdata_from_sa),
+      .cpu_jtag_debug_module_resetrequest                                      (cpu_jtag_debug_module_resetrequest),
+      .cpu_jtag_debug_module_resetrequest_from_sa                              (cpu_jtag_debug_module_resetrequest_from_sa),
+      .cpu_jtag_debug_module_write                                             (cpu_jtag_debug_module_write),
+      .cpu_jtag_debug_module_writedata                                         (cpu_jtag_debug_module_writedata),
+      .d1_cpu_jtag_debug_module_end_xfer                                       (d1_cpu_jtag_debug_module_end_xfer),
+      .reset_n                                                                 (pll_cpu_reset_n)
+    );
+
+  cpu_custom_instruction_master_arbitrator the_cpu_custom_instruction_master
+    (
+      .clk                                                                                     (pll_cpu),
+      .cpu_altera_nios_custom_instr_floating_point_inst_s1_done_from_sa                        (cpu_altera_nios_custom_instr_floating_point_inst_s1_done_from_sa),
+      .cpu_altera_nios_custom_instr_floating_point_inst_s1_result_from_sa                      (cpu_altera_nios_custom_instr_floating_point_inst_s1_result_from_sa),
+      .cpu_altera_nios_custom_instr_floating_point_inst_s1_select                              (cpu_altera_nios_custom_instr_floating_point_inst_s1_select),
+      .cpu_custom_instruction_master_multi_done                                                (cpu_custom_instruction_master_multi_done),
+      .cpu_custom_instruction_master_multi_result                                              (cpu_custom_instruction_master_multi_result),
+      .cpu_custom_instruction_master_multi_start                                               (cpu_custom_instruction_master_multi_start),
+      .cpu_custom_instruction_master_reset_n                                                   (cpu_custom_instruction_master_reset_n),
+      .cpu_custom_instruction_master_start_cpu_altera_nios_custom_instr_floating_point_inst_s1 (cpu_custom_instruction_master_start_cpu_altera_nios_custom_instr_floating_point_inst_s1),
+      .reset_n                                                                                 (pll_cpu_reset_n)
     );
 
   cpu_data_master_arbitrator the_cpu_data_master
@@ -10936,12 +11416,12 @@ module DE0_SOPC (
       .DE0_SOPC_clock_0_in_waitrequest_from_sa                                 (DE0_SOPC_clock_0_in_waitrequest_from_sa),
       .buttons_s1_irq_from_sa                                                  (buttons_s1_irq_from_sa),
       .cfi_flash_s1_wait_counter_eq_0                                          (cfi_flash_s1_wait_counter_eq_0),
-      .cfi_flash_s1_wait_counter_eq_1                                          (cfi_flash_s1_wait_counter_eq_1),
       .clk                                                                     (pll_cpu),
       .clock_crossing_bridge_s1_readdata_from_sa                               (clock_crossing_bridge_s1_readdata_from_sa),
       .clock_crossing_bridge_s1_waitrequest_from_sa                            (clock_crossing_bridge_s1_waitrequest_from_sa),
       .cpu_data_master_address                                                 (cpu_data_master_address),
       .cpu_data_master_address_to_slave                                        (cpu_data_master_address_to_slave),
+      .cpu_data_master_byteenable                                              (cpu_data_master_byteenable),
       .cpu_data_master_byteenable_cfi_flash_s1                                 (cpu_data_master_byteenable_cfi_flash_s1),
       .cpu_data_master_byteenable_sdram_s1                                     (cpu_data_master_byteenable_sdram_s1),
       .cpu_data_master_dbs_address                                             (cpu_data_master_dbs_address),
@@ -10954,7 +11434,7 @@ module DE0_SOPC (
       .cpu_data_master_granted_onchip_mem_s1                                   (cpu_data_master_granted_onchip_mem_s1),
       .cpu_data_master_granted_sdram_s1                                        (cpu_data_master_granted_sdram_s1),
       .cpu_data_master_irq                                                     (cpu_data_master_irq),
-      .cpu_data_master_no_byte_enables_and_last_term                           (cpu_data_master_no_byte_enables_and_last_term),
+      .cpu_data_master_latency_counter                                         (cpu_data_master_latency_counter),
       .cpu_data_master_qualified_request_DE0_SOPC_clock_0_in                   (cpu_data_master_qualified_request_DE0_SOPC_clock_0_in),
       .cpu_data_master_qualified_request_cfi_flash_s1                          (cpu_data_master_qualified_request_cfi_flash_s1),
       .cpu_data_master_qualified_request_clock_crossing_bridge_s1              (cpu_data_master_qualified_request_clock_crossing_bridge_s1),
@@ -10973,6 +11453,7 @@ module DE0_SOPC (
       .cpu_data_master_read_data_valid_sdram_s1                                (cpu_data_master_read_data_valid_sdram_s1),
       .cpu_data_master_read_data_valid_sdram_s1_shift_register                 (cpu_data_master_read_data_valid_sdram_s1_shift_register),
       .cpu_data_master_readdata                                                (cpu_data_master_readdata),
+      .cpu_data_master_readdatavalid                                           (cpu_data_master_readdatavalid),
       .cpu_data_master_requests_DE0_SOPC_clock_0_in                            (cpu_data_master_requests_DE0_SOPC_clock_0_in),
       .cpu_data_master_requests_cfi_flash_s1                                   (cpu_data_master_requests_cfi_flash_s1),
       .cpu_data_master_requests_clock_crossing_bridge_s1                       (cpu_data_master_requests_clock_crossing_bridge_s1),
@@ -10998,8 +11479,6 @@ module DE0_SOPC (
       .onchip_mem_s1_readdata_from_sa                                          (onchip_mem_s1_readdata_from_sa),
       .pll_cpu                                                                 (pll_cpu),
       .pll_cpu_reset_n                                                         (pll_cpu_reset_n),
-      .registered_cpu_data_master_read_data_valid_cfi_flash_s1                 (registered_cpu_data_master_read_data_valid_cfi_flash_s1),
-      .registered_cpu_data_master_read_data_valid_onchip_mem_s1                (registered_cpu_data_master_read_data_valid_onchip_mem_s1),
       .reset_n                                                                 (pll_cpu_reset_n),
       .sdram_s1_readdata_from_sa                                               (sdram_s1_readdata_from_sa),
       .sdram_s1_waitrequest_from_sa                                            (sdram_s1_waitrequest_from_sa),
@@ -11011,7 +11490,6 @@ module DE0_SOPC (
   cpu_instruction_master_arbitrator the_cpu_instruction_master
     (
       .cfi_flash_s1_wait_counter_eq_0                                 (cfi_flash_s1_wait_counter_eq_0),
-      .cfi_flash_s1_wait_counter_eq_1                                 (cfi_flash_s1_wait_counter_eq_1),
       .clk                                                            (pll_cpu),
       .cpu_instruction_master_address                                 (cpu_instruction_master_address),
       .cpu_instruction_master_address_to_slave                        (cpu_instruction_master_address_to_slave),
@@ -11020,6 +11498,7 @@ module DE0_SOPC (
       .cpu_instruction_master_granted_cpu_jtag_debug_module           (cpu_instruction_master_granted_cpu_jtag_debug_module),
       .cpu_instruction_master_granted_onchip_mem_s1                   (cpu_instruction_master_granted_onchip_mem_s1),
       .cpu_instruction_master_granted_sdram_s1                        (cpu_instruction_master_granted_sdram_s1),
+      .cpu_instruction_master_latency_counter                         (cpu_instruction_master_latency_counter),
       .cpu_instruction_master_qualified_request_cfi_flash_s1          (cpu_instruction_master_qualified_request_cfi_flash_s1),
       .cpu_instruction_master_qualified_request_cpu_jtag_debug_module (cpu_instruction_master_qualified_request_cpu_jtag_debug_module),
       .cpu_instruction_master_qualified_request_onchip_mem_s1         (cpu_instruction_master_qualified_request_onchip_mem_s1),
@@ -11031,6 +11510,7 @@ module DE0_SOPC (
       .cpu_instruction_master_read_data_valid_sdram_s1                (cpu_instruction_master_read_data_valid_sdram_s1),
       .cpu_instruction_master_read_data_valid_sdram_s1_shift_register (cpu_instruction_master_read_data_valid_sdram_s1_shift_register),
       .cpu_instruction_master_readdata                                (cpu_instruction_master_readdata),
+      .cpu_instruction_master_readdatavalid                           (cpu_instruction_master_readdatavalid),
       .cpu_instruction_master_requests_cfi_flash_s1                   (cpu_instruction_master_requests_cfi_flash_s1),
       .cpu_instruction_master_requests_cpu_jtag_debug_module          (cpu_instruction_master_requests_cpu_jtag_debug_module),
       .cpu_instruction_master_requests_onchip_mem_s1                  (cpu_instruction_master_requests_onchip_mem_s1),
@@ -11050,18 +11530,38 @@ module DE0_SOPC (
 
   cpu the_cpu
     (
+      .A_ci_multi_a                          (cpu_custom_instruction_master_multi_a),
+      .A_ci_multi_b                          (cpu_custom_instruction_master_multi_b),
+      .A_ci_multi_c                          (cpu_custom_instruction_master_multi_c),
+      .A_ci_multi_clk_en                     (cpu_custom_instruction_master_multi_clk_en),
+      .A_ci_multi_clock                      (cpu_custom_instruction_master_multi_clk),
+      .A_ci_multi_dataa                      (cpu_custom_instruction_master_multi_dataa),
+      .A_ci_multi_datab                      (cpu_custom_instruction_master_multi_datab),
+      .A_ci_multi_done                       (cpu_custom_instruction_master_multi_done),
+      .A_ci_multi_estatus                    (cpu_custom_instruction_master_multi_estatus),
+      .A_ci_multi_ipending                   (cpu_custom_instruction_master_multi_ipending),
+      .A_ci_multi_n                          (cpu_custom_instruction_master_multi_n),
+      .A_ci_multi_readra                     (cpu_custom_instruction_master_multi_readra),
+      .A_ci_multi_readrb                     (cpu_custom_instruction_master_multi_readrb),
+      .A_ci_multi_reset                      (cpu_custom_instruction_master_multi_reset),
+      .A_ci_multi_result                     (cpu_custom_instruction_master_multi_result),
+      .A_ci_multi_start                      (cpu_custom_instruction_master_multi_start),
+      .A_ci_multi_status                     (cpu_custom_instruction_master_multi_status),
+      .A_ci_multi_writerc                    (cpu_custom_instruction_master_multi_writerc),
       .clk                                   (pll_cpu),
       .d_address                             (cpu_data_master_address),
       .d_byteenable                          (cpu_data_master_byteenable),
       .d_irq                                 (cpu_data_master_irq),
       .d_read                                (cpu_data_master_read),
       .d_readdata                            (cpu_data_master_readdata),
+      .d_readdatavalid                       (cpu_data_master_readdatavalid),
       .d_waitrequest                         (cpu_data_master_waitrequest),
       .d_write                               (cpu_data_master_write),
       .d_writedata                           (cpu_data_master_writedata),
       .i_address                             (cpu_instruction_master_address),
       .i_read                                (cpu_instruction_master_read),
       .i_readdata                            (cpu_instruction_master_readdata),
+      .i_readdatavalid                       (cpu_instruction_master_readdatavalid),
       .i_waitrequest                         (cpu_instruction_master_waitrequest),
       .jtag_debug_module_address             (cpu_jtag_debug_module_address),
       .jtag_debug_module_begintransfer       (cpu_jtag_debug_module_begintransfer),
@@ -11073,39 +11573,76 @@ module DE0_SOPC (
       .jtag_debug_module_select              (cpu_jtag_debug_module_chipselect),
       .jtag_debug_module_write               (cpu_jtag_debug_module_write),
       .jtag_debug_module_writedata           (cpu_jtag_debug_module_writedata),
-      .reset_n                               (cpu_jtag_debug_module_reset_n)
+      .reset_n                               (cpu_custom_instruction_master_reset_n)
+    );
+
+  cpu_altera_nios_custom_instr_floating_point_inst_s1_arbitrator the_cpu_altera_nios_custom_instr_floating_point_inst_s1
+    (
+      .clk                                                                                     (pll_cpu),
+      .cpu_altera_nios_custom_instr_floating_point_inst_s1_clk_en                              (cpu_altera_nios_custom_instr_floating_point_inst_s1_clk_en),
+      .cpu_altera_nios_custom_instr_floating_point_inst_s1_dataa                               (cpu_altera_nios_custom_instr_floating_point_inst_s1_dataa),
+      .cpu_altera_nios_custom_instr_floating_point_inst_s1_datab                               (cpu_altera_nios_custom_instr_floating_point_inst_s1_datab),
+      .cpu_altera_nios_custom_instr_floating_point_inst_s1_done                                (cpu_altera_nios_custom_instr_floating_point_inst_s1_done),
+      .cpu_altera_nios_custom_instr_floating_point_inst_s1_done_from_sa                        (cpu_altera_nios_custom_instr_floating_point_inst_s1_done_from_sa),
+      .cpu_altera_nios_custom_instr_floating_point_inst_s1_n                                   (cpu_altera_nios_custom_instr_floating_point_inst_s1_n),
+      .cpu_altera_nios_custom_instr_floating_point_inst_s1_reset                               (cpu_altera_nios_custom_instr_floating_point_inst_s1_reset),
+      .cpu_altera_nios_custom_instr_floating_point_inst_s1_result                              (cpu_altera_nios_custom_instr_floating_point_inst_s1_result),
+      .cpu_altera_nios_custom_instr_floating_point_inst_s1_result_from_sa                      (cpu_altera_nios_custom_instr_floating_point_inst_s1_result_from_sa),
+      .cpu_altera_nios_custom_instr_floating_point_inst_s1_select                              (cpu_altera_nios_custom_instr_floating_point_inst_s1_select),
+      .cpu_altera_nios_custom_instr_floating_point_inst_s1_start                               (cpu_altera_nios_custom_instr_floating_point_inst_s1_start),
+      .cpu_custom_instruction_master_multi_clk_en                                              (cpu_custom_instruction_master_multi_clk_en),
+      .cpu_custom_instruction_master_multi_dataa                                               (cpu_custom_instruction_master_multi_dataa),
+      .cpu_custom_instruction_master_multi_datab                                               (cpu_custom_instruction_master_multi_datab),
+      .cpu_custom_instruction_master_multi_n                                                   (cpu_custom_instruction_master_multi_n),
+      .cpu_custom_instruction_master_start_cpu_altera_nios_custom_instr_floating_point_inst_s1 (cpu_custom_instruction_master_start_cpu_altera_nios_custom_instr_floating_point_inst_s1),
+      .reset_n                                                                                 (pll_cpu_reset_n)
+    );
+
+  cpu_altera_nios_custom_instr_floating_point_inst the_cpu_altera_nios_custom_instr_floating_point_inst
+    (
+      .clk    (pll_cpu),
+      .clk_en (cpu_altera_nios_custom_instr_floating_point_inst_s1_clk_en),
+      .dataa  (cpu_altera_nios_custom_instr_floating_point_inst_s1_dataa),
+      .datab  (cpu_altera_nios_custom_instr_floating_point_inst_s1_datab),
+      .done   (cpu_altera_nios_custom_instr_floating_point_inst_s1_done),
+      .n      (cpu_altera_nios_custom_instr_floating_point_inst_s1_n),
+      .reset  (cpu_altera_nios_custom_instr_floating_point_inst_s1_reset),
+      .result (cpu_altera_nios_custom_instr_floating_point_inst_s1_result),
+      .start  (cpu_altera_nios_custom_instr_floating_point_inst_s1_start)
     );
 
   jtag_uart_avalon_jtag_slave_arbitrator the_jtag_uart_avalon_jtag_slave
     (
-      .clk                                                           (pll_cpu),
-      .cpu_data_master_address_to_slave                              (cpu_data_master_address_to_slave),
-      .cpu_data_master_granted_jtag_uart_avalon_jtag_slave           (cpu_data_master_granted_jtag_uart_avalon_jtag_slave),
-      .cpu_data_master_qualified_request_jtag_uart_avalon_jtag_slave (cpu_data_master_qualified_request_jtag_uart_avalon_jtag_slave),
-      .cpu_data_master_read                                          (cpu_data_master_read),
-      .cpu_data_master_read_data_valid_jtag_uart_avalon_jtag_slave   (cpu_data_master_read_data_valid_jtag_uart_avalon_jtag_slave),
-      .cpu_data_master_requests_jtag_uart_avalon_jtag_slave          (cpu_data_master_requests_jtag_uart_avalon_jtag_slave),
-      .cpu_data_master_waitrequest                                   (cpu_data_master_waitrequest),
-      .cpu_data_master_write                                         (cpu_data_master_write),
-      .cpu_data_master_writedata                                     (cpu_data_master_writedata),
-      .d1_jtag_uart_avalon_jtag_slave_end_xfer                       (d1_jtag_uart_avalon_jtag_slave_end_xfer),
-      .jtag_uart_avalon_jtag_slave_address                           (jtag_uart_avalon_jtag_slave_address),
-      .jtag_uart_avalon_jtag_slave_chipselect                        (jtag_uart_avalon_jtag_slave_chipselect),
-      .jtag_uart_avalon_jtag_slave_dataavailable                     (jtag_uart_avalon_jtag_slave_dataavailable),
-      .jtag_uart_avalon_jtag_slave_dataavailable_from_sa             (jtag_uart_avalon_jtag_slave_dataavailable_from_sa),
-      .jtag_uart_avalon_jtag_slave_irq                               (jtag_uart_avalon_jtag_slave_irq),
-      .jtag_uart_avalon_jtag_slave_irq_from_sa                       (jtag_uart_avalon_jtag_slave_irq_from_sa),
-      .jtag_uart_avalon_jtag_slave_read_n                            (jtag_uart_avalon_jtag_slave_read_n),
-      .jtag_uart_avalon_jtag_slave_readdata                          (jtag_uart_avalon_jtag_slave_readdata),
-      .jtag_uart_avalon_jtag_slave_readdata_from_sa                  (jtag_uart_avalon_jtag_slave_readdata_from_sa),
-      .jtag_uart_avalon_jtag_slave_readyfordata                      (jtag_uart_avalon_jtag_slave_readyfordata),
-      .jtag_uart_avalon_jtag_slave_readyfordata_from_sa              (jtag_uart_avalon_jtag_slave_readyfordata_from_sa),
-      .jtag_uart_avalon_jtag_slave_reset_n                           (jtag_uart_avalon_jtag_slave_reset_n),
-      .jtag_uart_avalon_jtag_slave_waitrequest                       (jtag_uart_avalon_jtag_slave_waitrequest),
-      .jtag_uart_avalon_jtag_slave_waitrequest_from_sa               (jtag_uart_avalon_jtag_slave_waitrequest_from_sa),
-      .jtag_uart_avalon_jtag_slave_write_n                           (jtag_uart_avalon_jtag_slave_write_n),
-      .jtag_uart_avalon_jtag_slave_writedata                         (jtag_uart_avalon_jtag_slave_writedata),
-      .reset_n                                                       (pll_cpu_reset_n)
+      .clk                                                                     (pll_cpu),
+      .cpu_data_master_address_to_slave                                        (cpu_data_master_address_to_slave),
+      .cpu_data_master_granted_jtag_uart_avalon_jtag_slave                     (cpu_data_master_granted_jtag_uart_avalon_jtag_slave),
+      .cpu_data_master_latency_counter                                         (cpu_data_master_latency_counter),
+      .cpu_data_master_qualified_request_jtag_uart_avalon_jtag_slave           (cpu_data_master_qualified_request_jtag_uart_avalon_jtag_slave),
+      .cpu_data_master_read                                                    (cpu_data_master_read),
+      .cpu_data_master_read_data_valid_clock_crossing_bridge_s1_shift_register (cpu_data_master_read_data_valid_clock_crossing_bridge_s1_shift_register),
+      .cpu_data_master_read_data_valid_jtag_uart_avalon_jtag_slave             (cpu_data_master_read_data_valid_jtag_uart_avalon_jtag_slave),
+      .cpu_data_master_read_data_valid_sdram_s1_shift_register                 (cpu_data_master_read_data_valid_sdram_s1_shift_register),
+      .cpu_data_master_requests_jtag_uart_avalon_jtag_slave                    (cpu_data_master_requests_jtag_uart_avalon_jtag_slave),
+      .cpu_data_master_write                                                   (cpu_data_master_write),
+      .cpu_data_master_writedata                                               (cpu_data_master_writedata),
+      .d1_jtag_uart_avalon_jtag_slave_end_xfer                                 (d1_jtag_uart_avalon_jtag_slave_end_xfer),
+      .jtag_uart_avalon_jtag_slave_address                                     (jtag_uart_avalon_jtag_slave_address),
+      .jtag_uart_avalon_jtag_slave_chipselect                                  (jtag_uart_avalon_jtag_slave_chipselect),
+      .jtag_uart_avalon_jtag_slave_dataavailable                               (jtag_uart_avalon_jtag_slave_dataavailable),
+      .jtag_uart_avalon_jtag_slave_dataavailable_from_sa                       (jtag_uart_avalon_jtag_slave_dataavailable_from_sa),
+      .jtag_uart_avalon_jtag_slave_irq                                         (jtag_uart_avalon_jtag_slave_irq),
+      .jtag_uart_avalon_jtag_slave_irq_from_sa                                 (jtag_uart_avalon_jtag_slave_irq_from_sa),
+      .jtag_uart_avalon_jtag_slave_read_n                                      (jtag_uart_avalon_jtag_slave_read_n),
+      .jtag_uart_avalon_jtag_slave_readdata                                    (jtag_uart_avalon_jtag_slave_readdata),
+      .jtag_uart_avalon_jtag_slave_readdata_from_sa                            (jtag_uart_avalon_jtag_slave_readdata_from_sa),
+      .jtag_uart_avalon_jtag_slave_readyfordata                                (jtag_uart_avalon_jtag_slave_readyfordata),
+      .jtag_uart_avalon_jtag_slave_readyfordata_from_sa                        (jtag_uart_avalon_jtag_slave_readyfordata_from_sa),
+      .jtag_uart_avalon_jtag_slave_reset_n                                     (jtag_uart_avalon_jtag_slave_reset_n),
+      .jtag_uart_avalon_jtag_slave_waitrequest                                 (jtag_uart_avalon_jtag_slave_waitrequest),
+      .jtag_uart_avalon_jtag_slave_waitrequest_from_sa                         (jtag_uart_avalon_jtag_slave_waitrequest_from_sa),
+      .jtag_uart_avalon_jtag_slave_write_n                                     (jtag_uart_avalon_jtag_slave_write_n),
+      .jtag_uart_avalon_jtag_slave_writedata                                   (jtag_uart_avalon_jtag_slave_writedata),
+      .reset_n                                                                 (pll_cpu_reset_n)
     );
 
   jtag_uart the_jtag_uart
@@ -11268,35 +11805,38 @@ module DE0_SOPC (
 
   onchip_mem_s1_arbitrator the_onchip_mem_s1
     (
-      .clk                                                      (pll_cpu),
-      .cpu_data_master_address_to_slave                         (cpu_data_master_address_to_slave),
-      .cpu_data_master_byteenable                               (cpu_data_master_byteenable),
-      .cpu_data_master_granted_onchip_mem_s1                    (cpu_data_master_granted_onchip_mem_s1),
-      .cpu_data_master_qualified_request_onchip_mem_s1          (cpu_data_master_qualified_request_onchip_mem_s1),
-      .cpu_data_master_read                                     (cpu_data_master_read),
-      .cpu_data_master_read_data_valid_onchip_mem_s1            (cpu_data_master_read_data_valid_onchip_mem_s1),
-      .cpu_data_master_requests_onchip_mem_s1                   (cpu_data_master_requests_onchip_mem_s1),
-      .cpu_data_master_waitrequest                              (cpu_data_master_waitrequest),
-      .cpu_data_master_write                                    (cpu_data_master_write),
-      .cpu_data_master_writedata                                (cpu_data_master_writedata),
-      .cpu_instruction_master_address_to_slave                  (cpu_instruction_master_address_to_slave),
-      .cpu_instruction_master_granted_onchip_mem_s1             (cpu_instruction_master_granted_onchip_mem_s1),
-      .cpu_instruction_master_qualified_request_onchip_mem_s1   (cpu_instruction_master_qualified_request_onchip_mem_s1),
-      .cpu_instruction_master_read                              (cpu_instruction_master_read),
-      .cpu_instruction_master_read_data_valid_onchip_mem_s1     (cpu_instruction_master_read_data_valid_onchip_mem_s1),
-      .cpu_instruction_master_requests_onchip_mem_s1            (cpu_instruction_master_requests_onchip_mem_s1),
-      .d1_onchip_mem_s1_end_xfer                                (d1_onchip_mem_s1_end_xfer),
-      .onchip_mem_s1_address                                    (onchip_mem_s1_address),
-      .onchip_mem_s1_byteenable                                 (onchip_mem_s1_byteenable),
-      .onchip_mem_s1_chipselect                                 (onchip_mem_s1_chipselect),
-      .onchip_mem_s1_clken                                      (onchip_mem_s1_clken),
-      .onchip_mem_s1_readdata                                   (onchip_mem_s1_readdata),
-      .onchip_mem_s1_readdata_from_sa                           (onchip_mem_s1_readdata_from_sa),
-      .onchip_mem_s1_reset                                      (onchip_mem_s1_reset),
-      .onchip_mem_s1_write                                      (onchip_mem_s1_write),
-      .onchip_mem_s1_writedata                                  (onchip_mem_s1_writedata),
-      .registered_cpu_data_master_read_data_valid_onchip_mem_s1 (registered_cpu_data_master_read_data_valid_onchip_mem_s1),
-      .reset_n                                                  (pll_cpu_reset_n)
+      .clk                                                                     (pll_cpu),
+      .cpu_data_master_address_to_slave                                        (cpu_data_master_address_to_slave),
+      .cpu_data_master_byteenable                                              (cpu_data_master_byteenable),
+      .cpu_data_master_granted_onchip_mem_s1                                   (cpu_data_master_granted_onchip_mem_s1),
+      .cpu_data_master_latency_counter                                         (cpu_data_master_latency_counter),
+      .cpu_data_master_qualified_request_onchip_mem_s1                         (cpu_data_master_qualified_request_onchip_mem_s1),
+      .cpu_data_master_read                                                    (cpu_data_master_read),
+      .cpu_data_master_read_data_valid_clock_crossing_bridge_s1_shift_register (cpu_data_master_read_data_valid_clock_crossing_bridge_s1_shift_register),
+      .cpu_data_master_read_data_valid_onchip_mem_s1                           (cpu_data_master_read_data_valid_onchip_mem_s1),
+      .cpu_data_master_read_data_valid_sdram_s1_shift_register                 (cpu_data_master_read_data_valid_sdram_s1_shift_register),
+      .cpu_data_master_requests_onchip_mem_s1                                  (cpu_data_master_requests_onchip_mem_s1),
+      .cpu_data_master_write                                                   (cpu_data_master_write),
+      .cpu_data_master_writedata                                               (cpu_data_master_writedata),
+      .cpu_instruction_master_address_to_slave                                 (cpu_instruction_master_address_to_slave),
+      .cpu_instruction_master_granted_onchip_mem_s1                            (cpu_instruction_master_granted_onchip_mem_s1),
+      .cpu_instruction_master_latency_counter                                  (cpu_instruction_master_latency_counter),
+      .cpu_instruction_master_qualified_request_onchip_mem_s1                  (cpu_instruction_master_qualified_request_onchip_mem_s1),
+      .cpu_instruction_master_read                                             (cpu_instruction_master_read),
+      .cpu_instruction_master_read_data_valid_onchip_mem_s1                    (cpu_instruction_master_read_data_valid_onchip_mem_s1),
+      .cpu_instruction_master_read_data_valid_sdram_s1_shift_register          (cpu_instruction_master_read_data_valid_sdram_s1_shift_register),
+      .cpu_instruction_master_requests_onchip_mem_s1                           (cpu_instruction_master_requests_onchip_mem_s1),
+      .d1_onchip_mem_s1_end_xfer                                               (d1_onchip_mem_s1_end_xfer),
+      .onchip_mem_s1_address                                                   (onchip_mem_s1_address),
+      .onchip_mem_s1_byteenable                                                (onchip_mem_s1_byteenable),
+      .onchip_mem_s1_chipselect                                                (onchip_mem_s1_chipselect),
+      .onchip_mem_s1_clken                                                     (onchip_mem_s1_clken),
+      .onchip_mem_s1_readdata                                                  (onchip_mem_s1_readdata),
+      .onchip_mem_s1_readdata_from_sa                                          (onchip_mem_s1_readdata_from_sa),
+      .onchip_mem_s1_reset                                                     (onchip_mem_s1_reset),
+      .onchip_mem_s1_write                                                     (onchip_mem_s1_write),
+      .onchip_mem_s1_writedata                                                 (onchip_mem_s1_writedata),
+      .reset_n                                                                 (pll_cpu_reset_n)
     );
 
   onchip_mem the_onchip_mem
@@ -11369,43 +11909,44 @@ module DE0_SOPC (
 
   sdram_s1_arbitrator the_sdram_s1
     (
-      .clk                                                            (pll_cpu),
-      .cpu_data_master_address_to_slave                               (cpu_data_master_address_to_slave),
-      .cpu_data_master_byteenable                                     (cpu_data_master_byteenable),
-      .cpu_data_master_byteenable_sdram_s1                            (cpu_data_master_byteenable_sdram_s1),
-      .cpu_data_master_dbs_address                                    (cpu_data_master_dbs_address),
-      .cpu_data_master_dbs_write_16                                   (cpu_data_master_dbs_write_16),
-      .cpu_data_master_granted_sdram_s1                               (cpu_data_master_granted_sdram_s1),
-      .cpu_data_master_no_byte_enables_and_last_term                  (cpu_data_master_no_byte_enables_and_last_term),
-      .cpu_data_master_qualified_request_sdram_s1                     (cpu_data_master_qualified_request_sdram_s1),
-      .cpu_data_master_read                                           (cpu_data_master_read),
-      .cpu_data_master_read_data_valid_sdram_s1                       (cpu_data_master_read_data_valid_sdram_s1),
-      .cpu_data_master_read_data_valid_sdram_s1_shift_register        (cpu_data_master_read_data_valid_sdram_s1_shift_register),
-      .cpu_data_master_requests_sdram_s1                              (cpu_data_master_requests_sdram_s1),
-      .cpu_data_master_waitrequest                                    (cpu_data_master_waitrequest),
-      .cpu_data_master_write                                          (cpu_data_master_write),
-      .cpu_instruction_master_address_to_slave                        (cpu_instruction_master_address_to_slave),
-      .cpu_instruction_master_dbs_address                             (cpu_instruction_master_dbs_address),
-      .cpu_instruction_master_granted_sdram_s1                        (cpu_instruction_master_granted_sdram_s1),
-      .cpu_instruction_master_qualified_request_sdram_s1              (cpu_instruction_master_qualified_request_sdram_s1),
-      .cpu_instruction_master_read                                    (cpu_instruction_master_read),
-      .cpu_instruction_master_read_data_valid_sdram_s1                (cpu_instruction_master_read_data_valid_sdram_s1),
-      .cpu_instruction_master_read_data_valid_sdram_s1_shift_register (cpu_instruction_master_read_data_valid_sdram_s1_shift_register),
-      .cpu_instruction_master_requests_sdram_s1                       (cpu_instruction_master_requests_sdram_s1),
-      .d1_sdram_s1_end_xfer                                           (d1_sdram_s1_end_xfer),
-      .reset_n                                                        (pll_cpu_reset_n),
-      .sdram_s1_address                                               (sdram_s1_address),
-      .sdram_s1_byteenable_n                                          (sdram_s1_byteenable_n),
-      .sdram_s1_chipselect                                            (sdram_s1_chipselect),
-      .sdram_s1_read_n                                                (sdram_s1_read_n),
-      .sdram_s1_readdata                                              (sdram_s1_readdata),
-      .sdram_s1_readdata_from_sa                                      (sdram_s1_readdata_from_sa),
-      .sdram_s1_readdatavalid                                         (sdram_s1_readdatavalid),
-      .sdram_s1_reset_n                                               (sdram_s1_reset_n),
-      .sdram_s1_waitrequest                                           (sdram_s1_waitrequest),
-      .sdram_s1_waitrequest_from_sa                                   (sdram_s1_waitrequest_from_sa),
-      .sdram_s1_write_n                                               (sdram_s1_write_n),
-      .sdram_s1_writedata                                             (sdram_s1_writedata)
+      .clk                                                                     (pll_cpu),
+      .cpu_data_master_address_to_slave                                        (cpu_data_master_address_to_slave),
+      .cpu_data_master_byteenable                                              (cpu_data_master_byteenable),
+      .cpu_data_master_byteenable_sdram_s1                                     (cpu_data_master_byteenable_sdram_s1),
+      .cpu_data_master_dbs_address                                             (cpu_data_master_dbs_address),
+      .cpu_data_master_dbs_write_16                                            (cpu_data_master_dbs_write_16),
+      .cpu_data_master_granted_sdram_s1                                        (cpu_data_master_granted_sdram_s1),
+      .cpu_data_master_latency_counter                                         (cpu_data_master_latency_counter),
+      .cpu_data_master_qualified_request_sdram_s1                              (cpu_data_master_qualified_request_sdram_s1),
+      .cpu_data_master_read                                                    (cpu_data_master_read),
+      .cpu_data_master_read_data_valid_clock_crossing_bridge_s1_shift_register (cpu_data_master_read_data_valid_clock_crossing_bridge_s1_shift_register),
+      .cpu_data_master_read_data_valid_sdram_s1                                (cpu_data_master_read_data_valid_sdram_s1),
+      .cpu_data_master_read_data_valid_sdram_s1_shift_register                 (cpu_data_master_read_data_valid_sdram_s1_shift_register),
+      .cpu_data_master_requests_sdram_s1                                       (cpu_data_master_requests_sdram_s1),
+      .cpu_data_master_write                                                   (cpu_data_master_write),
+      .cpu_instruction_master_address_to_slave                                 (cpu_instruction_master_address_to_slave),
+      .cpu_instruction_master_dbs_address                                      (cpu_instruction_master_dbs_address),
+      .cpu_instruction_master_granted_sdram_s1                                 (cpu_instruction_master_granted_sdram_s1),
+      .cpu_instruction_master_latency_counter                                  (cpu_instruction_master_latency_counter),
+      .cpu_instruction_master_qualified_request_sdram_s1                       (cpu_instruction_master_qualified_request_sdram_s1),
+      .cpu_instruction_master_read                                             (cpu_instruction_master_read),
+      .cpu_instruction_master_read_data_valid_sdram_s1                         (cpu_instruction_master_read_data_valid_sdram_s1),
+      .cpu_instruction_master_read_data_valid_sdram_s1_shift_register          (cpu_instruction_master_read_data_valid_sdram_s1_shift_register),
+      .cpu_instruction_master_requests_sdram_s1                                (cpu_instruction_master_requests_sdram_s1),
+      .d1_sdram_s1_end_xfer                                                    (d1_sdram_s1_end_xfer),
+      .reset_n                                                                 (pll_cpu_reset_n),
+      .sdram_s1_address                                                        (sdram_s1_address),
+      .sdram_s1_byteenable_n                                                   (sdram_s1_byteenable_n),
+      .sdram_s1_chipselect                                                     (sdram_s1_chipselect),
+      .sdram_s1_read_n                                                         (sdram_s1_read_n),
+      .sdram_s1_readdata                                                       (sdram_s1_readdata),
+      .sdram_s1_readdata_from_sa                                               (sdram_s1_readdata_from_sa),
+      .sdram_s1_readdatavalid                                                  (sdram_s1_readdatavalid),
+      .sdram_s1_reset_n                                                        (sdram_s1_reset_n),
+      .sdram_s1_waitrequest                                                    (sdram_s1_waitrequest),
+      .sdram_s1_waitrequest_from_sa                                            (sdram_s1_waitrequest_from_sa),
+      .sdram_s1_write_n                                                        (sdram_s1_write_n),
+      .sdram_s1_writedata                                                      (sdram_s1_writedata)
     );
 
   sdram the_sdram
@@ -11575,38 +12116,40 @@ module DE0_SOPC (
 
   tristate_bridge_avalon_slave_arbitrator the_tristate_bridge_avalon_slave
     (
-      .address_to_the_cfi_flash                                       (address_to_the_cfi_flash),
-      .cfi_flash_s1_wait_counter_eq_0                                 (cfi_flash_s1_wait_counter_eq_0),
-      .cfi_flash_s1_wait_counter_eq_1                                 (cfi_flash_s1_wait_counter_eq_1),
-      .clk                                                            (pll_cpu),
-      .cpu_data_master_address_to_slave                               (cpu_data_master_address_to_slave),
-      .cpu_data_master_byteenable                                     (cpu_data_master_byteenable),
-      .cpu_data_master_byteenable_cfi_flash_s1                        (cpu_data_master_byteenable_cfi_flash_s1),
-      .cpu_data_master_dbs_address                                    (cpu_data_master_dbs_address),
-      .cpu_data_master_dbs_write_16                                   (cpu_data_master_dbs_write_16),
-      .cpu_data_master_granted_cfi_flash_s1                           (cpu_data_master_granted_cfi_flash_s1),
-      .cpu_data_master_no_byte_enables_and_last_term                  (cpu_data_master_no_byte_enables_and_last_term),
-      .cpu_data_master_qualified_request_cfi_flash_s1                 (cpu_data_master_qualified_request_cfi_flash_s1),
-      .cpu_data_master_read                                           (cpu_data_master_read),
-      .cpu_data_master_read_data_valid_cfi_flash_s1                   (cpu_data_master_read_data_valid_cfi_flash_s1),
-      .cpu_data_master_requests_cfi_flash_s1                          (cpu_data_master_requests_cfi_flash_s1),
-      .cpu_data_master_write                                          (cpu_data_master_write),
-      .cpu_instruction_master_address_to_slave                        (cpu_instruction_master_address_to_slave),
-      .cpu_instruction_master_dbs_address                             (cpu_instruction_master_dbs_address),
-      .cpu_instruction_master_granted_cfi_flash_s1                    (cpu_instruction_master_granted_cfi_flash_s1),
-      .cpu_instruction_master_qualified_request_cfi_flash_s1          (cpu_instruction_master_qualified_request_cfi_flash_s1),
-      .cpu_instruction_master_read                                    (cpu_instruction_master_read),
-      .cpu_instruction_master_read_data_valid_cfi_flash_s1            (cpu_instruction_master_read_data_valid_cfi_flash_s1),
-      .cpu_instruction_master_requests_cfi_flash_s1                   (cpu_instruction_master_requests_cfi_flash_s1),
-      .d1_tristate_bridge_avalon_slave_end_xfer                       (d1_tristate_bridge_avalon_slave_end_xfer),
-      .data_to_and_from_the_cfi_flash                                 (data_to_and_from_the_cfi_flash),
-      .incoming_data_to_and_from_the_cfi_flash                        (incoming_data_to_and_from_the_cfi_flash),
-      .incoming_data_to_and_from_the_cfi_flash_with_Xs_converted_to_0 (incoming_data_to_and_from_the_cfi_flash_with_Xs_converted_to_0),
-      .read_n_to_the_cfi_flash                                        (read_n_to_the_cfi_flash),
-      .registered_cpu_data_master_read_data_valid_cfi_flash_s1        (registered_cpu_data_master_read_data_valid_cfi_flash_s1),
-      .reset_n                                                        (pll_cpu_reset_n),
-      .select_n_to_the_cfi_flash                                      (select_n_to_the_cfi_flash),
-      .write_n_to_the_cfi_flash                                       (write_n_to_the_cfi_flash)
+      .address_to_the_cfi_flash                                                (address_to_the_cfi_flash),
+      .cfi_flash_s1_wait_counter_eq_0                                          (cfi_flash_s1_wait_counter_eq_0),
+      .clk                                                                     (pll_cpu),
+      .cpu_data_master_address_to_slave                                        (cpu_data_master_address_to_slave),
+      .cpu_data_master_byteenable                                              (cpu_data_master_byteenable),
+      .cpu_data_master_byteenable_cfi_flash_s1                                 (cpu_data_master_byteenable_cfi_flash_s1),
+      .cpu_data_master_dbs_address                                             (cpu_data_master_dbs_address),
+      .cpu_data_master_dbs_write_16                                            (cpu_data_master_dbs_write_16),
+      .cpu_data_master_granted_cfi_flash_s1                                    (cpu_data_master_granted_cfi_flash_s1),
+      .cpu_data_master_latency_counter                                         (cpu_data_master_latency_counter),
+      .cpu_data_master_qualified_request_cfi_flash_s1                          (cpu_data_master_qualified_request_cfi_flash_s1),
+      .cpu_data_master_read                                                    (cpu_data_master_read),
+      .cpu_data_master_read_data_valid_cfi_flash_s1                            (cpu_data_master_read_data_valid_cfi_flash_s1),
+      .cpu_data_master_read_data_valid_clock_crossing_bridge_s1_shift_register (cpu_data_master_read_data_valid_clock_crossing_bridge_s1_shift_register),
+      .cpu_data_master_read_data_valid_sdram_s1_shift_register                 (cpu_data_master_read_data_valid_sdram_s1_shift_register),
+      .cpu_data_master_requests_cfi_flash_s1                                   (cpu_data_master_requests_cfi_flash_s1),
+      .cpu_data_master_write                                                   (cpu_data_master_write),
+      .cpu_instruction_master_address_to_slave                                 (cpu_instruction_master_address_to_slave),
+      .cpu_instruction_master_dbs_address                                      (cpu_instruction_master_dbs_address),
+      .cpu_instruction_master_granted_cfi_flash_s1                             (cpu_instruction_master_granted_cfi_flash_s1),
+      .cpu_instruction_master_latency_counter                                  (cpu_instruction_master_latency_counter),
+      .cpu_instruction_master_qualified_request_cfi_flash_s1                   (cpu_instruction_master_qualified_request_cfi_flash_s1),
+      .cpu_instruction_master_read                                             (cpu_instruction_master_read),
+      .cpu_instruction_master_read_data_valid_cfi_flash_s1                     (cpu_instruction_master_read_data_valid_cfi_flash_s1),
+      .cpu_instruction_master_read_data_valid_sdram_s1_shift_register          (cpu_instruction_master_read_data_valid_sdram_s1_shift_register),
+      .cpu_instruction_master_requests_cfi_flash_s1                            (cpu_instruction_master_requests_cfi_flash_s1),
+      .d1_tristate_bridge_avalon_slave_end_xfer                                (d1_tristate_bridge_avalon_slave_end_xfer),
+      .data_to_and_from_the_cfi_flash                                          (data_to_and_from_the_cfi_flash),
+      .incoming_data_to_and_from_the_cfi_flash                                 (incoming_data_to_and_from_the_cfi_flash),
+      .incoming_data_to_and_from_the_cfi_flash_with_Xs_converted_to_0          (incoming_data_to_and_from_the_cfi_flash_with_Xs_converted_to_0),
+      .read_n_to_the_cfi_flash                                                 (read_n_to_the_cfi_flash),
+      .reset_n                                                                 (pll_cpu_reset_n),
+      .select_n_to_the_cfi_flash                                               (select_n_to_the_cfi_flash),
+      .write_n_to_the_cfi_flash                                                (write_n_to_the_cfi_flash)
     );
 
   uart_s1_arbitrator the_uart_s1
@@ -11988,6 +12531,10 @@ endmodule
 `include "/altera/11.0/quartus/eda/sim_lib/220model.v"
 `include "/altera/11.0/quartus/eda/sim_lib/sgate.v"
 // Altera_UP_SD_Card.vhd
+`include "/altera/11.0/ip/altera/nios2_ip/altera_nios_custom_instr_floating_point_qsys/fpoint_wrapper.v"
+`include "/altera/11.0/ip/altera/nios2_ip/altera_nios_custom_instr_floating_point_qsys/fpoint_qsys.v"
+`include "/altera/11.0/ip/altera/nios2_ip/altera_nios_custom_instr_floating_point_qsys/fpoint_hw_qsys.v"
+`include "cpu_altera_nios_custom_instr_floating_point_inst.v"
 // ip/keypad_controller/keypad_controller.vhd
 // keypad.vhd
 `include "pll.v"
@@ -12004,6 +12551,7 @@ endmodule
 `include "lcd.v"
 `include "DE0_SOPC_clock_0.v"
 `include "cpu_test_bench.v"
+`include "cpu_mult_cell.v"
 `include "cpu_oci_test_bench.v"
 `include "cpu_jtag_debug_module_tck.v"
 `include "cpu_jtag_debug_module_sysclk.v"
@@ -12034,6 +12582,17 @@ module test_bench
   wire             clock_crossing_bridge_m1_endofpacket;
   wire             clock_crossing_bridge_s1_endofpacket_from_sa;
   wire    [  3: 0] col_from_the_keypad;
+  wire    [  4: 0] cpu_custom_instruction_master_multi_a;
+  wire    [  4: 0] cpu_custom_instruction_master_multi_b;
+  wire    [  4: 0] cpu_custom_instruction_master_multi_c;
+  wire             cpu_custom_instruction_master_multi_clk;
+  wire             cpu_custom_instruction_master_multi_estatus;
+  wire    [ 31: 0] cpu_custom_instruction_master_multi_ipending;
+  wire             cpu_custom_instruction_master_multi_readra;
+  wire             cpu_custom_instruction_master_multi_readrb;
+  wire             cpu_custom_instruction_master_multi_reset;
+  wire             cpu_custom_instruction_master_multi_status;
+  wire             cpu_custom_instruction_master_multi_writerc;
   wire    [ 15: 0] data_to_and_from_the_cfi_flash;
   wire    [  2: 0] in_port_to_the_buttons;
   wire    [  9: 0] in_port_to_the_switches;

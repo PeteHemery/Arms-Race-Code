@@ -91,7 +91,7 @@ int main( void )
 {
 
     //xTaskCreate(vTaskSerial, "UART", 1000, NULL, 1, NULL);
-    xTaskCreate(vTaskSDCard, "SD Card", 1000, NULL, 1, NULL); 
+    //xTaskCreate(vTaskSDCard, "SD Card", 1000, NULL, 1, NULL); 
     xTaskCreate(vTaskLCDTimeOut, "LCD Timer", 1000, NULL, 1, NULL);
     
     /* hacksy test of the functions in heap_2.c */
@@ -99,14 +99,14 @@ int main( void )
     //test = xPortGetFreeHeapSize();
     
     xKeyPadQueue = xQueueCreate ( 1, sizeof(unsigned short));
-    xLCDQueue = xQueueCreate ( 1, sizeof(struct LCDQueue_TYPE));
+    xLCDQueue = xQueueCreate ( 1, sizeof(LCDQueue_TYPE));
     
     if (xKeyPadQueue != NULL && xLCDQueue != NULL)
     {
       xTaskCreate(vTaskKeyPad, "Keypad", 1000, NULL, 1, NULL);
-      xTaskCreate(vTaskLCD, "LCD", 1000, NULL, 1, NULL);
+      //xTaskCreate(vTaskLCD, "LCD", 1000, NULL, 1, NULL);
       //xTaskCreate(vTesterTask, "Tester", 1000, NULL, 1, NULL);
-      xTaskCreate(vTaskRecord, "Tester", 1000, NULL, 1, NULL);
+      xTaskCreate(vTaskRecord, "Record", 2000, NULL, 1, NULL);
       
       //xTaskCreate( vTaskWayPointCreate, "WayPoints", 100, NULL, 1, NULL );
      

@@ -20,10 +20,12 @@
 #include "LCD.h"
 #include "sd_card.h"
 
+extern void vTaskCalculateInverse(void *pvParameters);
+
 void vTesterTask( void *pvParameters )
 {
   unsigned short lReceivedValue;
-  struct LCDQueue_TYPE xLCDQueueItem;
+  LCDQueue_TYPE xLCDQueueItem;
   portBASE_TYPE xKeyPadQueueStatus;
   portBASE_TYPE xLCDQueueStatus;
   const portTickType xTicksToWait = 1000 / portTICK_RATE_MS;
@@ -54,6 +56,10 @@ void vTesterTask( void *pvParameters )
           xLCDQueueItem.ucLineNumber = 2;
           strcpy(xLCDQueueItem.cString, "Second Line");
           xLCDQueueStatus = xQueueSendToBack( xLCDQueue, &xLCDQueueItem, xTicksToWait);
+          break;
+          
+        case 4:
+          xTaskCreate(vTaskCalculateInverse, "Inverse Kinematics", 1000, NULL, 1, NULL); 
           break;
           
         case 8:
