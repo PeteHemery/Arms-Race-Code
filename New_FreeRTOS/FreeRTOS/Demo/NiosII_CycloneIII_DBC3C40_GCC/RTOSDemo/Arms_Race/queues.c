@@ -60,7 +60,7 @@ void vReceiverTask( void *pvParameters )
     }
     else
     {
-      printf( "Could not receive to the queue.\r\n");
+      printf( "Could not receive from the queue.\r\n");
     }
     taskYIELD();
   }
