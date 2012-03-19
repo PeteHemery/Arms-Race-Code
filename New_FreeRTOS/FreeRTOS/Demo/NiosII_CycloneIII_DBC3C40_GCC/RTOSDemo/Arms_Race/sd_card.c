@@ -27,10 +27,10 @@
 #include <strings.h>
 
 
-#define FILENAME_MAX 30
-#define FILENAME_QUEUE_LENGTH 10
-#define FILENAME_QUEUE_SIZE sizeof(portCHAR * FILENAME_MAX)
-#define FILENAME_STACK_SIZE 3000
+#define FILE_NAME_MAX 30
+#define FILE_NAME_QUEUE_LENGTH 10
+#define FILE_NAME_QUEUE_SIZE sizeof(portCHAR * FILE_NAME_MAX)
+#define FILE_NAME_STACK_SIZE 3000
 
 xQueueHandle xFileNameQueue = NULL;
 xTaskHandle xFileNameHandle = NULL;
@@ -38,7 +38,7 @@ xTaskHandle xFileNameHandle = NULL;
 /* Define data type that will be queued */
 typedef struct Play_Settings
 {
-  portCHAR pcFileName[FILENAME_MAX];
+  portCHAR pcFileName[FILE_NAME_MAX];
   portSHORT psLoopCount;
 } PlaySettings_TYPE;
 
@@ -115,7 +115,7 @@ void vTaskSDCard(void *pvParameters)
 
 void vStartReadFileNamesTask(void)
 {
-  xFileNameQueue = xQueueCreate ( FILENAME_QUEUE_LENGTH, FILENAME_QUEUE_SIZE);
+  xFileNameQueue = xQueueCreate ( FILE_NAME_QUEUE_LENGTH, FILE_NAME_QUEUE_SIZE);
   if (xFileNameQueue == NULL)
   {
     /* Queue could not be created */
@@ -124,7 +124,7 @@ void vStartReadFileNamesTask(void)
   }
   if ( xTaskCreate( vTaskReadFileNames,
                     "Read File Names",
-                    FILENAME_STACK_SIZE,
+                    FILE_NAME_STACK_SIZE,
                     NULL, /* No Parameters Passed */
                     1,    /* Priority - Just above idle */
                     &xFileNameHandle
@@ -161,7 +161,7 @@ void vTaskReadFileNames(void *pvParameters)
 {
   const portTickType xTicksToWait = 1000 / portTICK_RATE_MS;
   portBASE_TYPE xNumberOfFiles = 0;
-  portCHAR pcBufferName[FILENAME_MAX] = {0};
+  portCHAR pcBufferName[FILE_NAME_MAX] = {0};
   portCHAR *pcPtr;
   portSHORT psHandler;
   portBASE_TYPE xStatus;
