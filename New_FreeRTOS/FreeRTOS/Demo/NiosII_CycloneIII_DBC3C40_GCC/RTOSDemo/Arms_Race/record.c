@@ -28,13 +28,15 @@ void vTaskRecord( void *pvParameters )
   portBASE_TYPE xKeyPadQueueStatus;
   //portBASE_TYPE xLCDQueueStatus;
   const portTickType xTicksToWait = 1000 / portTICK_RATE_MS;
+  char pcBuffer[STRING_MAX] = {0};
   
   portSHORT psX = 1;
   portSHORT psY = 1;
   portSHORT psZ = 1;
 
   printf("Record a Program\n");
-  //vPrintToLCD(1,"Record a Program");
+  vPrintToLCD(1,"Record a Program =)");
+  vPrintToLCD(2,"Line 2 - whoopsdeedoo");
 
   xInverseStruct_t xInverseStruct = {psX, psY, psZ, ""};
   strcpy(xInverseStruct.pcOutput,"Hi");
@@ -72,8 +74,14 @@ printf("psX=%d psY=%d psZ=%d pcOutput=%s\n",xInverseStruct.X,
           
           if ((xTaskCreate(vTaskCalculateInverse, "Inverse Kinematics", 2000, &xInverseStruct, 1, NULL))
             != pdPASS) printf("couldn't run inverse in\n"); 
+            
           break;
         case CANCEL:
+        /*sprintf(pcBuffer,"psX=%d psY=%d psZ=%d pcOutput=%s\n",xInverseStruct.X,
+                                                    xInverseStruct.Y,
+                                                    xInverseStruct.Z,
+                                                    xInverseStruct.pcOutput);*/
+          vPrintToLCD(2,xInverseStruct.pcOutput);
           break;
           
         case XUP:

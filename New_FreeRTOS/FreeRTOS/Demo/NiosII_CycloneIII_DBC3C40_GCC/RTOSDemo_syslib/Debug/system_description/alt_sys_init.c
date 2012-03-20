@@ -3,7 +3,7 @@
  * Machine generated for a CPU named "cpu" as defined in:
  * /home/netlab/prhemery/Altera_Systems_Labs/De0_Counter/DE0_SOPC.ptf
  *
- * Generated: 2012-03-15 16:09:46.312
+ * Generated: 2012-03-20 15:02:22.304
  *
  */
 
@@ -69,7 +69,7 @@ DO NOT MODIFY THIS FILE
 #include "altera_avalon_timer.h"
 #include "altera_avalon_lcd_16207.h"
 #include "altera_avalon_cfi_flash.h"
-#include "altera_up_sd_card_avalon_interface.h"
+#include "altera_up_avalon_character_lcd.h"
 
 /*
  * Allocate the device storage
@@ -82,7 +82,7 @@ ALTERA_AVALON_SYSID_INSTANCE( SYSID, sysid );
 ALTERA_AVALON_TIMER_INSTANCE( TIMER, timer );
 ALTERA_AVALON_LCD_16207_INSTANCE( LCD, lcd );
 ALTERA_AVALON_CFI_FLASH_INSTANCE( CFI_FLASH, cfi_flash );
-ALTERA_UP_SD_CARD_AVALON_INTERFACE_INSTANCE( ALTERA_UP_SD_CARD, altera_up_sd_card );
+ALTERA_UP_AVALON_CHARACTER_LCD_INSTANCE( LCD_2, lcd_2 );
 
 /*
  * Initialize the interrupt controller devices
@@ -111,5 +111,5 @@ void alt_sys_init( void )
     ALTERA_AVALON_SYSID_INIT( SYSID, sysid );
     ALTERA_AVALON_LCD_16207_INIT( LCD, lcd );
     ALTERA_AVALON_CFI_FLASH_INIT( CFI_FLASH, cfi_flash );
-    ALTERA_UP_SD_CARD_AVALON_INTERFACE_INIT( ALTERA_UP_SD_CARD, altera_up_sd_card );
+    ALTERA_UP_AVALON_CHARACTER_LCD_INIT( LCD_2, lcd_2 );
 }

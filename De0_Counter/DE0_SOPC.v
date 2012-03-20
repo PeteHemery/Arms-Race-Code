@@ -85,9 +85,9 @@ module Altera_UP_SD_Card_avalon_sdcard_slave_arbitrator (
   wire             Altera_UP_SD_Card_avalon_sdcard_slave_any_bursting_master_saved_grant;
   wire             Altera_UP_SD_Card_avalon_sdcard_slave_any_continuerequest;
   wire             Altera_UP_SD_Card_avalon_sdcard_slave_arb_counter_enable;
-  reg              Altera_UP_SD_Card_avalon_sdcard_slave_arb_share_counter;
-  wire             Altera_UP_SD_Card_avalon_sdcard_slave_arb_share_counter_next_value;
-  wire             Altera_UP_SD_Card_avalon_sdcard_slave_arb_share_set_values;
+  reg     [  2: 0] Altera_UP_SD_Card_avalon_sdcard_slave_arb_share_counter;
+  wire    [  2: 0] Altera_UP_SD_Card_avalon_sdcard_slave_arb_share_counter_next_value;
+  wire    [  2: 0] Altera_UP_SD_Card_avalon_sdcard_slave_arb_share_set_values;
   wire             Altera_UP_SD_Card_avalon_sdcard_slave_beginbursttransfer_internal;
   wire             Altera_UP_SD_Card_avalon_sdcard_slave_begins_xfer;
   wire    [  3: 0] Altera_UP_SD_Card_avalon_sdcard_slave_byteenable;
@@ -895,9 +895,9 @@ module buttons_s1_arbitrator (
   wire             buttons_s1_any_bursting_master_saved_grant;
   wire             buttons_s1_any_continuerequest;
   wire             buttons_s1_arb_counter_enable;
-  reg              buttons_s1_arb_share_counter;
-  wire             buttons_s1_arb_share_counter_next_value;
-  wire             buttons_s1_arb_share_set_values;
+  reg     [  2: 0] buttons_s1_arb_share_counter;
+  wire    [  2: 0] buttons_s1_arb_share_counter_next_value;
+  wire    [  2: 0] buttons_s1_arb_share_set_values;
   wire             buttons_s1_beginbursttransfer_internal;
   wire             buttons_s1_begins_xfer;
   wire             buttons_s1_chipselect;
@@ -2769,9 +2769,11 @@ module clock_crossing_bridge_m1_arbitrator (
                                               clk,
                                               clock_crossing_bridge_m1_address,
                                               clock_crossing_bridge_m1_byteenable,
+                                              clock_crossing_bridge_m1_byteenable_lcd_2_avalon_lcd_slave,
                                               clock_crossing_bridge_m1_granted_Altera_UP_SD_Card_avalon_sdcard_slave,
                                               clock_crossing_bridge_m1_granted_buttons_s1,
                                               clock_crossing_bridge_m1_granted_keypad_keypad_controller_slave,
+                                              clock_crossing_bridge_m1_granted_lcd_2_avalon_lcd_slave,
                                               clock_crossing_bridge_m1_granted_lcd_control_slave,
                                               clock_crossing_bridge_m1_granted_lcd_light_s1,
                                               clock_crossing_bridge_m1_granted_leds_s1,
@@ -2783,6 +2785,7 @@ module clock_crossing_bridge_m1_arbitrator (
                                               clock_crossing_bridge_m1_qualified_request_Altera_UP_SD_Card_avalon_sdcard_slave,
                                               clock_crossing_bridge_m1_qualified_request_buttons_s1,
                                               clock_crossing_bridge_m1_qualified_request_keypad_keypad_controller_slave,
+                                              clock_crossing_bridge_m1_qualified_request_lcd_2_avalon_lcd_slave,
                                               clock_crossing_bridge_m1_qualified_request_lcd_control_slave,
                                               clock_crossing_bridge_m1_qualified_request_lcd_light_s1,
                                               clock_crossing_bridge_m1_qualified_request_leds_s1,
@@ -2795,6 +2798,7 @@ module clock_crossing_bridge_m1_arbitrator (
                                               clock_crossing_bridge_m1_read_data_valid_Altera_UP_SD_Card_avalon_sdcard_slave,
                                               clock_crossing_bridge_m1_read_data_valid_buttons_s1,
                                               clock_crossing_bridge_m1_read_data_valid_keypad_keypad_controller_slave,
+                                              clock_crossing_bridge_m1_read_data_valid_lcd_2_avalon_lcd_slave,
                                               clock_crossing_bridge_m1_read_data_valid_lcd_control_slave,
                                               clock_crossing_bridge_m1_read_data_valid_lcd_light_s1,
                                               clock_crossing_bridge_m1_read_data_valid_leds_s1,
@@ -2806,6 +2810,7 @@ module clock_crossing_bridge_m1_arbitrator (
                                               clock_crossing_bridge_m1_requests_Altera_UP_SD_Card_avalon_sdcard_slave,
                                               clock_crossing_bridge_m1_requests_buttons_s1,
                                               clock_crossing_bridge_m1_requests_keypad_keypad_controller_slave,
+                                              clock_crossing_bridge_m1_requests_lcd_2_avalon_lcd_slave,
                                               clock_crossing_bridge_m1_requests_lcd_control_slave,
                                               clock_crossing_bridge_m1_requests_lcd_light_s1,
                                               clock_crossing_bridge_m1_requests_leds_s1,
@@ -2819,6 +2824,7 @@ module clock_crossing_bridge_m1_arbitrator (
                                               d1_Altera_UP_SD_Card_avalon_sdcard_slave_end_xfer,
                                               d1_buttons_s1_end_xfer,
                                               d1_keypad_keypad_controller_slave_end_xfer,
+                                              d1_lcd_2_avalon_lcd_slave_end_xfer,
                                               d1_lcd_control_slave_end_xfer,
                                               d1_lcd_light_s1_end_xfer,
                                               d1_leds_s1_end_xfer,
@@ -2832,15 +2838,19 @@ module clock_crossing_bridge_m1_arbitrator (
                                               lcd_control_slave_wait_counter_eq_0,
                                               lcd_light_s1_readdata_from_sa,
                                               leds_s1_readdata_from_sa,
+                                              readdata_from_the_lcd_2_from_sa,
                                               reset_n,
                                               seg7_s1_readdata_from_sa,
                                               switches_s1_readdata_from_sa,
                                               sysid_control_slave_readdata_from_sa,
                                               timer_s1_readdata_from_sa,
                                               uart_s1_readdata_from_sa,
+                                              waitrequest_from_the_lcd_2_from_sa,
 
                                              // outputs:
                                               clock_crossing_bridge_m1_address_to_slave,
+                                              clock_crossing_bridge_m1_dbs_address,
+                                              clock_crossing_bridge_m1_dbs_write_8,
                                               clock_crossing_bridge_m1_latency_counter,
                                               clock_crossing_bridge_m1_readdata,
                                               clock_crossing_bridge_m1_readdatavalid,
@@ -2850,6 +2860,8 @@ module clock_crossing_bridge_m1_arbitrator (
 ;
 
   output  [ 10: 0] clock_crossing_bridge_m1_address_to_slave;
+  output  [  1: 0] clock_crossing_bridge_m1_dbs_address;
+  output  [  7: 0] clock_crossing_bridge_m1_dbs_write_8;
   output           clock_crossing_bridge_m1_latency_counter;
   output  [ 31: 0] clock_crossing_bridge_m1_readdata;
   output           clock_crossing_bridge_m1_readdatavalid;
@@ -2861,9 +2873,11 @@ module clock_crossing_bridge_m1_arbitrator (
   input            clk;
   input   [ 10: 0] clock_crossing_bridge_m1_address;
   input   [  3: 0] clock_crossing_bridge_m1_byteenable;
+  input            clock_crossing_bridge_m1_byteenable_lcd_2_avalon_lcd_slave;
   input            clock_crossing_bridge_m1_granted_Altera_UP_SD_Card_avalon_sdcard_slave;
   input            clock_crossing_bridge_m1_granted_buttons_s1;
   input            clock_crossing_bridge_m1_granted_keypad_keypad_controller_slave;
+  input            clock_crossing_bridge_m1_granted_lcd_2_avalon_lcd_slave;
   input            clock_crossing_bridge_m1_granted_lcd_control_slave;
   input            clock_crossing_bridge_m1_granted_lcd_light_s1;
   input            clock_crossing_bridge_m1_granted_leds_s1;
@@ -2875,6 +2889,7 @@ module clock_crossing_bridge_m1_arbitrator (
   input            clock_crossing_bridge_m1_qualified_request_Altera_UP_SD_Card_avalon_sdcard_slave;
   input            clock_crossing_bridge_m1_qualified_request_buttons_s1;
   input            clock_crossing_bridge_m1_qualified_request_keypad_keypad_controller_slave;
+  input            clock_crossing_bridge_m1_qualified_request_lcd_2_avalon_lcd_slave;
   input            clock_crossing_bridge_m1_qualified_request_lcd_control_slave;
   input            clock_crossing_bridge_m1_qualified_request_lcd_light_s1;
   input            clock_crossing_bridge_m1_qualified_request_leds_s1;
@@ -2887,6 +2902,7 @@ module clock_crossing_bridge_m1_arbitrator (
   input            clock_crossing_bridge_m1_read_data_valid_Altera_UP_SD_Card_avalon_sdcard_slave;
   input            clock_crossing_bridge_m1_read_data_valid_buttons_s1;
   input            clock_crossing_bridge_m1_read_data_valid_keypad_keypad_controller_slave;
+  input            clock_crossing_bridge_m1_read_data_valid_lcd_2_avalon_lcd_slave;
   input            clock_crossing_bridge_m1_read_data_valid_lcd_control_slave;
   input            clock_crossing_bridge_m1_read_data_valid_lcd_light_s1;
   input            clock_crossing_bridge_m1_read_data_valid_leds_s1;
@@ -2898,6 +2914,7 @@ module clock_crossing_bridge_m1_arbitrator (
   input            clock_crossing_bridge_m1_requests_Altera_UP_SD_Card_avalon_sdcard_slave;
   input            clock_crossing_bridge_m1_requests_buttons_s1;
   input            clock_crossing_bridge_m1_requests_keypad_keypad_controller_slave;
+  input            clock_crossing_bridge_m1_requests_lcd_2_avalon_lcd_slave;
   input            clock_crossing_bridge_m1_requests_lcd_control_slave;
   input            clock_crossing_bridge_m1_requests_lcd_light_s1;
   input            clock_crossing_bridge_m1_requests_leds_s1;
@@ -2911,6 +2928,7 @@ module clock_crossing_bridge_m1_arbitrator (
   input            d1_Altera_UP_SD_Card_avalon_sdcard_slave_end_xfer;
   input            d1_buttons_s1_end_xfer;
   input            d1_keypad_keypad_controller_slave_end_xfer;
+  input            d1_lcd_2_avalon_lcd_slave_end_xfer;
   input            d1_lcd_control_slave_end_xfer;
   input            d1_lcd_light_s1_end_xfer;
   input            d1_leds_s1_end_xfer;
@@ -2924,17 +2942,22 @@ module clock_crossing_bridge_m1_arbitrator (
   input            lcd_control_slave_wait_counter_eq_0;
   input   [ 31: 0] lcd_light_s1_readdata_from_sa;
   input   [ 31: 0] leds_s1_readdata_from_sa;
+  input   [  7: 0] readdata_from_the_lcd_2_from_sa;
   input            reset_n;
   input   [ 31: 0] seg7_s1_readdata_from_sa;
   input   [ 31: 0] switches_s1_readdata_from_sa;
   input   [ 31: 0] sysid_control_slave_readdata_from_sa;
   input   [ 15: 0] timer_s1_readdata_from_sa;
   input   [ 15: 0] uart_s1_readdata_from_sa;
+  input            waitrequest_from_the_lcd_2_from_sa;
 
   reg              active_and_waiting_last_time;
   reg     [ 10: 0] clock_crossing_bridge_m1_address_last_time;
   wire    [ 10: 0] clock_crossing_bridge_m1_address_to_slave;
   reg     [  3: 0] clock_crossing_bridge_m1_byteenable_last_time;
+  reg     [  1: 0] clock_crossing_bridge_m1_dbs_address;
+  wire    [  1: 0] clock_crossing_bridge_m1_dbs_increment;
+  wire    [  7: 0] clock_crossing_bridge_m1_dbs_write_8;
   wire             clock_crossing_bridge_m1_is_granted_some_slave;
   reg              clock_crossing_bridge_m1_latency_counter;
   reg              clock_crossing_bridge_m1_read_but_no_slave_selected;
@@ -2946,23 +2969,33 @@ module clock_crossing_bridge_m1_arbitrator (
   wire             clock_crossing_bridge_m1_waitrequest;
   reg              clock_crossing_bridge_m1_write_last_time;
   reg     [ 31: 0] clock_crossing_bridge_m1_writedata_last_time;
+  reg     [  7: 0] dbs_8_reg_segment_0;
+  reg     [  7: 0] dbs_8_reg_segment_1;
+  reg     [  7: 0] dbs_8_reg_segment_2;
+  wire             dbs_count_enable;
+  wire             dbs_counter_overflow;
   wire             latency_load_value;
+  wire    [  1: 0] next_dbs_address;
   wire             p1_clock_crossing_bridge_m1_latency_counter;
+  wire    [  7: 0] p1_dbs_8_reg_segment_0;
+  wire    [  7: 0] p1_dbs_8_reg_segment_1;
+  wire    [  7: 0] p1_dbs_8_reg_segment_2;
+  wire             pre_dbs_count_enable;
   wire             pre_flush_clock_crossing_bridge_m1_readdatavalid;
   wire             r_0;
   wire             r_1;
   wire             r_2;
   //r_0 master_run cascaded wait assignment, which is an e_assign
-  assign r_0 = 1 & (clock_crossing_bridge_m1_qualified_request_Altera_UP_SD_Card_avalon_sdcard_slave | ~clock_crossing_bridge_m1_requests_Altera_UP_SD_Card_avalon_sdcard_slave) & ((~clock_crossing_bridge_m1_qualified_request_Altera_UP_SD_Card_avalon_sdcard_slave | ~(clock_crossing_bridge_m1_read | clock_crossing_bridge_m1_write) | (1 & ~Altera_UP_SD_Card_avalon_sdcard_slave_waitrequest_from_sa & (clock_crossing_bridge_m1_read | clock_crossing_bridge_m1_write)))) & ((~clock_crossing_bridge_m1_qualified_request_Altera_UP_SD_Card_avalon_sdcard_slave | ~(clock_crossing_bridge_m1_read | clock_crossing_bridge_m1_write) | (1 & ~Altera_UP_SD_Card_avalon_sdcard_slave_waitrequest_from_sa & (clock_crossing_bridge_m1_read | clock_crossing_bridge_m1_write)))) & 1 & (clock_crossing_bridge_m1_qualified_request_buttons_s1 | ~clock_crossing_bridge_m1_requests_buttons_s1) & ((~clock_crossing_bridge_m1_qualified_request_buttons_s1 | ~clock_crossing_bridge_m1_read | (1 & ~d1_buttons_s1_end_xfer & clock_crossing_bridge_m1_read))) & ((~clock_crossing_bridge_m1_qualified_request_buttons_s1 | ~clock_crossing_bridge_m1_write | (1 & clock_crossing_bridge_m1_write))) & 1 & (clock_crossing_bridge_m1_qualified_request_keypad_keypad_controller_slave | ~clock_crossing_bridge_m1_requests_keypad_keypad_controller_slave) & ((~clock_crossing_bridge_m1_qualified_request_keypad_keypad_controller_slave | ~clock_crossing_bridge_m1_read | (1 & ~d1_keypad_keypad_controller_slave_end_xfer & clock_crossing_bridge_m1_read))) & ((~clock_crossing_bridge_m1_qualified_request_keypad_keypad_controller_slave | ~clock_crossing_bridge_m1_write | (1 & clock_crossing_bridge_m1_write))) & 1 & (clock_crossing_bridge_m1_qualified_request_lcd_control_slave | ~clock_crossing_bridge_m1_requests_lcd_control_slave) & ((~clock_crossing_bridge_m1_qualified_request_lcd_control_slave | ~clock_crossing_bridge_m1_read | (1 & ((lcd_control_slave_wait_counter_eq_0 & ~d1_lcd_control_slave_end_xfer)) & clock_crossing_bridge_m1_read))) & ((~clock_crossing_bridge_m1_qualified_request_lcd_control_slave | ~clock_crossing_bridge_m1_write | (1 & ((lcd_control_slave_wait_counter_eq_0 & ~d1_lcd_control_slave_end_xfer)) & clock_crossing_bridge_m1_write))) & 1 & (clock_crossing_bridge_m1_qualified_request_lcd_light_s1 | ~clock_crossing_bridge_m1_requests_lcd_light_s1) & ((~clock_crossing_bridge_m1_qualified_request_lcd_light_s1 | ~clock_crossing_bridge_m1_read | (1 & ~d1_lcd_light_s1_end_xfer & clock_crossing_bridge_m1_read))) & ((~clock_crossing_bridge_m1_qualified_request_lcd_light_s1 | ~clock_crossing_bridge_m1_write | (1 & clock_crossing_bridge_m1_write)));
+  assign r_0 = 1 & (clock_crossing_bridge_m1_qualified_request_Altera_UP_SD_Card_avalon_sdcard_slave | ~clock_crossing_bridge_m1_requests_Altera_UP_SD_Card_avalon_sdcard_slave) & ((~clock_crossing_bridge_m1_qualified_request_Altera_UP_SD_Card_avalon_sdcard_slave | ~(clock_crossing_bridge_m1_read | clock_crossing_bridge_m1_write) | (1 & ~Altera_UP_SD_Card_avalon_sdcard_slave_waitrequest_from_sa & (clock_crossing_bridge_m1_read | clock_crossing_bridge_m1_write)))) & ((~clock_crossing_bridge_m1_qualified_request_Altera_UP_SD_Card_avalon_sdcard_slave | ~(clock_crossing_bridge_m1_read | clock_crossing_bridge_m1_write) | (1 & ~Altera_UP_SD_Card_avalon_sdcard_slave_waitrequest_from_sa & (clock_crossing_bridge_m1_read | clock_crossing_bridge_m1_write)))) & 1 & (clock_crossing_bridge_m1_qualified_request_buttons_s1 | ~clock_crossing_bridge_m1_requests_buttons_s1) & ((~clock_crossing_bridge_m1_qualified_request_buttons_s1 | ~clock_crossing_bridge_m1_read | (1 & ~d1_buttons_s1_end_xfer & clock_crossing_bridge_m1_read))) & ((~clock_crossing_bridge_m1_qualified_request_buttons_s1 | ~clock_crossing_bridge_m1_write | (1 & clock_crossing_bridge_m1_write))) & 1 & (clock_crossing_bridge_m1_qualified_request_keypad_keypad_controller_slave | ~clock_crossing_bridge_m1_requests_keypad_keypad_controller_slave) & ((~clock_crossing_bridge_m1_qualified_request_keypad_keypad_controller_slave | ~clock_crossing_bridge_m1_read | (1 & ~d1_keypad_keypad_controller_slave_end_xfer & clock_crossing_bridge_m1_read))) & ((~clock_crossing_bridge_m1_qualified_request_keypad_keypad_controller_slave | ~clock_crossing_bridge_m1_write | (1 & clock_crossing_bridge_m1_write))) & 1 & (clock_crossing_bridge_m1_qualified_request_lcd_control_slave | ~clock_crossing_bridge_m1_requests_lcd_control_slave) & ((~clock_crossing_bridge_m1_qualified_request_lcd_control_slave | ~clock_crossing_bridge_m1_read | (1 & ((lcd_control_slave_wait_counter_eq_0 & ~d1_lcd_control_slave_end_xfer)) & clock_crossing_bridge_m1_read))) & ((~clock_crossing_bridge_m1_qualified_request_lcd_control_slave | ~clock_crossing_bridge_m1_write | (1 & ((lcd_control_slave_wait_counter_eq_0 & ~d1_lcd_control_slave_end_xfer)) & clock_crossing_bridge_m1_write))) & 1 & ((clock_crossing_bridge_m1_qualified_request_lcd_2_avalon_lcd_slave | ((clock_crossing_bridge_m1_write & !clock_crossing_bridge_m1_byteenable_lcd_2_avalon_lcd_slave & clock_crossing_bridge_m1_dbs_address[1] & clock_crossing_bridge_m1_dbs_address[0])) | ~clock_crossing_bridge_m1_requests_lcd_2_avalon_lcd_slave)) & ((~clock_crossing_bridge_m1_qualified_request_lcd_2_avalon_lcd_slave | ~clock_crossing_bridge_m1_read | (1 & ~waitrequest_from_the_lcd_2_from_sa & (clock_crossing_bridge_m1_dbs_address[1] & clock_crossing_bridge_m1_dbs_address[0]) & clock_crossing_bridge_m1_read))) & ((~clock_crossing_bridge_m1_qualified_request_lcd_2_avalon_lcd_slave | ~clock_crossing_bridge_m1_write | (1 & ~waitrequest_from_the_lcd_2_from_sa & (clock_crossing_bridge_m1_dbs_address[1] & clock_crossing_bridge_m1_dbs_address[0]) & clock_crossing_bridge_m1_write)));
 
   //cascaded wait assignment, which is an e_assign
   assign clock_crossing_bridge_m1_run = r_0 & r_1 & r_2;
 
   //r_1 master_run cascaded wait assignment, which is an e_assign
-  assign r_1 = 1 & (clock_crossing_bridge_m1_qualified_request_leds_s1 | ~clock_crossing_bridge_m1_requests_leds_s1) & ((~clock_crossing_bridge_m1_qualified_request_leds_s1 | ~clock_crossing_bridge_m1_read | (1 & ~d1_leds_s1_end_xfer & clock_crossing_bridge_m1_read))) & ((~clock_crossing_bridge_m1_qualified_request_leds_s1 | ~clock_crossing_bridge_m1_write | (1 & clock_crossing_bridge_m1_write))) & 1 & (clock_crossing_bridge_m1_qualified_request_seg7_s1 | ~clock_crossing_bridge_m1_requests_seg7_s1) & ((~clock_crossing_bridge_m1_qualified_request_seg7_s1 | ~clock_crossing_bridge_m1_read | (1 & ~d1_seg7_s1_end_xfer & clock_crossing_bridge_m1_read))) & ((~clock_crossing_bridge_m1_qualified_request_seg7_s1 | ~clock_crossing_bridge_m1_write | (1 & clock_crossing_bridge_m1_write))) & 1 & (clock_crossing_bridge_m1_qualified_request_switches_s1 | ~clock_crossing_bridge_m1_requests_switches_s1) & ((~clock_crossing_bridge_m1_qualified_request_switches_s1 | ~clock_crossing_bridge_m1_read | (1 & ~d1_switches_s1_end_xfer & clock_crossing_bridge_m1_read))) & ((~clock_crossing_bridge_m1_qualified_request_switches_s1 | ~clock_crossing_bridge_m1_write | (1 & clock_crossing_bridge_m1_write))) & 1 & (clock_crossing_bridge_m1_qualified_request_sysid_control_slave | ~clock_crossing_bridge_m1_requests_sysid_control_slave) & ((~clock_crossing_bridge_m1_qualified_request_sysid_control_slave | ~clock_crossing_bridge_m1_read | (1 & ~d1_sysid_control_slave_end_xfer & clock_crossing_bridge_m1_read))) & ((~clock_crossing_bridge_m1_qualified_request_sysid_control_slave | ~clock_crossing_bridge_m1_write | (1 & clock_crossing_bridge_m1_write))) & 1 & (clock_crossing_bridge_m1_qualified_request_timer_s1 | ~clock_crossing_bridge_m1_requests_timer_s1) & ((~clock_crossing_bridge_m1_qualified_request_timer_s1 | ~clock_crossing_bridge_m1_read | (1 & ~d1_timer_s1_end_xfer & clock_crossing_bridge_m1_read))) & ((~clock_crossing_bridge_m1_qualified_request_timer_s1 | ~clock_crossing_bridge_m1_write | (1 & clock_crossing_bridge_m1_write)));
+  assign r_1 = 1 & (clock_crossing_bridge_m1_qualified_request_lcd_light_s1 | ~clock_crossing_bridge_m1_requests_lcd_light_s1) & ((~clock_crossing_bridge_m1_qualified_request_lcd_light_s1 | ~clock_crossing_bridge_m1_read | (1 & ~d1_lcd_light_s1_end_xfer & clock_crossing_bridge_m1_read))) & ((~clock_crossing_bridge_m1_qualified_request_lcd_light_s1 | ~clock_crossing_bridge_m1_write | (1 & clock_crossing_bridge_m1_write))) & 1 & (clock_crossing_bridge_m1_qualified_request_leds_s1 | ~clock_crossing_bridge_m1_requests_leds_s1) & ((~clock_crossing_bridge_m1_qualified_request_leds_s1 | ~clock_crossing_bridge_m1_read | (1 & ~d1_leds_s1_end_xfer & clock_crossing_bridge_m1_read))) & ((~clock_crossing_bridge_m1_qualified_request_leds_s1 | ~clock_crossing_bridge_m1_write | (1 & clock_crossing_bridge_m1_write))) & 1 & (clock_crossing_bridge_m1_qualified_request_seg7_s1 | ~clock_crossing_bridge_m1_requests_seg7_s1) & ((~clock_crossing_bridge_m1_qualified_request_seg7_s1 | ~clock_crossing_bridge_m1_read | (1 & ~d1_seg7_s1_end_xfer & clock_crossing_bridge_m1_read))) & ((~clock_crossing_bridge_m1_qualified_request_seg7_s1 | ~clock_crossing_bridge_m1_write | (1 & clock_crossing_bridge_m1_write))) & 1 & (clock_crossing_bridge_m1_qualified_request_switches_s1 | ~clock_crossing_bridge_m1_requests_switches_s1) & ((~clock_crossing_bridge_m1_qualified_request_switches_s1 | ~clock_crossing_bridge_m1_read | (1 & ~d1_switches_s1_end_xfer & clock_crossing_bridge_m1_read))) & ((~clock_crossing_bridge_m1_qualified_request_switches_s1 | ~clock_crossing_bridge_m1_write | (1 & clock_crossing_bridge_m1_write))) & 1 & (clock_crossing_bridge_m1_qualified_request_sysid_control_slave | ~clock_crossing_bridge_m1_requests_sysid_control_slave) & ((~clock_crossing_bridge_m1_qualified_request_sysid_control_slave | ~clock_crossing_bridge_m1_read | (1 & ~d1_sysid_control_slave_end_xfer & clock_crossing_bridge_m1_read))) & ((~clock_crossing_bridge_m1_qualified_request_sysid_control_slave | ~clock_crossing_bridge_m1_write | (1 & clock_crossing_bridge_m1_write)));
 
   //r_2 master_run cascaded wait assignment, which is an e_assign
-  assign r_2 = 1 & (clock_crossing_bridge_m1_qualified_request_uart_s1 | ~clock_crossing_bridge_m1_requests_uart_s1) & ((~clock_crossing_bridge_m1_qualified_request_uart_s1 | ~(clock_crossing_bridge_m1_read | clock_crossing_bridge_m1_write) | (1 & ~d1_uart_s1_end_xfer & (clock_crossing_bridge_m1_read | clock_crossing_bridge_m1_write)))) & ((~clock_crossing_bridge_m1_qualified_request_uart_s1 | ~(clock_crossing_bridge_m1_read | clock_crossing_bridge_m1_write) | (1 & ~d1_uart_s1_end_xfer & (clock_crossing_bridge_m1_read | clock_crossing_bridge_m1_write))));
+  assign r_2 = 1 & (clock_crossing_bridge_m1_qualified_request_timer_s1 | ~clock_crossing_bridge_m1_requests_timer_s1) & ((~clock_crossing_bridge_m1_qualified_request_timer_s1 | ~clock_crossing_bridge_m1_read | (1 & ~d1_timer_s1_end_xfer & clock_crossing_bridge_m1_read))) & ((~clock_crossing_bridge_m1_qualified_request_timer_s1 | ~clock_crossing_bridge_m1_write | (1 & clock_crossing_bridge_m1_write))) & 1 & (clock_crossing_bridge_m1_qualified_request_uart_s1 | ~clock_crossing_bridge_m1_requests_uart_s1) & ((~clock_crossing_bridge_m1_qualified_request_uart_s1 | ~(clock_crossing_bridge_m1_read | clock_crossing_bridge_m1_write) | (1 & ~d1_uart_s1_end_xfer & (clock_crossing_bridge_m1_read | clock_crossing_bridge_m1_write)))) & ((~clock_crossing_bridge_m1_qualified_request_uart_s1 | ~(clock_crossing_bridge_m1_read | clock_crossing_bridge_m1_write) | (1 & ~d1_uart_s1_end_xfer & (clock_crossing_bridge_m1_read | clock_crossing_bridge_m1_write))));
 
   //optimize select-logic by passing only those address bits which matter.
   assign clock_crossing_bridge_m1_address_to_slave = clock_crossing_bridge_m1_address[10 : 0];
@@ -2982,6 +3015,7 @@ module clock_crossing_bridge_m1_arbitrator (
     clock_crossing_bridge_m1_granted_buttons_s1 |
     clock_crossing_bridge_m1_granted_keypad_keypad_controller_slave |
     clock_crossing_bridge_m1_granted_lcd_control_slave |
+    clock_crossing_bridge_m1_granted_lcd_2_avalon_lcd_slave |
     clock_crossing_bridge_m1_granted_lcd_light_s1 |
     clock_crossing_bridge_m1_granted_leds_s1 |
     clock_crossing_bridge_m1_granted_seg7_s1 |
@@ -3006,6 +3040,9 @@ module clock_crossing_bridge_m1_arbitrator (
     clock_crossing_bridge_m1_read_but_no_slave_selected |
     pre_flush_clock_crossing_bridge_m1_readdatavalid |
     clock_crossing_bridge_m1_read_data_valid_lcd_control_slave |
+    clock_crossing_bridge_m1_read_but_no_slave_selected |
+    pre_flush_clock_crossing_bridge_m1_readdatavalid |
+    (clock_crossing_bridge_m1_read_data_valid_lcd_2_avalon_lcd_slave & dbs_counter_overflow) |
     clock_crossing_bridge_m1_read_but_no_slave_selected |
     pre_flush_clock_crossing_bridge_m1_readdatavalid |
     clock_crossing_bridge_m1_read_data_valid_lcd_light_s1 |
@@ -3033,6 +3070,10 @@ module clock_crossing_bridge_m1_arbitrator (
     ({32 {~(clock_crossing_bridge_m1_qualified_request_buttons_s1 & clock_crossing_bridge_m1_read)}} | buttons_s1_readdata_from_sa) &
     ({32 {~(clock_crossing_bridge_m1_qualified_request_keypad_keypad_controller_slave & clock_crossing_bridge_m1_read)}} | keypad_keypad_controller_slave_readdata_from_sa) &
     ({32 {~(clock_crossing_bridge_m1_qualified_request_lcd_control_slave & clock_crossing_bridge_m1_read)}} | lcd_control_slave_readdata_from_sa) &
+    ({32 {~(clock_crossing_bridge_m1_qualified_request_lcd_2_avalon_lcd_slave & clock_crossing_bridge_m1_read)}} | {readdata_from_the_lcd_2_from_sa[7 : 0],
+    dbs_8_reg_segment_2,
+    dbs_8_reg_segment_1,
+    dbs_8_reg_segment_0}) &
     ({32 {~(clock_crossing_bridge_m1_qualified_request_lcd_light_s1 & clock_crossing_bridge_m1_read)}} | lcd_light_s1_readdata_from_sa) &
     ({32 {~(clock_crossing_bridge_m1_qualified_request_leds_s1 & clock_crossing_bridge_m1_read)}} | leds_s1_readdata_from_sa) &
     ({32 {~(clock_crossing_bridge_m1_qualified_request_seg7_s1 & clock_crossing_bridge_m1_read)}} | seg7_s1_readdata_from_sa) &
@@ -3064,6 +3105,79 @@ module clock_crossing_bridge_m1_arbitrator (
 
   //clock_crossing_bridge_m1_reset_n assignment, which is an e_assign
   assign clock_crossing_bridge_m1_reset_n = reset_n;
+
+  //pre dbs count enable, which is an e_mux
+  assign pre_dbs_count_enable = (((~0) & clock_crossing_bridge_m1_requests_lcd_2_avalon_lcd_slave & clock_crossing_bridge_m1_write & !clock_crossing_bridge_m1_byteenable_lcd_2_avalon_lcd_slave)) |
+    (clock_crossing_bridge_m1_granted_lcd_2_avalon_lcd_slave & clock_crossing_bridge_m1_read & 1 & 1 & ~waitrequest_from_the_lcd_2_from_sa) |
+    (clock_crossing_bridge_m1_granted_lcd_2_avalon_lcd_slave & clock_crossing_bridge_m1_write & 1 & 1 & ~waitrequest_from_the_lcd_2_from_sa);
+
+  //input to dbs-8 stored 0, which is an e_mux
+  assign p1_dbs_8_reg_segment_0 = readdata_from_the_lcd_2_from_sa;
+
+  //dbs register for dbs-8 segment 0, which is an e_register
+  always @(posedge clk or negedge reset_n)
+    begin
+      if (reset_n == 0)
+          dbs_8_reg_segment_0 <= 0;
+      else if (dbs_count_enable & ((clock_crossing_bridge_m1_dbs_address[1 : 0]) == 0))
+          dbs_8_reg_segment_0 <= p1_dbs_8_reg_segment_0;
+    end
+
+
+  //input to dbs-8 stored 1, which is an e_mux
+  assign p1_dbs_8_reg_segment_1 = readdata_from_the_lcd_2_from_sa;
+
+  //dbs register for dbs-8 segment 1, which is an e_register
+  always @(posedge clk or negedge reset_n)
+    begin
+      if (reset_n == 0)
+          dbs_8_reg_segment_1 <= 0;
+      else if (dbs_count_enable & ((clock_crossing_bridge_m1_dbs_address[1 : 0]) == 1))
+          dbs_8_reg_segment_1 <= p1_dbs_8_reg_segment_1;
+    end
+
+
+  //input to dbs-8 stored 2, which is an e_mux
+  assign p1_dbs_8_reg_segment_2 = readdata_from_the_lcd_2_from_sa;
+
+  //dbs register for dbs-8 segment 2, which is an e_register
+  always @(posedge clk or negedge reset_n)
+    begin
+      if (reset_n == 0)
+          dbs_8_reg_segment_2 <= 0;
+      else if (dbs_count_enable & ((clock_crossing_bridge_m1_dbs_address[1 : 0]) == 2))
+          dbs_8_reg_segment_2 <= p1_dbs_8_reg_segment_2;
+    end
+
+
+  //mux write dbs 2, which is an e_mux
+  assign clock_crossing_bridge_m1_dbs_write_8 = ((clock_crossing_bridge_m1_dbs_address[1 : 0] == 0))? clock_crossing_bridge_m1_writedata[7 : 0] :
+    ((clock_crossing_bridge_m1_dbs_address[1 : 0] == 1))? clock_crossing_bridge_m1_writedata[15 : 8] :
+    ((clock_crossing_bridge_m1_dbs_address[1 : 0] == 2))? clock_crossing_bridge_m1_writedata[23 : 16] :
+    clock_crossing_bridge_m1_writedata[31 : 24];
+
+  //dbs count increment, which is an e_mux
+  assign clock_crossing_bridge_m1_dbs_increment = (clock_crossing_bridge_m1_requests_lcd_2_avalon_lcd_slave)? 1 :
+    0;
+
+  //dbs counter overflow, which is an e_assign
+  assign dbs_counter_overflow = clock_crossing_bridge_m1_dbs_address[1] & !(next_dbs_address[1]);
+
+  //next master address, which is an e_assign
+  assign next_dbs_address = clock_crossing_bridge_m1_dbs_address + clock_crossing_bridge_m1_dbs_increment;
+
+  //dbs count enable, which is an e_mux
+  assign dbs_count_enable = pre_dbs_count_enable;
+
+  //dbs counter, which is an e_register
+  always @(posedge clk or negedge reset_n)
+    begin
+      if (reset_n == 0)
+          clock_crossing_bridge_m1_dbs_address <= 0;
+      else if (dbs_count_enable)
+          clock_crossing_bridge_m1_dbs_address <= next_dbs_address;
+    end
+
 
 
 //synthesis translate_off
@@ -5245,9 +5359,9 @@ module keypad_keypad_controller_slave_arbitrator (
   wire             keypad_keypad_controller_slave_any_bursting_master_saved_grant;
   wire             keypad_keypad_controller_slave_any_continuerequest;
   wire             keypad_keypad_controller_slave_arb_counter_enable;
-  reg              keypad_keypad_controller_slave_arb_share_counter;
-  wire             keypad_keypad_controller_slave_arb_share_counter_next_value;
-  wire             keypad_keypad_controller_slave_arb_share_set_values;
+  reg     [  2: 0] keypad_keypad_controller_slave_arb_share_counter;
+  wire    [  2: 0] keypad_keypad_controller_slave_arb_share_counter_next_value;
+  wire    [  2: 0] keypad_keypad_controller_slave_arb_share_set_values;
   wire             keypad_keypad_controller_slave_beginbursttransfer_internal;
   wire             keypad_keypad_controller_slave_begins_xfer;
   wire             keypad_keypad_controller_slave_end_xfer;
@@ -5514,9 +5628,9 @@ module lcd_control_slave_arbitrator (
   wire             lcd_control_slave_any_bursting_master_saved_grant;
   wire             lcd_control_slave_any_continuerequest;
   wire             lcd_control_slave_arb_counter_enable;
-  reg              lcd_control_slave_arb_share_counter;
-  wire             lcd_control_slave_arb_share_counter_next_value;
-  wire             lcd_control_slave_arb_share_set_values;
+  reg     [  2: 0] lcd_control_slave_arb_share_counter;
+  wire    [  2: 0] lcd_control_slave_arb_share_counter_next_value;
+  wire    [  2: 0] lcd_control_slave_arb_share_set_values;
   wire             lcd_control_slave_beginbursttransfer_internal;
   wire             lcd_control_slave_begins_xfer;
   wire             lcd_control_slave_begintransfer;
@@ -5747,6 +5861,319 @@ endmodule
 // altera message_level Level1 
 // altera message_off 10034 10035 10036 10037 10230 10240 10030 
 
+module lcd_2_avalon_lcd_slave_arbitrator (
+                                           // inputs:
+                                            clk,
+                                            clock_crossing_bridge_m1_address_to_slave,
+                                            clock_crossing_bridge_m1_byteenable,
+                                            clock_crossing_bridge_m1_dbs_address,
+                                            clock_crossing_bridge_m1_dbs_write_8,
+                                            clock_crossing_bridge_m1_latency_counter,
+                                            clock_crossing_bridge_m1_read,
+                                            clock_crossing_bridge_m1_write,
+                                            readdata_from_the_lcd_2,
+                                            reset_n,
+                                            waitrequest_from_the_lcd_2,
+
+                                           // outputs:
+                                            address_to_the_lcd_2,
+                                            chipselect_to_the_lcd_2,
+                                            clock_crossing_bridge_m1_byteenable_lcd_2_avalon_lcd_slave,
+                                            clock_crossing_bridge_m1_granted_lcd_2_avalon_lcd_slave,
+                                            clock_crossing_bridge_m1_qualified_request_lcd_2_avalon_lcd_slave,
+                                            clock_crossing_bridge_m1_read_data_valid_lcd_2_avalon_lcd_slave,
+                                            clock_crossing_bridge_m1_requests_lcd_2_avalon_lcd_slave,
+                                            d1_lcd_2_avalon_lcd_slave_end_xfer,
+                                            read_to_the_lcd_2,
+                                            readdata_from_the_lcd_2_from_sa,
+                                            reset_to_the_lcd_2,
+                                            waitrequest_from_the_lcd_2_from_sa,
+                                            write_to_the_lcd_2,
+                                            writedata_to_the_lcd_2
+                                         )
+;
+
+  output           address_to_the_lcd_2;
+  output           chipselect_to_the_lcd_2;
+  output           clock_crossing_bridge_m1_byteenable_lcd_2_avalon_lcd_slave;
+  output           clock_crossing_bridge_m1_granted_lcd_2_avalon_lcd_slave;
+  output           clock_crossing_bridge_m1_qualified_request_lcd_2_avalon_lcd_slave;
+  output           clock_crossing_bridge_m1_read_data_valid_lcd_2_avalon_lcd_slave;
+  output           clock_crossing_bridge_m1_requests_lcd_2_avalon_lcd_slave;
+  output           d1_lcd_2_avalon_lcd_slave_end_xfer;
+  output           read_to_the_lcd_2;
+  output  [  7: 0] readdata_from_the_lcd_2_from_sa;
+  output           reset_to_the_lcd_2;
+  output           waitrequest_from_the_lcd_2_from_sa;
+  output           write_to_the_lcd_2;
+  output  [  7: 0] writedata_to_the_lcd_2;
+  input            clk;
+  input   [ 10: 0] clock_crossing_bridge_m1_address_to_slave;
+  input   [  3: 0] clock_crossing_bridge_m1_byteenable;
+  input   [  1: 0] clock_crossing_bridge_m1_dbs_address;
+  input   [  7: 0] clock_crossing_bridge_m1_dbs_write_8;
+  input            clock_crossing_bridge_m1_latency_counter;
+  input            clock_crossing_bridge_m1_read;
+  input            clock_crossing_bridge_m1_write;
+  input   [  7: 0] readdata_from_the_lcd_2;
+  input            reset_n;
+  input            waitrequest_from_the_lcd_2;
+
+  wire             address_to_the_lcd_2;
+  wire             chipselect_to_the_lcd_2;
+  wire             clock_crossing_bridge_m1_arbiterlock;
+  wire             clock_crossing_bridge_m1_arbiterlock2;
+  wire             clock_crossing_bridge_m1_byteenable_lcd_2_avalon_lcd_slave;
+  wire             clock_crossing_bridge_m1_byteenable_lcd_2_avalon_lcd_slave_segment_0;
+  wire             clock_crossing_bridge_m1_byteenable_lcd_2_avalon_lcd_slave_segment_1;
+  wire             clock_crossing_bridge_m1_byteenable_lcd_2_avalon_lcd_slave_segment_2;
+  wire             clock_crossing_bridge_m1_byteenable_lcd_2_avalon_lcd_slave_segment_3;
+  wire             clock_crossing_bridge_m1_continuerequest;
+  wire             clock_crossing_bridge_m1_granted_lcd_2_avalon_lcd_slave;
+  wire             clock_crossing_bridge_m1_qualified_request_lcd_2_avalon_lcd_slave;
+  wire             clock_crossing_bridge_m1_read_data_valid_lcd_2_avalon_lcd_slave;
+  wire             clock_crossing_bridge_m1_requests_lcd_2_avalon_lcd_slave;
+  wire             clock_crossing_bridge_m1_saved_grant_lcd_2_avalon_lcd_slave;
+  reg              d1_lcd_2_avalon_lcd_slave_end_xfer;
+  reg              d1_reasons_to_wait;
+  reg              enable_nonzero_assertions;
+  wire             end_xfer_arb_share_counter_term_lcd_2_avalon_lcd_slave;
+  wire             in_a_read_cycle;
+  wire             in_a_write_cycle;
+  wire             lcd_2_avalon_lcd_slave_allgrants;
+  wire             lcd_2_avalon_lcd_slave_allow_new_arb_cycle;
+  wire             lcd_2_avalon_lcd_slave_any_bursting_master_saved_grant;
+  wire             lcd_2_avalon_lcd_slave_any_continuerequest;
+  wire             lcd_2_avalon_lcd_slave_arb_counter_enable;
+  reg     [  2: 0] lcd_2_avalon_lcd_slave_arb_share_counter;
+  wire    [  2: 0] lcd_2_avalon_lcd_slave_arb_share_counter_next_value;
+  wire    [  2: 0] lcd_2_avalon_lcd_slave_arb_share_set_values;
+  wire             lcd_2_avalon_lcd_slave_beginbursttransfer_internal;
+  wire             lcd_2_avalon_lcd_slave_begins_xfer;
+  wire             lcd_2_avalon_lcd_slave_end_xfer;
+  wire             lcd_2_avalon_lcd_slave_firsttransfer;
+  wire             lcd_2_avalon_lcd_slave_grant_vector;
+  wire             lcd_2_avalon_lcd_slave_in_a_read_cycle;
+  wire             lcd_2_avalon_lcd_slave_in_a_write_cycle;
+  wire             lcd_2_avalon_lcd_slave_master_qreq_vector;
+  wire             lcd_2_avalon_lcd_slave_non_bursting_master_requests;
+  wire             lcd_2_avalon_lcd_slave_pretend_byte_enable;
+  reg              lcd_2_avalon_lcd_slave_reg_firsttransfer;
+  reg              lcd_2_avalon_lcd_slave_slavearbiterlockenable;
+  wire             lcd_2_avalon_lcd_slave_slavearbiterlockenable2;
+  wire             lcd_2_avalon_lcd_slave_unreg_firsttransfer;
+  wire             lcd_2_avalon_lcd_slave_waits_for_read;
+  wire             lcd_2_avalon_lcd_slave_waits_for_write;
+  wire             read_to_the_lcd_2;
+  wire    [  7: 0] readdata_from_the_lcd_2_from_sa;
+  wire             reset_to_the_lcd_2;
+  wire             wait_for_lcd_2_avalon_lcd_slave_counter;
+  wire             waitrequest_from_the_lcd_2_from_sa;
+  wire             write_to_the_lcd_2;
+  wire    [  7: 0] writedata_to_the_lcd_2;
+  always @(posedge clk or negedge reset_n)
+    begin
+      if (reset_n == 0)
+          d1_reasons_to_wait <= 0;
+      else 
+        d1_reasons_to_wait <= ~lcd_2_avalon_lcd_slave_end_xfer;
+    end
+
+
+  assign lcd_2_avalon_lcd_slave_begins_xfer = ~d1_reasons_to_wait & ((clock_crossing_bridge_m1_qualified_request_lcd_2_avalon_lcd_slave));
+  //assign readdata_from_the_lcd_2_from_sa = readdata_from_the_lcd_2 so that symbol knows where to group signals which may go to master only, which is an e_assign
+  assign readdata_from_the_lcd_2_from_sa = readdata_from_the_lcd_2;
+
+  assign clock_crossing_bridge_m1_requests_lcd_2_avalon_lcd_slave = ({clock_crossing_bridge_m1_address_to_slave[10 : 1] , 1'b0} == 11'h4ac) & (clock_crossing_bridge_m1_read | clock_crossing_bridge_m1_write);
+  //assign waitrequest_from_the_lcd_2_from_sa = waitrequest_from_the_lcd_2 so that symbol knows where to group signals which may go to master only, which is an e_assign
+  assign waitrequest_from_the_lcd_2_from_sa = waitrequest_from_the_lcd_2;
+
+  //lcd_2_avalon_lcd_slave_arb_share_counter set values, which is an e_mux
+  assign lcd_2_avalon_lcd_slave_arb_share_set_values = (clock_crossing_bridge_m1_granted_lcd_2_avalon_lcd_slave)? 4 :
+    1;
+
+  //lcd_2_avalon_lcd_slave_non_bursting_master_requests mux, which is an e_mux
+  assign lcd_2_avalon_lcd_slave_non_bursting_master_requests = clock_crossing_bridge_m1_requests_lcd_2_avalon_lcd_slave;
+
+  //lcd_2_avalon_lcd_slave_any_bursting_master_saved_grant mux, which is an e_mux
+  assign lcd_2_avalon_lcd_slave_any_bursting_master_saved_grant = 0;
+
+  //lcd_2_avalon_lcd_slave_arb_share_counter_next_value assignment, which is an e_assign
+  assign lcd_2_avalon_lcd_slave_arb_share_counter_next_value = lcd_2_avalon_lcd_slave_firsttransfer ? (lcd_2_avalon_lcd_slave_arb_share_set_values - 1) : |lcd_2_avalon_lcd_slave_arb_share_counter ? (lcd_2_avalon_lcd_slave_arb_share_counter - 1) : 0;
+
+  //lcd_2_avalon_lcd_slave_allgrants all slave grants, which is an e_mux
+  assign lcd_2_avalon_lcd_slave_allgrants = |lcd_2_avalon_lcd_slave_grant_vector;
+
+  //lcd_2_avalon_lcd_slave_end_xfer assignment, which is an e_assign
+  assign lcd_2_avalon_lcd_slave_end_xfer = ~(lcd_2_avalon_lcd_slave_waits_for_read | lcd_2_avalon_lcd_slave_waits_for_write);
+
+  //end_xfer_arb_share_counter_term_lcd_2_avalon_lcd_slave arb share counter enable term, which is an e_assign
+  assign end_xfer_arb_share_counter_term_lcd_2_avalon_lcd_slave = lcd_2_avalon_lcd_slave_end_xfer & (~lcd_2_avalon_lcd_slave_any_bursting_master_saved_grant | in_a_read_cycle | in_a_write_cycle);
+
+  //lcd_2_avalon_lcd_slave_arb_share_counter arbitration counter enable, which is an e_assign
+  assign lcd_2_avalon_lcd_slave_arb_counter_enable = (end_xfer_arb_share_counter_term_lcd_2_avalon_lcd_slave & lcd_2_avalon_lcd_slave_allgrants) | (end_xfer_arb_share_counter_term_lcd_2_avalon_lcd_slave & ~lcd_2_avalon_lcd_slave_non_bursting_master_requests);
+
+  //lcd_2_avalon_lcd_slave_arb_share_counter counter, which is an e_register
+  always @(posedge clk or negedge reset_n)
+    begin
+      if (reset_n == 0)
+          lcd_2_avalon_lcd_slave_arb_share_counter <= 0;
+      else if (lcd_2_avalon_lcd_slave_arb_counter_enable)
+          lcd_2_avalon_lcd_slave_arb_share_counter <= lcd_2_avalon_lcd_slave_arb_share_counter_next_value;
+    end
+
+
+  //lcd_2_avalon_lcd_slave_slavearbiterlockenable slave enables arbiterlock, which is an e_register
+  always @(posedge clk or negedge reset_n)
+    begin
+      if (reset_n == 0)
+          lcd_2_avalon_lcd_slave_slavearbiterlockenable <= 0;
+      else if ((|lcd_2_avalon_lcd_slave_master_qreq_vector & end_xfer_arb_share_counter_term_lcd_2_avalon_lcd_slave) | (end_xfer_arb_share_counter_term_lcd_2_avalon_lcd_slave & ~lcd_2_avalon_lcd_slave_non_bursting_master_requests))
+          lcd_2_avalon_lcd_slave_slavearbiterlockenable <= |lcd_2_avalon_lcd_slave_arb_share_counter_next_value;
+    end
+
+
+  //clock_crossing_bridge/m1 lcd_2/avalon_lcd_slave arbiterlock, which is an e_assign
+  assign clock_crossing_bridge_m1_arbiterlock = lcd_2_avalon_lcd_slave_slavearbiterlockenable & clock_crossing_bridge_m1_continuerequest;
+
+  //lcd_2_avalon_lcd_slave_slavearbiterlockenable2 slave enables arbiterlock2, which is an e_assign
+  assign lcd_2_avalon_lcd_slave_slavearbiterlockenable2 = |lcd_2_avalon_lcd_slave_arb_share_counter_next_value;
+
+  //clock_crossing_bridge/m1 lcd_2/avalon_lcd_slave arbiterlock2, which is an e_assign
+  assign clock_crossing_bridge_m1_arbiterlock2 = lcd_2_avalon_lcd_slave_slavearbiterlockenable2 & clock_crossing_bridge_m1_continuerequest;
+
+  //lcd_2_avalon_lcd_slave_any_continuerequest at least one master continues requesting, which is an e_assign
+  assign lcd_2_avalon_lcd_slave_any_continuerequest = 1;
+
+  //clock_crossing_bridge_m1_continuerequest continued request, which is an e_assign
+  assign clock_crossing_bridge_m1_continuerequest = 1;
+
+  assign clock_crossing_bridge_m1_qualified_request_lcd_2_avalon_lcd_slave = clock_crossing_bridge_m1_requests_lcd_2_avalon_lcd_slave & ~((clock_crossing_bridge_m1_read & ((clock_crossing_bridge_m1_latency_counter != 0))) | ((!clock_crossing_bridge_m1_byteenable_lcd_2_avalon_lcd_slave) & clock_crossing_bridge_m1_write));
+  //local readdatavalid clock_crossing_bridge_m1_read_data_valid_lcd_2_avalon_lcd_slave, which is an e_mux
+  assign clock_crossing_bridge_m1_read_data_valid_lcd_2_avalon_lcd_slave = clock_crossing_bridge_m1_granted_lcd_2_avalon_lcd_slave & clock_crossing_bridge_m1_read & ~lcd_2_avalon_lcd_slave_waits_for_read;
+
+  //writedata_to_the_lcd_2 mux, which is an e_mux
+  assign writedata_to_the_lcd_2 = clock_crossing_bridge_m1_dbs_write_8;
+
+  //master is always granted when requested
+  assign clock_crossing_bridge_m1_granted_lcd_2_avalon_lcd_slave = clock_crossing_bridge_m1_qualified_request_lcd_2_avalon_lcd_slave;
+
+  //clock_crossing_bridge/m1 saved-grant lcd_2/avalon_lcd_slave, which is an e_assign
+  assign clock_crossing_bridge_m1_saved_grant_lcd_2_avalon_lcd_slave = clock_crossing_bridge_m1_requests_lcd_2_avalon_lcd_slave;
+
+  //allow new arb cycle for lcd_2/avalon_lcd_slave, which is an e_assign
+  assign lcd_2_avalon_lcd_slave_allow_new_arb_cycle = 1;
+
+  //placeholder chosen master
+  assign lcd_2_avalon_lcd_slave_grant_vector = 1;
+
+  //placeholder vector of master qualified-requests
+  assign lcd_2_avalon_lcd_slave_master_qreq_vector = 1;
+
+  //~reset_to_the_lcd_2 assignment, which is an e_assign
+  assign reset_to_the_lcd_2 = ~reset_n;
+
+  assign chipselect_to_the_lcd_2 = clock_crossing_bridge_m1_granted_lcd_2_avalon_lcd_slave;
+  //lcd_2_avalon_lcd_slave_firsttransfer first transaction, which is an e_assign
+  assign lcd_2_avalon_lcd_slave_firsttransfer = lcd_2_avalon_lcd_slave_begins_xfer ? lcd_2_avalon_lcd_slave_unreg_firsttransfer : lcd_2_avalon_lcd_slave_reg_firsttransfer;
+
+  //lcd_2_avalon_lcd_slave_unreg_firsttransfer first transaction, which is an e_assign
+  assign lcd_2_avalon_lcd_slave_unreg_firsttransfer = ~(lcd_2_avalon_lcd_slave_slavearbiterlockenable & lcd_2_avalon_lcd_slave_any_continuerequest);
+
+  //lcd_2_avalon_lcd_slave_reg_firsttransfer first transaction, which is an e_register
+  always @(posedge clk or negedge reset_n)
+    begin
+      if (reset_n == 0)
+          lcd_2_avalon_lcd_slave_reg_firsttransfer <= 1'b1;
+      else if (lcd_2_avalon_lcd_slave_begins_xfer)
+          lcd_2_avalon_lcd_slave_reg_firsttransfer <= lcd_2_avalon_lcd_slave_unreg_firsttransfer;
+    end
+
+
+  //lcd_2_avalon_lcd_slave_beginbursttransfer_internal begin burst transfer, which is an e_assign
+  assign lcd_2_avalon_lcd_slave_beginbursttransfer_internal = lcd_2_avalon_lcd_slave_begins_xfer;
+
+  //read_to_the_lcd_2 assignment, which is an e_mux
+  assign read_to_the_lcd_2 = clock_crossing_bridge_m1_granted_lcd_2_avalon_lcd_slave & clock_crossing_bridge_m1_read;
+
+  //write_to_the_lcd_2 assignment, which is an e_mux
+  assign write_to_the_lcd_2 = ((clock_crossing_bridge_m1_granted_lcd_2_avalon_lcd_slave & clock_crossing_bridge_m1_write)) & lcd_2_avalon_lcd_slave_pretend_byte_enable;
+
+  //address_to_the_lcd_2 mux, which is an e_mux
+  assign address_to_the_lcd_2 = {clock_crossing_bridge_m1_address_to_slave >> 2,
+    clock_crossing_bridge_m1_dbs_address[1 : 0]};
+
+  //d1_lcd_2_avalon_lcd_slave_end_xfer register, which is an e_register
+  always @(posedge clk or negedge reset_n)
+    begin
+      if (reset_n == 0)
+          d1_lcd_2_avalon_lcd_slave_end_xfer <= 1;
+      else 
+        d1_lcd_2_avalon_lcd_slave_end_xfer <= lcd_2_avalon_lcd_slave_end_xfer;
+    end
+
+
+  //lcd_2_avalon_lcd_slave_waits_for_read in a cycle, which is an e_mux
+  assign lcd_2_avalon_lcd_slave_waits_for_read = lcd_2_avalon_lcd_slave_in_a_read_cycle & waitrequest_from_the_lcd_2_from_sa;
+
+  //lcd_2_avalon_lcd_slave_in_a_read_cycle assignment, which is an e_assign
+  assign lcd_2_avalon_lcd_slave_in_a_read_cycle = clock_crossing_bridge_m1_granted_lcd_2_avalon_lcd_slave & clock_crossing_bridge_m1_read;
+
+  //in_a_read_cycle assignment, which is an e_mux
+  assign in_a_read_cycle = lcd_2_avalon_lcd_slave_in_a_read_cycle;
+
+  //lcd_2_avalon_lcd_slave_waits_for_write in a cycle, which is an e_mux
+  assign lcd_2_avalon_lcd_slave_waits_for_write = lcd_2_avalon_lcd_slave_in_a_write_cycle & waitrequest_from_the_lcd_2_from_sa;
+
+  //lcd_2_avalon_lcd_slave_in_a_write_cycle assignment, which is an e_assign
+  assign lcd_2_avalon_lcd_slave_in_a_write_cycle = clock_crossing_bridge_m1_granted_lcd_2_avalon_lcd_slave & clock_crossing_bridge_m1_write;
+
+  //in_a_write_cycle assignment, which is an e_mux
+  assign in_a_write_cycle = lcd_2_avalon_lcd_slave_in_a_write_cycle;
+
+  assign wait_for_lcd_2_avalon_lcd_slave_counter = 0;
+  //lcd_2_avalon_lcd_slave_pretend_byte_enable byte enable port mux, which is an e_mux
+  assign lcd_2_avalon_lcd_slave_pretend_byte_enable = (clock_crossing_bridge_m1_granted_lcd_2_avalon_lcd_slave)? clock_crossing_bridge_m1_byteenable_lcd_2_avalon_lcd_slave :
+    -1;
+
+  assign {clock_crossing_bridge_m1_byteenable_lcd_2_avalon_lcd_slave_segment_3,
+clock_crossing_bridge_m1_byteenable_lcd_2_avalon_lcd_slave_segment_2,
+clock_crossing_bridge_m1_byteenable_lcd_2_avalon_lcd_slave_segment_1,
+clock_crossing_bridge_m1_byteenable_lcd_2_avalon_lcd_slave_segment_0} = clock_crossing_bridge_m1_byteenable;
+  assign clock_crossing_bridge_m1_byteenable_lcd_2_avalon_lcd_slave = ((clock_crossing_bridge_m1_dbs_address[1 : 0] == 0))? clock_crossing_bridge_m1_byteenable_lcd_2_avalon_lcd_slave_segment_0 :
+    ((clock_crossing_bridge_m1_dbs_address[1 : 0] == 1))? clock_crossing_bridge_m1_byteenable_lcd_2_avalon_lcd_slave_segment_1 :
+    ((clock_crossing_bridge_m1_dbs_address[1 : 0] == 2))? clock_crossing_bridge_m1_byteenable_lcd_2_avalon_lcd_slave_segment_2 :
+    clock_crossing_bridge_m1_byteenable_lcd_2_avalon_lcd_slave_segment_3;
+
+
+//synthesis translate_off
+//////////////// SIMULATION-ONLY CONTENTS
+  //lcd_2/avalon_lcd_slave enable non-zero assertions, which is an e_register
+  always @(posedge clk or negedge reset_n)
+    begin
+      if (reset_n == 0)
+          enable_nonzero_assertions <= 0;
+      else 
+        enable_nonzero_assertions <= 1'b1;
+    end
+
+
+
+//////////////// END SIMULATION-ONLY CONTENTS
+
+//synthesis translate_on
+
+endmodule
+
+
+// synthesis translate_off
+`timescale 1ns / 1ps
+// synthesis translate_on
+
+// turn off superfluous verilog processor warnings 
+// altera message_level Level1 
+// altera message_off 10034 10035 10036 10037 10230 10240 10030 
+
 module lcd_light_s1_arbitrator (
                                  // inputs:
                                   clk,
@@ -5815,9 +6242,9 @@ module lcd_light_s1_arbitrator (
   wire             lcd_light_s1_any_bursting_master_saved_grant;
   wire             lcd_light_s1_any_continuerequest;
   wire             lcd_light_s1_arb_counter_enable;
-  reg              lcd_light_s1_arb_share_counter;
-  wire             lcd_light_s1_arb_share_counter_next_value;
-  wire             lcd_light_s1_arb_share_set_values;
+  reg     [  2: 0] lcd_light_s1_arb_share_counter;
+  wire    [  2: 0] lcd_light_s1_arb_share_counter_next_value;
+  wire    [  2: 0] lcd_light_s1_arb_share_set_values;
   wire             lcd_light_s1_beginbursttransfer_internal;
   wire             lcd_light_s1_begins_xfer;
   wire             lcd_light_s1_chipselect;
@@ -6089,9 +6516,9 @@ module leds_s1_arbitrator (
   wire             leds_s1_any_bursting_master_saved_grant;
   wire             leds_s1_any_continuerequest;
   wire             leds_s1_arb_counter_enable;
-  reg              leds_s1_arb_share_counter;
-  wire             leds_s1_arb_share_counter_next_value;
-  wire             leds_s1_arb_share_set_values;
+  reg     [  2: 0] leds_s1_arb_share_counter;
+  wire    [  2: 0] leds_s1_arb_share_counter_next_value;
+  wire    [  2: 0] leds_s1_arb_share_set_values;
   wire             leds_s1_beginbursttransfer_internal;
   wire             leds_s1_begins_xfer;
   wire             leds_s1_chipselect;
@@ -8334,9 +8761,9 @@ module seg7_s1_arbitrator (
   wire             seg7_s1_any_bursting_master_saved_grant;
   wire             seg7_s1_any_continuerequest;
   wire             seg7_s1_arb_counter_enable;
-  reg              seg7_s1_arb_share_counter;
-  wire             seg7_s1_arb_share_counter_next_value;
-  wire             seg7_s1_arb_share_set_values;
+  reg     [  2: 0] seg7_s1_arb_share_counter;
+  wire    [  2: 0] seg7_s1_arb_share_counter_next_value;
+  wire    [  2: 0] seg7_s1_arb_share_set_values;
   wire             seg7_s1_beginbursttransfer_internal;
   wire             seg7_s1_begins_xfer;
   wire             seg7_s1_chipselect;
@@ -8612,9 +9039,9 @@ module switches_s1_arbitrator (
   wire             switches_s1_any_bursting_master_saved_grant;
   wire             switches_s1_any_continuerequest;
   wire             switches_s1_arb_counter_enable;
-  reg              switches_s1_arb_share_counter;
-  wire             switches_s1_arb_share_counter_next_value;
-  wire             switches_s1_arb_share_set_values;
+  reg     [  2: 0] switches_s1_arb_share_counter;
+  wire    [  2: 0] switches_s1_arb_share_counter_next_value;
+  wire    [  2: 0] switches_s1_arb_share_set_values;
   wire             switches_s1_beginbursttransfer_internal;
   wire             switches_s1_begins_xfer;
   wire             switches_s1_chipselect;
@@ -8882,9 +9309,9 @@ module sysid_control_slave_arbitrator (
   wire             sysid_control_slave_any_bursting_master_saved_grant;
   wire             sysid_control_slave_any_continuerequest;
   wire             sysid_control_slave_arb_counter_enable;
-  reg              sysid_control_slave_arb_share_counter;
-  wire             sysid_control_slave_arb_share_counter_next_value;
-  wire             sysid_control_slave_arb_share_set_values;
+  reg     [  2: 0] sysid_control_slave_arb_share_counter;
+  wire    [  2: 0] sysid_control_slave_arb_share_counter_next_value;
+  wire    [  2: 0] sysid_control_slave_arb_share_set_values;
   wire             sysid_control_slave_beginbursttransfer_internal;
   wire             sysid_control_slave_begins_xfer;
   wire             sysid_control_slave_end_xfer;
@@ -9150,9 +9577,9 @@ module timer_s1_arbitrator (
   wire             timer_s1_any_bursting_master_saved_grant;
   wire             timer_s1_any_continuerequest;
   wire             timer_s1_arb_counter_enable;
-  reg              timer_s1_arb_share_counter;
-  wire             timer_s1_arb_share_counter_next_value;
-  wire             timer_s1_arb_share_set_values;
+  reg     [  2: 0] timer_s1_arb_share_counter;
+  wire    [  2: 0] timer_s1_arb_share_counter_next_value;
+  wire    [  2: 0] timer_s1_arb_share_set_values;
   wire             timer_s1_beginbursttransfer_internal;
   wire             timer_s1_begins_xfer;
   wire             timer_s1_chipselect;
@@ -10166,9 +10593,9 @@ module uart_s1_arbitrator (
   wire             uart_s1_any_bursting_master_saved_grant;
   wire             uart_s1_any_continuerequest;
   wire             uart_s1_arb_counter_enable;
-  reg              uart_s1_arb_share_counter;
-  wire             uart_s1_arb_share_counter_next_value;
-  wire             uart_s1_arb_share_set_values;
+  reg     [  2: 0] uart_s1_arb_share_counter;
+  wire    [  2: 0] uart_s1_arb_share_counter_next_value;
+  wire    [  2: 0] uart_s1_arb_share_set_values;
   wire             uart_s1_beginbursttransfer_internal;
   wire             uart_s1_begins_xfer;
   wire             uart_s1_begintransfer;
@@ -10562,6 +10989,16 @@ module DE0_SOPC (
                    LCD_RW_from_the_lcd,
                    LCD_data_to_and_from_the_lcd,
 
+                  // the_lcd_2_avalon_lcd_slave
+                   address_to_the_lcd_2,
+                   chipselect_to_the_lcd_2,
+                   read_to_the_lcd_2,
+                   readdata_from_the_lcd_2,
+                   reset_to_the_lcd_2,
+                   waitrequest_from_the_lcd_2,
+                   write_to_the_lcd_2,
+                   writedata_to_the_lcd_2,
+
                   // the_lcd_light
                    out_port_from_the_lcd_light,
 
@@ -10603,9 +11040,11 @@ module DE0_SOPC (
   output           LCD_RW_from_the_lcd;
   inout   [  7: 0] LCD_data_to_and_from_the_lcd;
   output  [ 21: 0] address_to_the_cfi_flash;
+  output           address_to_the_lcd_2;
   inout            b_SD_cmd_to_and_from_the_Altera_UP_SD_Card;
   inout            b_SD_dat3_to_and_from_the_Altera_UP_SD_Card;
   inout            b_SD_dat_to_and_from_the_Altera_UP_SD_Card;
+  output           chipselect_to_the_lcd_2;
   output  [  3: 0] col_from_the_keypad;
   inout   [ 15: 0] data_to_and_from_the_cfi_flash;
   output           o_SD_clock_from_the_Altera_UP_SD_Card;
@@ -10617,9 +11056,13 @@ module DE0_SOPC (
   output           pll_sdram;
   output           pll_vga;
   output           read_n_to_the_cfi_flash;
+  output           read_to_the_lcd_2;
+  output           reset_to_the_lcd_2;
   output           select_n_to_the_cfi_flash;
   output           txd_from_the_uart;
   output           write_n_to_the_cfi_flash;
+  output           write_to_the_lcd_2;
+  output  [  7: 0] writedata_to_the_lcd_2;
   output  [ 11: 0] zs_addr_from_the_sdram;
   output  [  1: 0] zs_ba_from_the_sdram;
   output           zs_cas_n_from_the_sdram;
@@ -10632,9 +11075,11 @@ module DE0_SOPC (
   input            clk;
   input   [  2: 0] in_port_to_the_buttons;
   input   [  9: 0] in_port_to_the_switches;
+  input   [  7: 0] readdata_from_the_lcd_2;
   input            reset_n;
   input   [  3: 0] row_to_the_keypad;
   input            rxd_to_the_uart;
+  input            waitrequest_from_the_lcd_2;
 
   wire    [  7: 0] Altera_UP_SD_Card_avalon_sdcard_slave_address;
   wire    [  3: 0] Altera_UP_SD_Card_avalon_sdcard_slave_byteenable;
@@ -10680,6 +11125,7 @@ module DE0_SOPC (
   wire             LCD_RW_from_the_lcd;
   wire    [  7: 0] LCD_data_to_and_from_the_lcd;
   wire    [ 21: 0] address_to_the_cfi_flash;
+  wire             address_to_the_lcd_2;
   wire             b_SD_cmd_to_and_from_the_Altera_UP_SD_Card;
   wire             b_SD_dat3_to_and_from_the_Altera_UP_SD_Card;
   wire             b_SD_dat_to_and_from_the_Altera_UP_SD_Card;
@@ -10693,14 +11139,19 @@ module DE0_SOPC (
   wire             buttons_s1_write_n;
   wire    [ 31: 0] buttons_s1_writedata;
   wire             cfi_flash_s1_wait_counter_eq_0;
+  wire             chipselect_to_the_lcd_2;
   wire             clk_reset_n;
   wire    [ 10: 0] clock_crossing_bridge_m1_address;
   wire    [ 10: 0] clock_crossing_bridge_m1_address_to_slave;
   wire    [  3: 0] clock_crossing_bridge_m1_byteenable;
+  wire             clock_crossing_bridge_m1_byteenable_lcd_2_avalon_lcd_slave;
+  wire    [  1: 0] clock_crossing_bridge_m1_dbs_address;
+  wire    [  7: 0] clock_crossing_bridge_m1_dbs_write_8;
   wire             clock_crossing_bridge_m1_endofpacket;
   wire             clock_crossing_bridge_m1_granted_Altera_UP_SD_Card_avalon_sdcard_slave;
   wire             clock_crossing_bridge_m1_granted_buttons_s1;
   wire             clock_crossing_bridge_m1_granted_keypad_keypad_controller_slave;
+  wire             clock_crossing_bridge_m1_granted_lcd_2_avalon_lcd_slave;
   wire             clock_crossing_bridge_m1_granted_lcd_control_slave;
   wire             clock_crossing_bridge_m1_granted_lcd_light_s1;
   wire             clock_crossing_bridge_m1_granted_leds_s1;
@@ -10714,6 +11165,7 @@ module DE0_SOPC (
   wire             clock_crossing_bridge_m1_qualified_request_Altera_UP_SD_Card_avalon_sdcard_slave;
   wire             clock_crossing_bridge_m1_qualified_request_buttons_s1;
   wire             clock_crossing_bridge_m1_qualified_request_keypad_keypad_controller_slave;
+  wire             clock_crossing_bridge_m1_qualified_request_lcd_2_avalon_lcd_slave;
   wire             clock_crossing_bridge_m1_qualified_request_lcd_control_slave;
   wire             clock_crossing_bridge_m1_qualified_request_lcd_light_s1;
   wire             clock_crossing_bridge_m1_qualified_request_leds_s1;
@@ -10726,6 +11178,7 @@ module DE0_SOPC (
   wire             clock_crossing_bridge_m1_read_data_valid_Altera_UP_SD_Card_avalon_sdcard_slave;
   wire             clock_crossing_bridge_m1_read_data_valid_buttons_s1;
   wire             clock_crossing_bridge_m1_read_data_valid_keypad_keypad_controller_slave;
+  wire             clock_crossing_bridge_m1_read_data_valid_lcd_2_avalon_lcd_slave;
   wire             clock_crossing_bridge_m1_read_data_valid_lcd_control_slave;
   wire             clock_crossing_bridge_m1_read_data_valid_lcd_light_s1;
   wire             clock_crossing_bridge_m1_read_data_valid_leds_s1;
@@ -10739,6 +11192,7 @@ module DE0_SOPC (
   wire             clock_crossing_bridge_m1_requests_Altera_UP_SD_Card_avalon_sdcard_slave;
   wire             clock_crossing_bridge_m1_requests_buttons_s1;
   wire             clock_crossing_bridge_m1_requests_keypad_keypad_controller_slave;
+  wire             clock_crossing_bridge_m1_requests_lcd_2_avalon_lcd_slave;
   wire             clock_crossing_bridge_m1_requests_lcd_control_slave;
   wire             clock_crossing_bridge_m1_requests_lcd_light_s1;
   wire             clock_crossing_bridge_m1_requests_leds_s1;
@@ -10886,6 +11340,7 @@ module DE0_SOPC (
   wire             d1_cpu_jtag_debug_module_end_xfer;
   wire             d1_jtag_uart_avalon_jtag_slave_end_xfer;
   wire             d1_keypad_keypad_controller_slave_end_xfer;
+  wire             d1_lcd_2_avalon_lcd_slave_end_xfer;
   wire             d1_lcd_control_slave_end_xfer;
   wire             d1_lcd_light_s1_end_xfer;
   wire             d1_leds_s1_end_xfer;
@@ -10977,7 +11432,10 @@ module DE0_SOPC (
   wire             pll_sdram;
   wire             pll_vga;
   wire             read_n_to_the_cfi_flash;
+  wire             read_to_the_lcd_2;
+  wire    [  7: 0] readdata_from_the_lcd_2_from_sa;
   wire             reset_n_sources;
+  wire             reset_to_the_lcd_2;
   wire    [ 21: 0] sdram_s1_address;
   wire    [  1: 0] sdram_s1_byteenable_n;
   wire             sdram_s1_chipselect;
@@ -11037,7 +11495,10 @@ module DE0_SOPC (
   wire             uart_s1_reset_n;
   wire             uart_s1_write_n;
   wire    [ 15: 0] uart_s1_writedata;
+  wire             waitrequest_from_the_lcd_2_from_sa;
   wire             write_n_to_the_cfi_flash;
+  wire             write_to_the_lcd_2;
+  wire    [  7: 0] writedata_to_the_lcd_2;
   wire    [ 11: 0] zs_addr_from_the_sdram;
   wire    [  1: 0] zs_ba_from_the_sdram;
   wire             zs_cas_n_from_the_sdram;
@@ -11253,9 +11714,13 @@ module DE0_SOPC (
       .clock_crossing_bridge_m1_address                                                 (clock_crossing_bridge_m1_address),
       .clock_crossing_bridge_m1_address_to_slave                                        (clock_crossing_bridge_m1_address_to_slave),
       .clock_crossing_bridge_m1_byteenable                                              (clock_crossing_bridge_m1_byteenable),
+      .clock_crossing_bridge_m1_byteenable_lcd_2_avalon_lcd_slave                       (clock_crossing_bridge_m1_byteenable_lcd_2_avalon_lcd_slave),
+      .clock_crossing_bridge_m1_dbs_address                                             (clock_crossing_bridge_m1_dbs_address),
+      .clock_crossing_bridge_m1_dbs_write_8                                             (clock_crossing_bridge_m1_dbs_write_8),
       .clock_crossing_bridge_m1_granted_Altera_UP_SD_Card_avalon_sdcard_slave           (clock_crossing_bridge_m1_granted_Altera_UP_SD_Card_avalon_sdcard_slave),
       .clock_crossing_bridge_m1_granted_buttons_s1                                      (clock_crossing_bridge_m1_granted_buttons_s1),
       .clock_crossing_bridge_m1_granted_keypad_keypad_controller_slave                  (clock_crossing_bridge_m1_granted_keypad_keypad_controller_slave),
+      .clock_crossing_bridge_m1_granted_lcd_2_avalon_lcd_slave                          (clock_crossing_bridge_m1_granted_lcd_2_avalon_lcd_slave),
       .clock_crossing_bridge_m1_granted_lcd_control_slave                               (clock_crossing_bridge_m1_granted_lcd_control_slave),
       .clock_crossing_bridge_m1_granted_lcd_light_s1                                    (clock_crossing_bridge_m1_granted_lcd_light_s1),
       .clock_crossing_bridge_m1_granted_leds_s1                                         (clock_crossing_bridge_m1_granted_leds_s1),
@@ -11268,6 +11733,7 @@ module DE0_SOPC (
       .clock_crossing_bridge_m1_qualified_request_Altera_UP_SD_Card_avalon_sdcard_slave (clock_crossing_bridge_m1_qualified_request_Altera_UP_SD_Card_avalon_sdcard_slave),
       .clock_crossing_bridge_m1_qualified_request_buttons_s1                            (clock_crossing_bridge_m1_qualified_request_buttons_s1),
       .clock_crossing_bridge_m1_qualified_request_keypad_keypad_controller_slave        (clock_crossing_bridge_m1_qualified_request_keypad_keypad_controller_slave),
+      .clock_crossing_bridge_m1_qualified_request_lcd_2_avalon_lcd_slave                (clock_crossing_bridge_m1_qualified_request_lcd_2_avalon_lcd_slave),
       .clock_crossing_bridge_m1_qualified_request_lcd_control_slave                     (clock_crossing_bridge_m1_qualified_request_lcd_control_slave),
       .clock_crossing_bridge_m1_qualified_request_lcd_light_s1                          (clock_crossing_bridge_m1_qualified_request_lcd_light_s1),
       .clock_crossing_bridge_m1_qualified_request_leds_s1                               (clock_crossing_bridge_m1_qualified_request_leds_s1),
@@ -11280,6 +11746,7 @@ module DE0_SOPC (
       .clock_crossing_bridge_m1_read_data_valid_Altera_UP_SD_Card_avalon_sdcard_slave   (clock_crossing_bridge_m1_read_data_valid_Altera_UP_SD_Card_avalon_sdcard_slave),
       .clock_crossing_bridge_m1_read_data_valid_buttons_s1                              (clock_crossing_bridge_m1_read_data_valid_buttons_s1),
       .clock_crossing_bridge_m1_read_data_valid_keypad_keypad_controller_slave          (clock_crossing_bridge_m1_read_data_valid_keypad_keypad_controller_slave),
+      .clock_crossing_bridge_m1_read_data_valid_lcd_2_avalon_lcd_slave                  (clock_crossing_bridge_m1_read_data_valid_lcd_2_avalon_lcd_slave),
       .clock_crossing_bridge_m1_read_data_valid_lcd_control_slave                       (clock_crossing_bridge_m1_read_data_valid_lcd_control_slave),
       .clock_crossing_bridge_m1_read_data_valid_lcd_light_s1                            (clock_crossing_bridge_m1_read_data_valid_lcd_light_s1),
       .clock_crossing_bridge_m1_read_data_valid_leds_s1                                 (clock_crossing_bridge_m1_read_data_valid_leds_s1),
@@ -11293,6 +11760,7 @@ module DE0_SOPC (
       .clock_crossing_bridge_m1_requests_Altera_UP_SD_Card_avalon_sdcard_slave          (clock_crossing_bridge_m1_requests_Altera_UP_SD_Card_avalon_sdcard_slave),
       .clock_crossing_bridge_m1_requests_buttons_s1                                     (clock_crossing_bridge_m1_requests_buttons_s1),
       .clock_crossing_bridge_m1_requests_keypad_keypad_controller_slave                 (clock_crossing_bridge_m1_requests_keypad_keypad_controller_slave),
+      .clock_crossing_bridge_m1_requests_lcd_2_avalon_lcd_slave                         (clock_crossing_bridge_m1_requests_lcd_2_avalon_lcd_slave),
       .clock_crossing_bridge_m1_requests_lcd_control_slave                              (clock_crossing_bridge_m1_requests_lcd_control_slave),
       .clock_crossing_bridge_m1_requests_lcd_light_s1                                   (clock_crossing_bridge_m1_requests_lcd_light_s1),
       .clock_crossing_bridge_m1_requests_leds_s1                                        (clock_crossing_bridge_m1_requests_leds_s1),
@@ -11308,6 +11776,7 @@ module DE0_SOPC (
       .d1_Altera_UP_SD_Card_avalon_sdcard_slave_end_xfer                                (d1_Altera_UP_SD_Card_avalon_sdcard_slave_end_xfer),
       .d1_buttons_s1_end_xfer                                                           (d1_buttons_s1_end_xfer),
       .d1_keypad_keypad_controller_slave_end_xfer                                       (d1_keypad_keypad_controller_slave_end_xfer),
+      .d1_lcd_2_avalon_lcd_slave_end_xfer                                               (d1_lcd_2_avalon_lcd_slave_end_xfer),
       .d1_lcd_control_slave_end_xfer                                                    (d1_lcd_control_slave_end_xfer),
       .d1_lcd_light_s1_end_xfer                                                         (d1_lcd_light_s1_end_xfer),
       .d1_leds_s1_end_xfer                                                              (d1_leds_s1_end_xfer),
@@ -11321,12 +11790,14 @@ module DE0_SOPC (
       .lcd_control_slave_wait_counter_eq_0                                              (lcd_control_slave_wait_counter_eq_0),
       .lcd_light_s1_readdata_from_sa                                                    (lcd_light_s1_readdata_from_sa),
       .leds_s1_readdata_from_sa                                                         (leds_s1_readdata_from_sa),
+      .readdata_from_the_lcd_2_from_sa                                                  (readdata_from_the_lcd_2_from_sa),
       .reset_n                                                                          (pll_io_reset_n),
       .seg7_s1_readdata_from_sa                                                         (seg7_s1_readdata_from_sa),
       .switches_s1_readdata_from_sa                                                     (switches_s1_readdata_from_sa),
       .sysid_control_slave_readdata_from_sa                                             (sysid_control_slave_readdata_from_sa),
       .timer_s1_readdata_from_sa                                                        (timer_s1_readdata_from_sa),
-      .uart_s1_readdata_from_sa                                                         (uart_s1_readdata_from_sa)
+      .uart_s1_readdata_from_sa                                                         (uart_s1_readdata_from_sa),
+      .waitrequest_from_the_lcd_2_from_sa                                               (waitrequest_from_the_lcd_2_from_sa)
     );
 
   clock_crossing_bridge the_clock_crossing_bridge
@@ -11729,6 +12200,35 @@ module DE0_SOPC (
       .reset_n       (lcd_control_slave_reset_n),
       .write         (lcd_control_slave_write),
       .writedata     (lcd_control_slave_writedata)
+    );
+
+  lcd_2_avalon_lcd_slave_arbitrator the_lcd_2_avalon_lcd_slave
+    (
+      .address_to_the_lcd_2                                              (address_to_the_lcd_2),
+      .chipselect_to_the_lcd_2                                           (chipselect_to_the_lcd_2),
+      .clk                                                               (pll_io),
+      .clock_crossing_bridge_m1_address_to_slave                         (clock_crossing_bridge_m1_address_to_slave),
+      .clock_crossing_bridge_m1_byteenable                               (clock_crossing_bridge_m1_byteenable),
+      .clock_crossing_bridge_m1_byteenable_lcd_2_avalon_lcd_slave        (clock_crossing_bridge_m1_byteenable_lcd_2_avalon_lcd_slave),
+      .clock_crossing_bridge_m1_dbs_address                              (clock_crossing_bridge_m1_dbs_address),
+      .clock_crossing_bridge_m1_dbs_write_8                              (clock_crossing_bridge_m1_dbs_write_8),
+      .clock_crossing_bridge_m1_granted_lcd_2_avalon_lcd_slave           (clock_crossing_bridge_m1_granted_lcd_2_avalon_lcd_slave),
+      .clock_crossing_bridge_m1_latency_counter                          (clock_crossing_bridge_m1_latency_counter),
+      .clock_crossing_bridge_m1_qualified_request_lcd_2_avalon_lcd_slave (clock_crossing_bridge_m1_qualified_request_lcd_2_avalon_lcd_slave),
+      .clock_crossing_bridge_m1_read                                     (clock_crossing_bridge_m1_read),
+      .clock_crossing_bridge_m1_read_data_valid_lcd_2_avalon_lcd_slave   (clock_crossing_bridge_m1_read_data_valid_lcd_2_avalon_lcd_slave),
+      .clock_crossing_bridge_m1_requests_lcd_2_avalon_lcd_slave          (clock_crossing_bridge_m1_requests_lcd_2_avalon_lcd_slave),
+      .clock_crossing_bridge_m1_write                                    (clock_crossing_bridge_m1_write),
+      .d1_lcd_2_avalon_lcd_slave_end_xfer                                (d1_lcd_2_avalon_lcd_slave_end_xfer),
+      .read_to_the_lcd_2                                                 (read_to_the_lcd_2),
+      .readdata_from_the_lcd_2                                           (readdata_from_the_lcd_2),
+      .readdata_from_the_lcd_2_from_sa                                   (readdata_from_the_lcd_2_from_sa),
+      .reset_n                                                           (pll_io_reset_n),
+      .reset_to_the_lcd_2                                                (reset_to_the_lcd_2),
+      .waitrequest_from_the_lcd_2                                        (waitrequest_from_the_lcd_2),
+      .waitrequest_from_the_lcd_2_from_sa                                (waitrequest_from_the_lcd_2_from_sa),
+      .write_to_the_lcd_2                                                (write_to_the_lcd_2),
+      .writedata_to_the_lcd_2                                            (writedata_to_the_lcd_2)
     );
 
   lcd_light_s1_arbitrator the_lcd_light_s1
@@ -12575,9 +13075,11 @@ module test_bench
   wire             LCD_RW_from_the_lcd;
   wire    [  7: 0] LCD_data_to_and_from_the_lcd;
   wire    [ 21: 0] address_to_the_cfi_flash;
+  wire             address_to_the_lcd_2;
   wire             b_SD_cmd_to_and_from_the_Altera_UP_SD_Card;
   wire             b_SD_dat3_to_and_from_the_Altera_UP_SD_Card;
   wire             b_SD_dat_to_and_from_the_Altera_UP_SD_Card;
+  wire             chipselect_to_the_lcd_2;
   reg              clk;
   wire             clock_crossing_bridge_m1_endofpacket;
   wire             clock_crossing_bridge_s1_endofpacket_from_sa;
@@ -12607,7 +13109,10 @@ module test_bench
   wire             pll_sdram;
   wire             pll_vga;
   wire             read_n_to_the_cfi_flash;
+  wire             read_to_the_lcd_2;
+  wire    [  7: 0] readdata_from_the_lcd_2;
   reg              reset_n;
+  wire             reset_to_the_lcd_2;
   wire    [  3: 0] row_to_the_keypad;
   wire             rxd_to_the_uart;
   wire             select_n_to_the_cfi_flash;
@@ -12615,7 +13120,10 @@ module test_bench
   wire             txd_from_the_uart;
   wire             uart_s1_dataavailable_from_sa;
   wire             uart_s1_readyfordata_from_sa;
+  wire             waitrequest_from_the_lcd_2;
   wire             write_n_to_the_cfi_flash;
+  wire             write_to_the_lcd_2;
+  wire    [  7: 0] writedata_to_the_lcd_2;
   wire    [ 11: 0] zs_addr_from_the_sdram;
   wire    [  1: 0] zs_ba_from_the_sdram;
   wire             zs_cas_n_from_the_sdram;
@@ -12639,9 +13147,11 @@ module test_bench
       .LCD_RW_from_the_lcd                         (LCD_RW_from_the_lcd),
       .LCD_data_to_and_from_the_lcd                (LCD_data_to_and_from_the_lcd),
       .address_to_the_cfi_flash                    (address_to_the_cfi_flash),
+      .address_to_the_lcd_2                        (address_to_the_lcd_2),
       .b_SD_cmd_to_and_from_the_Altera_UP_SD_Card  (b_SD_cmd_to_and_from_the_Altera_UP_SD_Card),
       .b_SD_dat3_to_and_from_the_Altera_UP_SD_Card (b_SD_dat3_to_and_from_the_Altera_UP_SD_Card),
       .b_SD_dat_to_and_from_the_Altera_UP_SD_Card  (b_SD_dat_to_and_from_the_Altera_UP_SD_Card),
+      .chipselect_to_the_lcd_2                     (chipselect_to_the_lcd_2),
       .clk                                         (clk),
       .col_from_the_keypad                         (col_from_the_keypad),
       .data_to_and_from_the_cfi_flash              (data_to_and_from_the_cfi_flash),
@@ -12656,12 +13166,18 @@ module test_bench
       .pll_sdram                                   (pll_sdram),
       .pll_vga                                     (pll_vga),
       .read_n_to_the_cfi_flash                     (read_n_to_the_cfi_flash),
+      .read_to_the_lcd_2                           (read_to_the_lcd_2),
+      .readdata_from_the_lcd_2                     (readdata_from_the_lcd_2),
       .reset_n                                     (reset_n),
+      .reset_to_the_lcd_2                          (reset_to_the_lcd_2),
       .row_to_the_keypad                           (row_to_the_keypad),
       .rxd_to_the_uart                             (rxd_to_the_uart),
       .select_n_to_the_cfi_flash                   (select_n_to_the_cfi_flash),
       .txd_from_the_uart                           (txd_from_the_uart),
+      .waitrequest_from_the_lcd_2                  (waitrequest_from_the_lcd_2),
       .write_n_to_the_cfi_flash                    (write_n_to_the_cfi_flash),
+      .write_to_the_lcd_2                          (write_to_the_lcd_2),
+      .writedata_to_the_lcd_2                      (writedata_to_the_lcd_2),
       .zs_addr_from_the_sdram                      (zs_addr_from_the_sdram),
       .zs_ba_from_the_sdram                        (zs_ba_from_the_sdram),
       .zs_cas_n_from_the_sdram                     (zs_cas_n_from_the_sdram),

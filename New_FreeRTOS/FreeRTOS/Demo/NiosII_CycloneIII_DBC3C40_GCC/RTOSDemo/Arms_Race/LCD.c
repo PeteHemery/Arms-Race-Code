@@ -25,100 +25,39 @@
 #include "altera_avalon_lcd_16207.h"
 
 
-
-
-
+extern int altera_avalon_lcd_16207_write(altera_avalon_lcd_16207_state* sp, const char* ptr, int len, int flags);
+extern altera_avalon_lcd_16207_state* pxSp;
 /* --------------------------------------------------------------------- */
-
 
 void vPrintToLCD(unsigned char ucLineNumber ,char *pcString)
 {
-  FILE *fp;
-  static char cFirstLine[STRING_MAX] = {0};
-  
-  fp = fopen(LCD_NAME, "w");
-
+  static char pcFirstLine[STRING_MAX] = {0};
+  char pcBuffer[STRING_MAX] = {0};
+ 
   switch(ucLineNumber){
     case 1:
-      strcpy(cFirstLine,pcString);
-      fprintf(fp,"\n\n\n%s\n \r",pcString);
+      strcpy(pcFirstLine,pcString);
+      sprintf(pcBuffer,"\n\n\n%s\n \r",pcString);      
+      altera_avalon_lcd_16207_write(pxSp, pcBuffer, strlen(pcBuffer), 0);
       break;
     case 2:
-      fprintf(fp,"\n%s",cFirstLine);
-      fprintf(fp,"\n%s",pcString);
+      sprintf(pcBuffer,"\n%s\n%s",pcFirstLine,pcString);      
+      altera_avalon_lcd_16207_write(pxSp, pcBuffer, strlen(pcBuffer), 0);
       break;
-    case 3:
+    /*case 3:
       if ((char)pcString == '\n') {
-        fprintf(fp,"\n");
+        lcd_write_data(pxSp,"\n");
       }
       else {
-        fprintf(fp,"%s",(char)pcString);
-      }
+        lcd_write_data(pxSp,"%c",(char)pcString);
+      }*/
     case 0:
     default:
-      fprintf(fp,"\n\n\n");
+      lcd_write_data(pxSp,"\n\n\n");
       break;
   }
-  fclose(fp);
 }
 
-
-enum /* Clear command */
-{
-  LCD_CMD_CLEAR         = 0x01
-};
-
-
-/* --------------------------------------------------------------------- */
-
-static void lcd_write_command(altera_avalon_lcd_16207_state* sp, 
-  unsigned char command)
-{
-  unsigned int base = sp->base;
-
-  /* We impose a timeout on the driver in case the LCD panel isn't connected.
-   * The first time we call this function the timeout is approx 25ms 
-   * (assuming 5 cycles per loop and a 200MHz clock).  Obviously systems
-   * with slower clocks, or debug builds, or slower memory will take longer.
-   */
-  int i = 1000000;
-
-  /* Don't bother if the LCD panel didn't work before */
-  if (sp->broken)
-    return;
-
-  /* Wait until LCD isn't busy. */
-  while (IORD_ALTERA_AVALON_LCD_16207_STATUS(base) & ALTERA_AVALON_LCD_16207_STATUS_BUSY_MSK)
-    if (--i == 0)
-    {
-      sp->broken = 1;
-      return;
-    }
-
-  /* Despite what it says in the datasheet, the LCD isn't ready to accept
-   * a write immediately after it returns BUSY=0.  Wait for 100us more.
-   */
-  usleep(100);
-
-  IOWR_ALTERA_AVALON_LCD_16207_COMMAND(base, command);
-}
-static void lcd_clear_screen(altera_avalon_lcd_16207_state* sp)
-{
-  int y;
-
-  lcd_write_command(sp, LCD_CMD_CLEAR);
-
-  sp->x = 0;
-  sp->y = 0;
-  sp->address = 0;
-
-  for (y = 0 ; y < ALT_LCD_HEIGHT ; y++)
-  {
-    memset(sp->line[y].data, ' ', sizeof(sp->line[0].data));
-    memset(sp->line[y].visible, ' ', sizeof(sp->line[0].visible));
-    sp->line[y].width = 0;
-  }
-}
 void vTaskLCD(void *pvParameters)
 {
   const portTickType xTicksToWait = 100 / portTICK_RATE_MS;

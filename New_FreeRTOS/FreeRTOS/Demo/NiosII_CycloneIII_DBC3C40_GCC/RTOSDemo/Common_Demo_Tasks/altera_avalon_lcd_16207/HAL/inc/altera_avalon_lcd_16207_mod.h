@@ -90,9 +90,21 @@ typedef struct altera_avalon_lcd_16207_state_s
 } altera_avalon_lcd_16207_state;
 
 /*
- * Called by alt_sys_init.c to initialize the driver.
+ * Prototypes from the C file
  */
-extern void altera_avalon_lcd_16207_init(altera_avalon_lcd_16207_state* sp);
+void lcd_write_command(altera_avalon_lcd_16207_state* sp, unsigned char command);
+void lcd_write_data(altera_avalon_lcd_16207_state* sp, unsigned char data);
+void lcd_clear_screen(altera_avalon_lcd_16207_state* sp);
+void lcd_repaint_screen(altera_avalon_lcd_16207_state* sp);
+void lcd_scroll_up(altera_avalon_lcd_16207_state* sp);
+void lcd_handle_escape(altera_avalon_lcd_16207_state* sp, char c);
+int altera_avalon_lcd_16207_write(altera_avalon_lcd_16207_state* sp, const char* ptr, int len, int flags);
+alt_u32 alt_lcd_16207_timeout(void);
+void vTaskLCDTimeOut( void * pvParameters );
+/*
+ * Called by alt_sys_init.c at boot time to initialise the LCD driver
+ */
+void altera_avalon_lcd_16207_init(altera_avalon_lcd_16207_state* sp);
 
 /* 
  * The LCD panel driver is not trivial, so leave it out in the small

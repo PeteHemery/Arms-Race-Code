@@ -1,5 +1,5 @@
 Flow report for DE0_TOP
-Thu Mar 15 12:39:09 2012
+Tue Mar 20 14:12:55 2012
 Quartus II Version 11.0 Build 208 07/03/2011 Service Pack 1 SJ Full Version
 
 
@@ -38,17 +38,17 @@ applicable agreement for further details.
 +-------------------------------------------------------------------------------------+
 ; Flow Summary                                                                        ;
 +------------------------------------+------------------------------------------------+
-; Flow Status                        ; Successful - Thu Mar 15 12:38:54 2012          ;
+; Flow Status                        ; Successful - Tue Mar 20 14:12:39 2012          ;
 ; Quartus II Version                 ; 11.0 Build 208 07/03/2011 SP 1 SJ Full Version ;
 ; Revision Name                      ; DE0_TOP                                        ;
 ; Top-level Entity Name              ; DE0_TOP                                        ;
 ; Family                             ; Cyclone III                                    ;
 ; Device                             ; EP3C16F484C6                                   ;
 ; Timing Models                      ; Final                                          ;
-; Total logic elements               ; 7,621 / 15,408 ( 49 % )                        ;
-;     Total combinational functions  ; 6,615 / 15,408 ( 43 % )                        ;
-;     Dedicated logic registers      ; 4,676 / 15,408 ( 30 % )                        ;
-; Total registers                    ; 4816                                           ;
+; Total logic elements               ; 7,645 / 15,408 ( 50 % )                        ;
+;     Total combinational functions  ; 6,643 / 15,408 ( 43 % )                        ;
+;     Dedicated logic registers      ; 4,678 / 15,408 ( 30 % )                        ;
+; Total registers                    ; 4818                                           ;
 ; Total pins                         ; 257 / 347 ( 74 % )                             ;
 ; Total virtual pins                 ; 0                                              ;
 ; Total memory bits                  ; 300,211 / 516,096 ( 58 % )                     ;
@@ -62,7 +62,7 @@ applicable agreement for further details.
 +-------------------+---------------------+
 ; Option            ; Setting             ;
 +-------------------+---------------------+
-; Start date & time ; 03/15/2012 12:36:51 ;
+; Start date & time ; 03/20/2012 14:10:38 ;
 ; Main task         ; Compilation         ;
 ; Revision Name     ; DE0_TOP             ;
 +-------------------+---------------------+
@@ -73,7 +73,7 @@ applicable agreement for further details.
 +-------------------------------------+------------------------------------------------------------------------------+---------------+-------------+------------+
 ; Assignment Name                     ; Value                                                                        ; Default Value ; Entity Name ; Section Id ;
 +-------------------------------------+------------------------------------------------------------------------------+---------------+-------------+------------+
-; COMPILER_SIGNATURE_ID               ; 48549624917662.133181501104981                                               ; --            ; --          ; --         ;
+; COMPILER_SIGNATURE_ID               ; 48549624916278.133225263815218                                               ; --            ; --          ; --         ;
 ; IP_TOOL_NAME                        ; RAM: 2-PORT                                                                  ; --            ; --          ; --         ;
 ; IP_TOOL_VERSION                     ; 8.0                                                                          ; --            ; --          ; --         ;
 ; MAX_CORE_JUNCTION_TEMP              ; 85                                                                           ; --            ; --          ; --         ;
@@ -86,7 +86,7 @@ applicable agreement for further details.
 ; POWER_BOARD_THERMAL_MODEL           ; None (CONSERVATIVE)                                                          ; --            ; --          ; --         ;
 ; POWER_PRESET_COOLING_SOLUTION       ; 23 MM HEAT SINK WITH 200 LFPM AIRFLOW                                        ; --            ; --          ; --         ;
 ; SEARCH_PATH                         ; /home/netlab/prhemery/Altera_Systems_Labs/De0_Counter/ip                     ; --            ; --          ; --         ;
-; SOPC_BUILDER_SIGNATURE_ID           ; 2C27D725AE9E00000136165B57F4                                                 ; --            ; --          ; --         ;
+; SOPC_BUILDER_SIGNATURE_ID           ; 2C27D725A93600000136305DDC34                                                 ; --            ; --          ; --         ;
 ; USE_GENERATED_PHYSICAL_CONSTRAINTS  ; Off                                                                          ; --            ; --          ; eda_palace ;
 +-------------------------------------+------------------------------------------------------------------------------+---------------+-------------+------------+
 
@@ -96,24 +96,24 @@ applicable agreement for further details.
 +---------------------------+--------------+-------------------------+---------------------+------------------------------------+
 ; Module Name               ; Elapsed Time ; Average Processors Used ; Peak Virtual Memory ; Total CPU Time (on all processors) ;
 +---------------------------+--------------+-------------------------+---------------------+------------------------------------+
-; Analysis & Synthesis      ; 00:00:53     ; 1.0                     ; --                  ; 00:00:44                           ;
-; Fitter                    ; 00:00:54     ; 2.0                     ; --                  ; 00:00:58                           ;
+; Analysis & Synthesis      ; 00:00:49     ; 1.0                     ; --                  ; 00:00:43                           ;
+; Fitter                    ; 00:00:56     ; 1.6                     ; --                  ; 00:00:58                           ;
 ; Assembler                 ; 00:00:03     ; 1.0                     ; --                  ; 00:00:02                           ;
-; TimeQuest Timing Analyzer ; 00:00:19     ; 1.8                     ; --                  ; 00:00:19                           ;
-; Total                     ; 00:02:09     ; --                      ; --                  ; 00:02:03                           ;
+; TimeQuest Timing Analyzer ; 00:00:20     ; 2.0                     ; --                  ; 00:00:20                           ;
+; Total                     ; 00:02:08     ; --                      ; --                  ; 00:02:03                           ;
 +---------------------------+--------------+-------------------------+---------------------+------------------------------------+
 
 
-+--------------------------------------------------------------------------------------------------------------+
-; Flow OS Summary                                                                                              ;
-+---------------------------+--------------------------------------+-------------+------------+----------------+
-; Module Name               ; Machine Hostname                     ; OS Name     ; OS Version ; Processor type ;
-+---------------------------+--------------------------------------+-------------+------------+----------------+
-; Analysis & Synthesis      ; rincewindlinux.netlab.cems.uwe.ac.uk ; Fedora Core ; 14         ; i686           ;
-; Fitter                    ; rincewindlinux.netlab.cems.uwe.ac.uk ; Fedora Core ; 14         ; i686           ;
-; Assembler                 ; rincewindlinux.netlab.cems.uwe.ac.uk ; Fedora Core ; 14         ; i686           ;
-; TimeQuest Timing Analyzer ; rincewindlinux.netlab.cems.uwe.ac.uk ; Fedora Core ; 14         ; i686           ;
-+---------------------------+--------------------------------------+-------------+------------+----------------+
++------------------------------------------------------------------------------------------------------------+
+; Flow OS Summary                                                                                            ;
++---------------------------+------------------------------------+-------------+------------+----------------+
+; Module Name               ; Machine Hostname                   ; OS Name     ; OS Version ; Processor type ;
++---------------------------+------------------------------------+-------------+------------+----------------+
+; Analysis & Synthesis      ; luggagelinux.netlab.cems.uwe.ac.uk ; Fedora Core ; 14         ; i686           ;
+; Fitter                    ; luggagelinux.netlab.cems.uwe.ac.uk ; Fedora Core ; 14         ; i686           ;
+; Assembler                 ; luggagelinux.netlab.cems.uwe.ac.uk ; Fedora Core ; 14         ; i686           ;
+; TimeQuest Timing Analyzer ; luggagelinux.netlab.cems.uwe.ac.uk ; Fedora Core ; 14         ; i686           ;
++---------------------------+------------------------------------+-------------+------------+----------------+
 
 
 ------------

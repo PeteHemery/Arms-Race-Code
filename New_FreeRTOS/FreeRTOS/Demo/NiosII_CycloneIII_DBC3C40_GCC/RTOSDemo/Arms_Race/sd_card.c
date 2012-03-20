@@ -24,12 +24,11 @@
 #include "altera_up_sd_card_avalon_interface.h"
 #include "sd_card.h"
 #include "LCD.h"
-#include <strings.h>
 
 
 #define FILE_NAME_MAX 30
 #define FILE_NAME_QUEUE_LENGTH 10
-#define FILE_NAME_QUEUE_SIZE sizeof(portCHAR * FILE_NAME_MAX)
+#define FILE_NAME_QUEUE_SIZE (sizeof(portCHAR) *FILE_NAME_MAX)
 #define FILE_NAME_STACK_SIZE 3000
 
 xQueueHandle xFileNameQueue = NULL;
@@ -51,7 +50,7 @@ xTaskHandle xPlayHandle = NULL;
 
 #define LOOP_MAX 100
 
-#define STRING_MAX 100
+//#define STRING_MAX 100 /* also in LCD.h */
 #define STRING_QUEUE_LENGTH 1
 #define STRING_QUEUE_SIZE sizeof(portCHAR * STRINGMAX)
 #define STRING_STACK_SIZE 3000
@@ -59,9 +58,17 @@ xTaskHandle xPlayHandle = NULL;
 xQueueHandle xStringQueue = NULL;
 xTaskHandle xStringHandle = NULL;
 
+/*-----------------------------------*/
+void vTaskSDCard(void *pvParameters);
+portBASE_TYPE xStartReadFileNamesTask(void);
+void vEndReadFileNamesTask(void);
+void vTaskReadFileNames(void *pvParameters);
+void vTaskReadFileContents(void *pvParameters);
+portBASE_TYPE xSendFileLines(portCHAR *pcFileName);
+portSHORT sd_card_write_file(char *file_name, char *chars_to_write);
+portSHORT sd_card_append_file(char *file_name, char *chars_to_write);
 
 /*-----------------------------------*/
-
 void vTaskSDCard(void *pvParameters)
 {
   portBASE_TYPE connected = 0;
@@ -78,7 +85,7 @@ void vTaskSDCard(void *pvParameters)
           
           /* Initialise Queues and Start Tasks */
           
-          if (vStartFileNameTask() != 0)
+          if (xStartReadFileNamesTask() != 0)
           {
             /* Could not start task */
             printf("vStartFileNameTask failed\n");
@@ -113,9 +120,9 @@ void vTaskSDCard(void *pvParameters)
 
 /*-----------------------------------*/
 
-void vStartReadFileNamesTask(void)
+portBASE_TYPE xStartReadFileNamesTask(void)
 {
-  xFileNameQueue = xQueueCreate ( FILE_NAME_QUEUE_LENGTH, FILE_NAME_QUEUE_SIZE);
+  xFileNameQueue = xQueueCreate( FILE_NAME_QUEUE_LENGTH, FILE_NAME_QUEUE_SIZE);
   if (xFileNameQueue == NULL)
   {
     /* Queue could not be created */
@@ -141,8 +148,8 @@ void vStartReadFileNamesTask(void)
 
 void vEndReadFileNamesTask(void)
 {
-  vTaskToSuspend( xFileNameHandle );
-  while (uxQueueMessageWaiting( xFileNameQueue ) != 0)
+  vTaskSuspend( xFileNameHandle );
+  while (uxQueueMessagesWaiting( xFileNameQueue ) != 0)
   {
     /* Dump queue contents */
     xQueueReceive( xFileNameQueue, NULL, 0 );
@@ -198,7 +205,7 @@ void vTaskReadFileNames(void *pvParameters)
     }
     
     /* All file names have been written */
-    printf("\nNumber of files: %d\n",xNumberOfFiles);
+    printf("\nNumber of files: %ld\n",xNumberOfFiles);
     
     /* Close the SD card file handle */
     alt_up_sd_card_fclose(psHandler);
@@ -217,7 +224,7 @@ void vTaskReadFileContents(void *pvParameters)
   const portTickType xTicksToWait = 1000 / portTICK_RATE_MS;
   portBASE_TYPE xStatus;
   portSHORT i;
-  PlaySettings_TYPE = xPlaySettings;
+  PlaySettings_TYPE xPlaySettings;
 
   /* Check if queue is ready */
   if( xPlayQueue == NULL )
@@ -258,25 +265,25 @@ void vTaskReadFileContents(void *pvParameters)
         vTaskDelete( NULL );
       }
     }
-    /* If loop mode has been set to continuous */
-    else if (xPlaySettings.psLoopCount == -1)
-    {
-      /* Continuously send all lines in the file */
-      while(1)      /* TODO: Change this condition to respond to cancel */
-      {
-        if (xSendFileLines(xPlaySettings.pcFileName) != 0)
-        {
-          vTaskDelete( NULL );
-        }
-      }
-    } 
-    printf("Finished Playback\n");
   }
+  /* If loop mode has been set to continuous */
+  else if (xPlaySettings.psLoopCount == -1)
+  {
+    /* Continuously send all lines in the file */
+    while(1)      /* TODO: Change this condition to respond to cancel */
+    {
+      if (xSendFileLines(xPlaySettings.pcFileName) != 0)
+      {
+        vTaskDelete( NULL );
+      }
+    }
+  } 
+  printf("Finished Playback\n");
   vTaskDelete( NULL );
 }
 
 
-portBASE_TYPE vSendFileLines(portCHAR *pcFileName)
+portBASE_TYPE xSendFileLines(portCHAR *pcFileName)
 {
   const portTickType xTicksToWait = 1000 / portTICK_RATE_MS;
   portCHAR pcRead;

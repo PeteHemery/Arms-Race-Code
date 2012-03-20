@@ -78,6 +78,7 @@
 #include "altera_avalon_lcd_16207_regs.h"
 #include "altera_avalon_lcd_16207_mod.h"
 
+#define DELAYms 400
 /* --------------------------------------------------------------------- */
 
 /* Commands which can be written to the COMMAND register */
@@ -141,7 +142,7 @@ altera_avalon_lcd_16207_state* pxSp = NULL;
 
 /* --------------------------------------------------------------------- */
 
-static void lcd_write_command(altera_avalon_lcd_16207_state* sp, 
+void lcd_write_command(altera_avalon_lcd_16207_state* sp, 
   unsigned char command)
 {
   unsigned int base = sp->base;
@@ -175,7 +176,7 @@ static void lcd_write_command(altera_avalon_lcd_16207_state* sp,
 
 /* --------------------------------------------------------------------- */
 
-static void lcd_write_data(altera_avalon_lcd_16207_state* sp, 
+void lcd_write_data(altera_avalon_lcd_16207_state* sp, 
   unsigned char data)
 {
   unsigned int base = sp->base;
@@ -211,7 +212,7 @@ static void lcd_write_data(altera_avalon_lcd_16207_state* sp,
 
 /* --------------------------------------------------------------------- */
 
-static void lcd_clear_screen(altera_avalon_lcd_16207_state* sp)
+void lcd_clear_screen(altera_avalon_lcd_16207_state* sp)
 {
   int y;
 
@@ -231,7 +232,7 @@ static void lcd_clear_screen(altera_avalon_lcd_16207_state* sp)
 
 /* --------------------------------------------------------------------- */
 
-static void lcd_repaint_screen(altera_avalon_lcd_16207_state* sp)
+void lcd_repaint_screen(altera_avalon_lcd_16207_state* sp)
 {
   int y, x;
 
@@ -263,7 +264,6 @@ static void lcd_repaint_screen(altera_avalon_lcd_16207_state* sp)
           lcd_write_command(sp, LCD_CMD_WRITE_DATA | address);
           sp->address = address;
         }
-
         lcd_write_data(sp, c);
         sp->line[y].visible[x] = c;
       }
@@ -273,7 +273,7 @@ static void lcd_repaint_screen(altera_avalon_lcd_16207_state* sp)
 
 /* --------------------------------------------------------------------- */
 
-static void lcd_scroll_up(altera_avalon_lcd_16207_state* sp)
+void lcd_scroll_up(altera_avalon_lcd_16207_state* sp)
 {
   int y;
 
@@ -290,7 +290,7 @@ static void lcd_scroll_up(altera_avalon_lcd_16207_state* sp)
 
 /* --------------------------------------------------------------------- */
 
-static void lcd_handle_escape(altera_avalon_lcd_16207_state* sp, char c)
+void lcd_handle_escape(altera_avalon_lcd_16207_state* sp, char c)
 {
   int parm1 = 0, parm2 = 0;
 
@@ -535,7 +535,7 @@ int altera_avalon_lcd_16207_write(altera_avalon_lcd_16207_state* sp,
  * Timeout routine is called every second
  */
 
-static alt_u32 alt_lcd_16207_timeout(void) 
+alt_u32 alt_lcd_16207_timeout(void) 
 {
   /* Modded to have global pointer */
   altera_avalon_lcd_16207_state* sp = pxSp;
@@ -553,7 +553,6 @@ static alt_u32 alt_lcd_16207_timeout(void)
   return sp->period;
 }
 
-
  void vTaskLCDTimeOut( void * pvParameters )
  {
  portTickType xLastWakeTime;
@@ -564,7 +563,7 @@ static alt_u32 alt_lcd_16207_timeout(void)
      for( ;; )
      {
          // Wait for the next cycle.
-         vTaskDelayUntil( &xLastWakeTime, 100 / portTICK_RATE_MS );
+         vTaskDelayUntil( &xLastWakeTime, DELAYms / portTICK_RATE_MS );
 
          // Perform action here.
          if (pxSp != NULL)

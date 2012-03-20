@@ -6,7 +6,7 @@
    {
       datum _sortIndex
       {
-         value = "24";
+         value = "23";
          type = "int";
       }
    }
@@ -116,19 +116,19 @@
          type = "String";
       }
    }
-   element lcd.control_slave
-   {
-      datum baseAddress
-      {
-         value = "1136";
-         type = "long";
-      }
-   }
    element sysid.control_slave
    {
       datum baseAddress
       {
          value = "1184";
+         type = "long";
+      }
+   }
+   element lcd.control_slave
+   {
+      datum baseAddress
+      {
+         value = "1136";
          type = "long";
       }
    }
@@ -178,7 +178,7 @@
    {
       datum _sortIndex
       {
-         value = "23";
+         value = "22";
          type = "int";
       }
    }
@@ -194,12 +194,12 @@
    {
       datum _sortIndex
       {
-         value = "17";
+         value = "24";
          type = "int";
       }
       datum megawizard_uipreferences
       {
-         value = "{}";
+         value = "{output_language=VERILOG, output_directory=/home/netlab/prhemery/Altera_Systems_Labs/De0_Counter}";
          type = "String";
       }
    }
@@ -207,7 +207,7 @@
    {
       datum _sortIndex
       {
-         value = "20";
+         value = "19";
          type = "int";
       }
       datum megawizard_uipreferences
@@ -255,19 +255,75 @@
          type = "String";
       }
    }
-   element timer.s1
+   element sd_cmd.s1
    {
       datum baseAddress
       {
-         value = "1024";
+         value = "160";
          type = "long";
       }
    }
-   element cfi_flash.s1
+   element pll.s1
    {
       datum baseAddress
       {
-         value = "37748736";
+         value = "42012672";
+         type = "long";
+      }
+   }
+   element switches.s1
+   {
+      datum baseAddress
+      {
+         value = "1104";
+         type = "long";
+      }
+   }
+   element sdram.s1
+   {
+      datum baseAddress
+      {
+         value = "25165824";
+         type = "long";
+      }
+   }
+   element lcd_light.s1
+   {
+      datum baseAddress
+      {
+         value = "1152";
+         type = "long";
+      }
+   }
+   element sd_clk.s1
+   {
+      datum baseAddress
+      {
+         value = "192";
+         type = "long";
+      }
+   }
+   element sd_dat.s1
+   {
+      datum baseAddress
+      {
+         value = "208";
+         type = "long";
+      }
+   }
+   element leds.s1
+   {
+      datum baseAddress
+      {
+         value = "1088";
+         type = "long";
+      }
+   }
+   element clock_crossing_bridge.s1
+   {
+      datum baseAddress
+      {
+         value = "0";
          type = "long";
       }
    }
@@ -287,19 +343,27 @@
          type = "long";
       }
    }
-   element sd_clk.s1
+   element onchip_mem.s1
    {
       datum baseAddress
       {
-         value = "192";
+         value = "41975808";
          type = "long";
       }
    }
-   element buttons.s1
+   element cfi_flash.s1
    {
       datum baseAddress
       {
-         value = "1120";
+         value = "37748736";
+         type = "long";
+      }
+   }
+   element timer.s1
+   {
+      datum baseAddress
+      {
+         value = "1024";
          type = "long";
       }
    }
@@ -311,75 +375,11 @@
          type = "long";
       }
    }
-   element lcd_light.s1
+   element buttons.s1
    {
       datum baseAddress
       {
-         value = "1152";
-         type = "long";
-      }
-   }
-   element sd_dat.s1
-   {
-      datum baseAddress
-      {
-         value = "208";
-         type = "long";
-      }
-   }
-   element sdram.s1
-   {
-      datum baseAddress
-      {
-         value = "25165824";
-         type = "long";
-      }
-   }
-   element switches.s1
-   {
-      datum baseAddress
-      {
-         value = "1104";
-         type = "long";
-      }
-   }
-   element sd_cmd.s1
-   {
-      datum baseAddress
-      {
-         value = "160";
-         type = "long";
-      }
-   }
-   element clock_crossing_bridge.s1
-   {
-      datum baseAddress
-      {
-         value = "0";
-         type = "long";
-      }
-   }
-   element pll.s1
-   {
-      datum baseAddress
-      {
-         value = "42012672";
-         type = "long";
-      }
-   }
-   element onchip_mem.s1
-   {
-      datum baseAddress
-      {
-         value = "41975808";
-         type = "long";
-      }
-   }
-   element leds.s1
-   {
-      datum baseAddress
-      {
-         value = "1088";
+         value = "1120";
          type = "long";
       }
    }
@@ -457,7 +457,7 @@
    {
       datum _sortIndex
       {
-         value = "22";
+         value = "21";
          type = "int";
       }
       datum megawizard_uipreferences
@@ -483,7 +483,7 @@
    {
       datum _sortIndex
       {
-         value = "19";
+         value = "18";
          type = "int";
       }
       datum megawizard_uipreferences
@@ -496,7 +496,7 @@
    {
       datum _sortIndex
       {
-         value = "18";
+         value = "17";
          type = "int";
       }
       datum megawizard_uipreferences
@@ -522,7 +522,7 @@
    {
       datum _sortIndex
       {
-         value = "21";
+         value = "20";
          type = "int";
       }
       datum megawizard_uipreferences
@@ -544,7 +544,7 @@
  <parameter name="projectName" value="DE0_TOP.qpf" />
  <parameter name="sopcBorderPoints" value="true" />
  <parameter name="systemHash" value="9976862121" />
- <parameter name="timeStamp" value="1331814935253" />
+ <parameter name="timeStamp" value="1332252417760" />
  <module kind="clock_source" version="11.0" enabled="1" name="clk">
   <parameter name="clockFrequency" value="50000000" />
   <parameter name="clockFrequencyKnown" value="true" />
@@ -1282,7 +1282,6 @@
  <connection kind="clock" version="11.0" start="pll.c2" end="buttons.clk" />
  <connection kind="clock" version="11.0" start="pll.c2" end="sysid.clk" />
  <connection kind="clock" version="11.0" start="pll.c2" end="timer.clk" />
- <connection kind="clock" version="11.0" start="pll.c2" end="lcd.clk" />
  <connection kind="clock" version="11.0" start="pll.c2" end="sd_clk.clk" />
  <connection kind="clock" version="11.0" start="pll.c2" end="sd_dat.clk" />
  <connection kind="clock" version="11.0" start="pll.c2" end="sd_cmd.clk" />
@@ -1444,4 +1443,5 @@
   <parameter name="arbitrationPriority" value="1" />
   <parameter name="baseAddress" value="252" />
  </connection>
+ <connection kind="clock" version="11.0" start="pll.c2" end="lcd.clk" />
 </system>

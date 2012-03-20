@@ -12,7 +12,7 @@
 #include "altera_avalon_lcd_16207_regs.h"
 #include "altera_avalon_lcd_16207.h"
 
-#define STRING_MAX 50
+#define STRING_MAX 100
 
 void vTaskLCD(void *pvParameters);
 void vPrintToLCD(unsigned char ucLineNumber ,char *pcString);
