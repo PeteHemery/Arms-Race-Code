@@ -282,6 +282,7 @@ void vTaskReadFileContents(void *pvParameters)
   vTaskDelete( NULL );
 }
 
+/*-----------------------------------*/
 
 portBASE_TYPE xSendFileLines(portCHAR *pcFileName)
 {
@@ -334,26 +335,26 @@ portBASE_TYPE xSendFileLines(portCHAR *pcFileName)
   }
   return 0;
 }
+
 /*-----------------------------------*/
 
-portSHORT sd_card_write_file(char *file_name, char *chars_to_write)
+portSHORT sCreateFile(portCHAR *pcFileName)
 {
-  portSHORT psHandler = -1;
+  portSHORT psHandler;
   portBASE_TYPE i = 0;
-  portSHORT psStringLength = 0;
   
-  psStringLength = strlen(file_name);
-  if ((psHandler = alt_up_sd_card_fopen(file_name, true)) != -1){
-    for (i=0;i<psStringLength;i++)
-    {
-      if ((alt_up_sd_card_write(psHandler, chars_to_write[i])) != 1)
-        printf("failed to write\n");
-    }
+  /* Attempt to create file */
+  if ((psHandler = alt_up_sd_card_fopen(pcFileName, true)) != -1)
+  {
+    /* File Created - Write New Line and save*/
     if ((alt_up_sd_card_write(psHandler, '\n')) != 1)
       printf("new line fail\n");
     
-    /* Should set the handler to true */
-    psHandler = alt_up_sd_card_fclose(psHandler);
+    alt_up_sd_card_fclose(psHandler);
+    
+    printf("%s created\n",pcFileName);
+    
+    psHandler = 0;
   }
   else
   {
@@ -364,19 +365,19 @@ portSHORT sd_card_write_file(char *file_name, char *chars_to_write)
 
 /*-----------------------------------*/
 
-portSHORT sd_card_append_file(char *file_name, char *chars_to_write)
+portSHORT sd_card_append_file(char *pcFileName, char *chars_to_write)
 {
   portSHORT psHandler = -1;
   portSHORT read;
   portSHORT i = 0;
   portSHORT psStringLength = 0;
   
-  if ((psStringLength = strlen(file_name)) == 0);
+  if ((psStringLength = strlen(pcFileName)) == 0);
   {
     printf("File name = 0\n");
     return -1;
   }
-  if ((psHandler = alt_up_sd_card_fopen(file_name, false)) != -1){
+  if ((psHandler = alt_up_sd_card_fopen(pcFileName, false)) != -1){
     /* Read to the end of the file */
     while ((read = alt_up_sd_card_read(psHandler)) != -1);
     for (i=0;i<psStringLength;i++)
