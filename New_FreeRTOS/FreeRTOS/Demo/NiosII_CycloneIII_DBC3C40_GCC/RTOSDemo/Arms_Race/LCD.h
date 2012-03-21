@@ -10,7 +10,7 @@
 
 /* LCD */
 #include "altera_avalon_lcd_16207_regs.h"
-#include "altera_avalon_lcd_16207.h"
+#include "altera_avalon_lcd_16207_mod.h"
 
 #define STRING_MAX 100
 

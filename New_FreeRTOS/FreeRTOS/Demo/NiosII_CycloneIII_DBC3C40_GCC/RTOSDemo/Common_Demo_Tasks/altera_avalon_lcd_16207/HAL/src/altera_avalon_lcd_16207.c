@@ -78,7 +78,10 @@
 #include "altera_avalon_lcd_16207_regs.h"
 #include "altera_avalon_lcd_16207_mod.h"
 
+/* PH 20/3/12 - Added DELAYms constant to control scroll speed of LCD */
 #define DELAYms 400
+/* Global - fix from Si Jackson 09/03/2012 */
+altera_avalon_lcd_16207_state* pxSp = NULL;
 /* --------------------------------------------------------------------- */
 
 /* Commands which can be written to the COMMAND register */
@@ -137,8 +140,6 @@ enum /* Clear command */
 
 /* Where in LCD character space do the rows start */
 static char colstart[4] = { 0x00, 0x40, 0x20, 0x60 };
-/* Global - fix from Si Jackson 09/03/2012 */
-altera_avalon_lcd_16207_state* pxSp = NULL;
 
 /* --------------------------------------------------------------------- */
 

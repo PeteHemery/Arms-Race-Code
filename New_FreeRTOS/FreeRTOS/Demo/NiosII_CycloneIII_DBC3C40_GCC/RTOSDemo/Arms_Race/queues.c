@@ -56,7 +56,7 @@ void vReceiverTask( void *pvParameters )
     xStatus = xQueueReceive( xKeyPadQueue, &lReceivedValue, xTicksToWait );
     if( xStatus == pdPASS )
     {
-      printf( "Received = %d\r\n", lReceivedValue );
+      printf( "Received = %ld\r\n", lReceivedValue );
     }
     else
     {

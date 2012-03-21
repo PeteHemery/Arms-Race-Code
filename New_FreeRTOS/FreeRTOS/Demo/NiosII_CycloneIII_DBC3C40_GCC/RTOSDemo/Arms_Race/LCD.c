@@ -53,7 +53,8 @@ void vPrintToLCD(unsigned char ucLineNumber ,char *pcString)
       }*/
     case 0:
     default:
-      lcd_write_data(pxSp,"\n\n\n");
+      sprintf(pcBuffer,"\n\n\n");      
+      altera_avalon_lcd_16207_write(pxSp, pcBuffer, strlen(pcBuffer), 0);
       break;
   }
 }

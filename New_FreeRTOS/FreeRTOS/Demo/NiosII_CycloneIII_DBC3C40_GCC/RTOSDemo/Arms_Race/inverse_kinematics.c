@@ -25,23 +25,23 @@
 
 float pi = 3.14159265;
 
-  float xt;
-  float I;
-  float X;
-  float Z;
-  float c;
-  float J2;
-  float theta;
-  float ang;
-  float J1;
-  float x1;
-  float Z1;
-  float d;
-  float J3;
-  float base;
-  
-  float theta1, theta2, theta3, Base;
-  
+float xt;
+float I;
+float X;
+float Z;
+float c;
+float J2;
+float theta;
+float ang;
+float J1;
+float x1;
+float Z1;
+float d;
+float J3;
+float base;
+
+float theta1, theta2, theta3, Base;
+
 
 void vTaskCalculateInverse(void *pvParameters)
 {

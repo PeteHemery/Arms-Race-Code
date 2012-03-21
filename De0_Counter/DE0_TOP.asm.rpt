@@ -1,5 +1,5 @@
 Assembler report for DE0_TOP
-Tue Mar 20 14:12:39 2012
+Wed Mar 21 20:22:56 2012
 Quartus II Version 11.0 Build 208 07/03/2011 Service Pack 1 SJ Full Version
 
 
@@ -38,7 +38,7 @@ applicable agreement for further details.
 +---------------------------------------------------------------+
 ; Assembler Summary                                             ;
 +-----------------------+---------------------------------------+
-; Assembler Status      ; Successful - Tue Mar 20 14:12:39 2012 ;
+; Assembler Status      ; Successful - Wed Mar 21 20:22:56 2012 ;
 ; Revision Name         ; DE0_TOP                               ;
 ; Top-level Entity Name ; DE0_TOP                               ;
 ; Family                ; Cyclone III                           ;
@@ -105,7 +105,7 @@ applicable agreement for further details.
 +----------------+----------------------+
 ; Device         ; EP3C16F484C6         ;
 ; JTAG usercode  ; 0xFFFFFFFF           ;
-; Checksum       ; 0x00629592           ;
+; Checksum       ; 0x00632685           ;
 +----------------+----------------------+
 
 
@@ -115,14 +115,14 @@ applicable agreement for further details.
 Info: *******************************************************************
 Info: Running Quartus II Assembler
     Info: Version 11.0 Build 208 07/03/2011 Service Pack 1 SJ Full Version
-    Info: Processing started: Tue Mar 20 14:12:36 2012
+    Info: Processing started: Wed Mar 21 20:22:53 2012
 Info: Command: quartus_asm --read_settings_files=off --write_settings_files=off DE0_TOP -c DE0_TOP
 Info: Writing out detailed assembly data for power analysis
 Info: Assembler is generating device programming files
 Info: Quartus II Assembler was successful. 0 errors, 0 warnings
     Info: Peak virtual memory: 293 megabytes
-    Info: Processing ended: Tue Mar 20 14:12:39 2012
-    Info: Elapsed time: 00:00:03
+    Info: Processing ended: Wed Mar 21 20:22:57 2012
+    Info: Elapsed time: 00:00:04
     Info: Total CPU time (on all processors): 00:00:02
 
 

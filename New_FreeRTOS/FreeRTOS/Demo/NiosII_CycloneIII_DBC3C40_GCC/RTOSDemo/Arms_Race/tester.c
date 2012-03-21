@@ -24,7 +24,7 @@ extern void vTaskCalculateInverse(void *pvParameters);
 
 void vTesterTask( void *pvParameters )
 {
-  unsigned short lReceivedValue;
+  portSHORT lReceivedValue;
   LCDQueue_TYPE xLCDQueueItem;
   portBASE_TYPE xKeyPadQueueStatus;
   portBASE_TYPE xLCDQueueStatus;

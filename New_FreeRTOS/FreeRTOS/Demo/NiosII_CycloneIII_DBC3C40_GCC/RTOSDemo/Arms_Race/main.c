@@ -77,20 +77,31 @@
 #include "keypad.h"
 #include "LCD.h"
 #include "sd_card.h"
+#include "arm_com.h"
 
 extern void vTaskSerial(void *pvParameters);
 
 extern void vTesterTask( void *pvParameters );
 extern void vTaskRecord( void *pvParameters );
-
+extern void vTaskMenu( void *pvParameters );
 
 xQueueHandle xKeyPadQueue;
 xQueueHandle xLCDQueue;
+xQueueHandle xArmComQueue;
+
+enum xSystemState
+{
+  WAITING_FOR_RESET,
+  RESETTING,
+  MENU_SELECT,
+  RECORDING,
+  PLAYING
+};
 
 int main( void )
 {
 
-    //xTaskCreate(vTaskSerial, "UART", 1000, NULL, 1, NULL);
+    //xTaskCreate(vTaskArmCom, "ARM COM", 1000, NULL, 1, NULL);
     //xTaskCreate(vTaskSDCard, "SD Card", 1000, NULL, 1, NULL); 
     xTaskCreate(vTaskLCDTimeOut, "LCD Timer", 1000, NULL, 1, NULL);
     
@@ -100,13 +111,15 @@ int main( void )
     
     xKeyPadQueue = xQueueCreate ( 1, sizeof(unsigned short));
     xLCDQueue = xQueueCreate ( 1, sizeof(LCDQueue_TYPE));
+    xArmComQueue = xQueueCreate ( 1, sizeof(ArmComQueue_TYPE));
     
     if (xKeyPadQueue != NULL && xLCDQueue != NULL)
     {
       xTaskCreate(vTaskKeyPad, "Keypad", 1000, NULL, 1, NULL);
       //xTaskCreate(vTaskLCD, "LCD", 1000, NULL, 1, NULL);
       //xTaskCreate(vTesterTask, "Tester", 1000, NULL, 1, NULL);
-      xTaskCreate(vTaskRecord, "Record", 2000, NULL, 1, NULL);
+      //xTaskCreate(vTaskRecord, "Record", 2000, NULL, 1, NULL);
+      xTaskCreate(vTaskMenu, "Menu", 2000, NULL, 1, NULL);
       
       //xTaskCreate( vTaskWayPointCreate, "WayPoints", 100, NULL, 1, NULL );
      

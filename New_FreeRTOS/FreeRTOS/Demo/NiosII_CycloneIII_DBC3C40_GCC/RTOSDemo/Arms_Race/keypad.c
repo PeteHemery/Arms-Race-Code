@@ -20,7 +20,8 @@
 
 /* Arms Race */
 #include "keypad.h"
-#define DEBUG 1
+
+#define DEBUG
 
 extern int sd_card_read_names(void);
 extern int sd_card_read_file(char *);

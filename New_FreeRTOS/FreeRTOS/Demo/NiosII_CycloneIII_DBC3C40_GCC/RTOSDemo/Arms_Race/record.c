@@ -23,12 +23,12 @@
 
 void vTaskRecord( void *pvParameters )
 {
-  unsigned short lReceivedValue;
+  portSHORT lReceivedValue;
   //struct LCDQueue_TYPE xLCDQueueItem;
   portBASE_TYPE xKeyPadQueueStatus;
   //portBASE_TYPE xLCDQueueStatus;
   const portTickType xTicksToWait = 1000 / portTICK_RATE_MS;
-  char pcBuffer[STRING_MAX] = {0};
+  portCHAR pcBuffer[STRING_MAX] = {0};
   
   portSHORT psX = 1;
   portSHORT psY = 1;
