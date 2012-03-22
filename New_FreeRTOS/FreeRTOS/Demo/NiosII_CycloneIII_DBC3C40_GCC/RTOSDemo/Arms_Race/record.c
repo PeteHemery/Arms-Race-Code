@@ -22,25 +22,38 @@
 #include "sd_card.h"
 #include "record.h"
 
-#define NUMBER_OF_CHOICES 4
+#define NUMBER_OF_CHOICES 6
+
+portBASE_TYPE xSetAxisValue(xInverseStruct_t *pxInverseStruct);
+portBASE_TYPE xSetAValue(xSetValueParam xValueParam, portBASE_TYPE *pxInValueIn);
+
 
 void vTaskRecord( void *pvParameters )
 {
-  portSHORT lReceivedValue;
+  /* Messages */
+  portSHORT sReceivedValue;
   portBASE_TYPE xKeyPadQueueStatus;
   const portTickType xTicksToWait = 1000 / portTICK_RATE_MS;
   
-  enum xChoice_t {SELECT_AXIS, SELECT_TIME, SELECT_WAIT, SELECT_EXIT} xChoice;
+  /* Track which variables have been set */
+  xWayPoint_t xWayPointFlags = {0};
+  /* Initial values for variables */
+  xInverseStruct_t xInverseStruct = {5, 3, 2, ""};
+  portBASE_TYPE xGripValue = 1500;
+  portBASE_TYPE xTimeValue = 1000;
+  portBASE_TYPE xWaitValue = 1000;
+    
   portCHAR *pcChoices[] = 
   {
     "Axis values",
+    "Gripper value",
     "Time value",
     "Wait value",
-    "Save & exit"
+    "Set Waypoint",
+    "Exit"
   };
-  xChoice = SELECT_AXIS;
-  
-  printf("Record a Program\n");
+  xChoice_t xChoice = SELECT_AXIS;
+
   /* Get file name () */
   
   
@@ -53,11 +66,11 @@ void vTaskRecord( void *pvParameters )
     {
       printf( "Queue should have been empty!\r\n" );
     }
-    xKeyPadQueueStatus = xQueueReceive( xKeyPadQueue, &lReceivedValue, xTicksToWait );
+    xKeyPadQueueStatus = xQueueReceive( xKeyPadQueue, &sReceivedValue, xTicksToWait );
     if( xKeyPadQueueStatus == pdPASS )
     {
-      printf( "Received = %d\r\n", lReceivedValue );
-      switch (lReceivedValue)
+      printf( "Received = %d\r\n", sReceivedValue );
+      switch (sReceivedValue)
       {
 
         case RESET:
@@ -73,24 +86,37 @@ void vTaskRecord( void *pvParameters )
           switch (xChoice)
           {
             case SELECT_AXIS:
-              printf("%s\n",pcChoices[xChoice]);
-              
+              xWayPointFlags.xAxisSet = xSetAxisValue(&xInverseStruct);
+              break;
+            case SELECT_GRIPPER:
+              xWayPointFlags.xGripSet = xSetAValue(GRIP_VALUE, &xGripValue);
               break;
             case SELECT_TIME:
-              printf("%s\n",pcChoices[xChoice]);
-              
+              xWayPointFlags.xTimeSet = xSetAValue(TIME_VALUE, &xTimeValue);
               break;
             case SELECT_WAIT:
+              xWayPointFlags.xWaitSet = xSetAValue(WAIT_VALUE, &xWaitValue);
+              break;
+            case SET_WAYPOINT:
               printf("%s\n",pcChoices[xChoice]);
               
               break;
             case SELECT_EXIT:
               printf("%s\n",pcChoices[xChoice]);
+              printf("TODO Must end in reset position\n");
               
+              xSystemState = MENU_SELECT;
+              xTaskCreate(vTaskMenu, "Menu", 2000, NULL, 1, &xMenuHandle);
+              vTaskDelete(NULL);
               break;    
             default:
               break;
           }
+          printf("xAxisSet\t%ld\txGripSet\t%ld\txTimeSet\t%ld\txWaitSet\t%ld\n",
+          xWayPointFlags.xAxisSet,
+          xWayPointFlags.xGripSet,
+          xWayPointFlags.xTimeSet,
+          xWayPointFlags.xWaitSet);
           break;
         case CANCEL:
           xSystemState = MENU_SELECT;
@@ -98,8 +124,8 @@ void vTaskRecord( void *pvParameters )
           vTaskDelete(NULL);
           break;
           
-        case XUP:
-        case UP:
+        case XDOWN:
+        case DOWN:
         case XRIGHT:
         case RIGHT:
           if (++xChoice >= NUMBER_OF_CHOICES)
@@ -107,8 +133,9 @@ void vTaskRecord( void *pvParameters )
             xChoice = 0;
           }
           break;
-        case XDOWN:
-        case DOWN:
+          
+        case XUP:
+        case UP:
         case XLEFT:
         case LEFT:
           --xChoice;
@@ -121,6 +148,7 @@ void vTaskRecord( void *pvParameters )
         
           break;
       }
+      vPrintToLCD(1,"Select Option:");
       vPrintToLCD(2,pcChoices[xChoice]);
     }
     else
@@ -131,37 +159,37 @@ void vTaskRecord( void *pvParameters )
   }
 }
 
-void vSetAxisValue(void)
+portBASE_TYPE xSetAxisValue(xInverseStruct_t *xInverseStruct)
 {
-  portSHORT lReceivedValue;
+  portSHORT sReceivedValue;
   portBASE_TYPE xKeyPadQueueStatus;
   const portTickType xTicksToWait = 1000 / portTICK_RATE_MS;
-  
-  portSHORT psX = 1;
-  portSHORT psY = 1;
-  portSHORT psZ = 1;
+  portCHAR pcBuffer[STRING_MAX] = {0};
 
-  printf("Select Axis Value\n");
-  vPrintToLCD(1,"Select Axis Value");
-  /* Get file name () */
 
-  xInverseStruct_t xInverseStruct = {psX, psY, psZ, ""};
-  strcpy(xInverseStruct.pcOutput,"Hi");
-  printf("psX=%d psY=%d psZ=%d pcOutput=%s\n",xInverseStruct.X,
-                                                    xInverseStruct.Y,
-                                                    xInverseStruct.Z,
-                                                    xInverseStruct.pcOutput);  
+  printf("Set Axis Values\n");
+  vPrintToLCD(1,"Set Axis Values");
+  sprintf(pcBuffer,"X:%d Y:%d Z:%d",xInverseStruct->X,
+                                    xInverseStruct->Y,
+                                    xInverseStruct->Z);
+  vPrintToLCD(2,pcBuffer);
+
+  strcpy(xInverseStruct->pcOutput,"Hi");
+  printf("psX=%d psY=%d psZ=%d\npcOutput=%s\n",xInverseStruct->X,
+                                               xInverseStruct->Y,
+                                               xInverseStruct->Z,
+                                               xInverseStruct->pcOutput);  
   for(;;)
   {
     if( uxQueueMessagesWaiting( xKeyPadQueue ) != 0)
     {
       printf( "Queue should have been empty!\r\n" );
     }
-    xKeyPadQueueStatus = xQueueReceive( xKeyPadQueue, &lReceivedValue, xTicksToWait );
+    xKeyPadQueueStatus = xQueueReceive( xKeyPadQueue, &sReceivedValue, xTicksToWait );
     if( xKeyPadQueueStatus == pdPASS )
     {
-      printf( "Received = %d\r\n", lReceivedValue );
-      switch (lReceivedValue)
+      printf( "Received = %d\r\n", sReceivedValue );
+      switch (sReceivedValue)
       {
 
         case RESET:
@@ -172,61 +200,103 @@ void vSetAxisValue(void)
           break;
         case STOP:
           break;
-          
+      /* Pressing Enter or Cancel exits this function
+       * Return value determines if the value has been set or not */
         case ENTER:
-          xInverseStruct.X = psX;
-          xInverseStruct.Y = psY;
-          xInverseStruct.Z = psZ;
-          strcpy(xInverseStruct.pcOutput,"");
-          vTaskCalculateInverse(&xInverseStruct);
-          /*if ((xTaskCreate(vTaskCalculateInverse, "Inverse Kinematics", 2000, &xInverseStruct, 1, NULL))
-            != pdPASS) printf("couldn't run inverse in\n");*/ 
-            
-          break;
-          
+          return 1;
         case CANCEL:
-          xSystemState = MENU_SELECT;
-          xTaskCreate(vTaskMenu, "Menu", 2000, NULL, 1, &xMenuHandle);
-          vTaskDelete(NULL);
-          break;
+          return 0;
           
+      /* Modify the Z axis */    
         case XUP:
-          psZ++;
-          printf("%d psZ++;\n",psZ);
+          xInverseStruct->Z++;
+          if (xInverseStruct->Z >= Z_MAX)
+          {
+            xInverseStruct->Z = Z_MAX;
+          }
+          printf("%d\tZ++;\n",xInverseStruct->Z);
+          bzero(pcBuffer,STRING_MAX);
+          sprintf(pcBuffer,"%d",xInverseStruct->Z);
+          vPrintToLCD(1,"Z Axis");
+          vPrintToLCD(2,pcBuffer);
           break;
         case XDOWN:
-          psZ--;
-          printf("%d psZ--;\n",psZ);
+          xInverseStruct->Z--;
+          if (xInverseStruct->Z < 0 || xInverseStruct->Z > Z_MAX)
+          {
+            xInverseStruct->Z = 0;
+          }
+          printf("%d\tZ--;\n",xInverseStruct->Z);
+          bzero(pcBuffer,STRING_MAX);
+          sprintf(pcBuffer,"%d",xInverseStruct->Z);
+          vPrintToLCD(1,"Z Axis");
+          vPrintToLCD(2,pcBuffer);
           break;
-          
+      
+      /* Modify the Y axis */
         case UP:
-          psY++;
-          printf("%d psY++;\n",psY);
+          xInverseStruct->Y++;
+          if (xInverseStruct->Y >= Y_MAX)
+          {
+            xInverseStruct->Y = Y_MAX;
+          }
+          printf("%d\tY++;\n",xInverseStruct->Y);
+          bzero(pcBuffer,STRING_MAX);
+          sprintf(pcBuffer,"%d",xInverseStruct->Y);
+          vPrintToLCD(1,"Y Axis");
+          vPrintToLCD(2,pcBuffer);
           break;
         case DOWN:
-          psY--;
-          printf("%d psY--;\n",psY);
+          xInverseStruct->Y--;
+          if (xInverseStruct->Y < 0 || xInverseStruct->Y > Y_MAX)
+          {
+            xInverseStruct->Y = 0;
+          }
+          printf("%d\tY--;\n",xInverseStruct->Y);
+          bzero(pcBuffer,STRING_MAX);
+          sprintf(pcBuffer,"%d",xInverseStruct->Y);
+          vPrintToLCD(1,"Y Axis");
+          vPrintToLCD(2,pcBuffer);
           break;
           
+      /* Modify the X axis */
         case XRIGHT:
         case RIGHT:
-          psX++;
-          printf("%d psX++;\n",psX);
+          xInverseStruct->X++;
+          if (xInverseStruct->X >= X_MAX)
+          {
+            xInverseStruct->X = X_MAX;
+          }
+          printf("%d\tX++;\n",xInverseStruct->X);
+          bzero(pcBuffer,STRING_MAX);
+          sprintf(pcBuffer,"%d",xInverseStruct->X);
+          vPrintToLCD(1,"X Axis");
+          vPrintToLCD(2,pcBuffer);
           break;
           
         case XLEFT:
         case LEFT:
-          psX--;
-          printf("%d psX--;\n",psX);
+          xInverseStruct->X--;
+          if (xInverseStruct->X < 0 || xInverseStruct->X > X_MAX)
+          {
+            xInverseStruct->X = 0;
+          }
+          printf("%d\tX--;\n",xInverseStruct->X);
+          bzero(pcBuffer,STRING_MAX);
+          sprintf(pcBuffer,"%d",xInverseStruct->X);
+          vPrintToLCD(1,"X Axis");
+          vPrintToLCD(2,pcBuffer);
           break;
           
         default:
           break;
       }
-      printf("psX=%d psY=%d psZ=%d pcOutput=%s\n",xInverseStruct.X,
-                                                    xInverseStruct.Y,
-                                                    xInverseStruct.Z,
-                                                    xInverseStruct.pcOutput);
+      strcpy(xInverseStruct->pcOutput,"");
+      vCalculateInverse(xInverseStruct);
+      printf("X=%d Y=%d Z=%d\npcOutput=%s\n",xInverseStruct->X,
+                                             xInverseStruct->Y,
+                                             xInverseStruct->Z,
+                                             xInverseStruct->pcOutput);
     }
     else
     {
@@ -236,3 +306,184 @@ void vSetAxisValue(void)
   }
 }
 
+portBASE_TYPE xSetAValue(xSetValueParam xValueParam, portBASE_TYPE *pxInValue)
+{
+  portSHORT sReceivedValue;
+  portBASE_TYPE xKeyPadQueueStatus;
+  const portTickType xTicksToWait = 1000 / portTICK_RATE_MS;
+  portCHAR pcBuffer[STRING_MAX] = {0};
+  
+  sprintf(pcBuffer,"%ld",*pxInValue);
+  
+  switch(xValueParam)
+  {
+    case GRIP_VALUE:
+      printf("Grip Value\n");
+      vPrintToLCD(1,"Grip Value");
+      vPrintToLCD(2,pcBuffer);
+      break;
+    case TIME_VALUE:
+      printf("Time Value\n");
+      vPrintToLCD(1,"Time Value");
+      vPrintToLCD(2,pcBuffer);
+      break;
+    case WAIT_VALUE:
+      printf("Wait Value\n");
+      vPrintToLCD(1,"Wait Value");
+      vPrintToLCD(2,pcBuffer);
+      break;
+    default:
+      break;
+  }
+
+  for(;;)
+  {
+    if( uxQueueMessagesWaiting( xKeyPadQueue ) != 0)
+    {
+      printf( "Queue should have been empty!\r\n" );
+    }
+    xKeyPadQueueStatus = xQueueReceive( xKeyPadQueue, &sReceivedValue, xTicksToWait );
+    if( xKeyPadQueueStatus == pdPASS )
+    {
+      printf( "Received = %d\r\n", sReceivedValue );
+      switch (sReceivedValue)
+      {
+
+        case RESET:
+          break;
+        case PLAY:
+          break;
+        case PAUSE:
+          break;
+        case STOP:
+          break;
+      /* Pressing Enter or Cancel exits this function */
+        case ENTER:
+          return 1;
+        case CANCEL:
+          return 0;
+          
+        case XUP:
+        case XRIGHT:
+          (*pxInValue) += 10;
+          switch(xValueParam)
+          {
+            case GRIP_VALUE:
+              if ((*pxInValue) >= GRIP_MAX)
+                (*pxInValue) = GRIP_MAX;
+              printf("%ld\tGripValue++;\n",*pxInValue);
+              break;
+            case TIME_VALUE:
+              if ((*pxInValue) >= TIME_MAX)
+                (*pxInValue) = TIME_MAX;
+              printf("%ld\tTimeValue++;\n",*pxInValue);
+              break;
+            case WAIT_VALUE:
+              if ((*pxInValue) >= WAIT_MAX)
+                (*pxInValue) = WAIT_MAX;
+              printf("%ld\tWaitValue++;\n",*pxInValue);
+              break;
+            default:
+              break;
+          }
+          bzero(pcBuffer,STRING_MAX);
+          sprintf(pcBuffer,"%ld",*pxInValue);
+          vPrintToLCD(2,pcBuffer);
+          break;
+          
+        case XDOWN:
+        case XLEFT:
+          (*pxInValue) -= 10;
+          switch(xValueParam)
+          {
+            case GRIP_VALUE:
+              if ((*pxInValue) < GRIP_MIN || (*pxInValue) > GRIP_MAX)
+                (*pxInValue) = GRIP_MIN; 
+              printf("%ld\tGripValue-10;\n",*pxInValue);
+              break;
+            case TIME_VALUE:
+              if ((*pxInValue) < TIME_MIN || (*pxInValue) > TIME_MAX)
+                (*pxInValue) = TIME_MIN; 
+              printf("%ld\tTimeValue-10;\n",*pxInValue);
+              break;
+            case WAIT_VALUE:
+              if ((*pxInValue) < WAIT_MIN || (*pxInValue) > WAIT_MAX)
+                (*pxInValue) = WAIT_MIN;
+              printf("%ld\tWaitValue-10;\n",*pxInValue);
+              break;
+            default:
+              break;
+          }
+          bzero(pcBuffer,STRING_MAX);
+          sprintf(pcBuffer,"%ld",*pxInValue);
+          vPrintToLCD(2,pcBuffer);
+          break;
+          
+        case UP:
+        case RIGHT:
+          (*pxInValue)++;
+          switch(xValueParam)
+          {
+            case GRIP_VALUE:
+              if ((*pxInValue) >= GRIP_MAX)
+                (*pxInValue) = GRIP_MAX;
+              printf("%ld\tGripValue++;\n",*pxInValue);
+              break;
+            case TIME_VALUE:
+              if ((*pxInValue) >= TIME_MAX)
+                (*pxInValue) = TIME_MAX;
+              printf("%ld\tTimeValue++;\n",*pxInValue);
+              break;
+            case WAIT_VALUE:
+              if ((*pxInValue) >= WAIT_MAX)
+                (*pxInValue) = WAIT_MAX;
+              printf("%ld\tWaitValue++;\n",*pxInValue);
+              break;
+            default:
+              break;
+          }
+          bzero(pcBuffer,STRING_MAX);
+          sprintf(pcBuffer,"%ld",*pxInValue);
+          vPrintToLCD(2,pcBuffer);
+          break;
+          
+        case DOWN:
+        case LEFT:
+          (*pxInValue)--;
+          switch(xValueParam)
+          {
+            case GRIP_VALUE:
+              if ((*pxInValue) < GRIP_MIN || (*pxInValue) > GRIP_MAX)
+                (*pxInValue) = GRIP_MIN; 
+              printf("%ld\tGripValue--;\n",*pxInValue);
+              break;
+            case TIME_VALUE:
+              if ((*pxInValue) < TIME_MIN || (*pxInValue) > TIME_MAX)
+                (*pxInValue) = TIME_MIN; 
+              printf("%ld\tTimeValue--;\n",*pxInValue);
+              break;
+            case WAIT_VALUE:
+              if ((*pxInValue) < WAIT_MIN || (*pxInValue) > WAIT_MAX)
+                (*pxInValue) = WAIT_MIN;
+              printf("%ld\tWaitValue--;\n",*pxInValue);
+              break;
+            default:
+              break;
+          }
+          bzero(pcBuffer,STRING_MAX);
+          sprintf(pcBuffer,"%ld",*pxInValue);
+          vPrintToLCD(2,pcBuffer);
+          break;
+          
+        default:
+          break;
+      }
+      vPrintToLCD(2,pcBuffer);
+    }
+    else
+    {
+      //printf( "Could not receive from the queue.\r\n");
+    }
+    taskYIELD();
+  }
+}

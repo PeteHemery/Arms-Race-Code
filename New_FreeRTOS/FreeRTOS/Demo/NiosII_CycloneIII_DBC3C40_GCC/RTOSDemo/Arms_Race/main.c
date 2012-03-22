@@ -109,7 +109,6 @@ int main( void )
       xTaskCreate(vTaskSDCard, "SD Card", 1000, NULL, 1, &xSDCardHandle); 
       xTaskCreate(vTaskLCDTimeOut, "LCD Timer", 1000, NULL, 1, &xLCDTimeOutHandle);
       
-      
       xTaskCreate(vTaskKeyPad, "Keypad", 1000, NULL, 1, &xKeyPadHandle);
       xTaskCreate(vTaskMenu, "Menu", 2000, NULL, 1, &xMenuHandle);
         

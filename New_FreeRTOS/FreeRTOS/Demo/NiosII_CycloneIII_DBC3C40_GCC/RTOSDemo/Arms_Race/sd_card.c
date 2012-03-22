@@ -35,10 +35,11 @@ xQueueHandle xStringQueue = NULL;
 xTaskHandle xStringHandle = NULL;
 
 
+portBASE_TYPE xConnected = 0;
+  
 /*-----------------------------------*/
 void vTaskSDCard(void *pvParameters)
 {
-  portBASE_TYPE connected = 0;
   alt_up_sd_card_dev *device_reference = NULL;
   device_reference = alt_up_sd_card_open_dev(ALTERA_UP_SD_CARD_NAME);
   const portTickType xTicksToWait = 2000 / portTICK_RATE_MS;
@@ -46,11 +47,11 @@ void vTaskSDCard(void *pvParameters)
   while(1) {
     vTaskDelay(xTicksToWait); // Chill out the for loop a bit
     if (device_reference != NULL) {
-      if ((connected == 0) && (alt_up_sd_card_is_Present())) {
+      if ((xConnected == pdFALSE) && (alt_up_sd_card_is_Present())) {
         printf("Card connected.\n");
         if (alt_up_sd_card_is_FAT16()) {
           printf("FAT16 file system detected.\n");
-          connected = 1;
+          xConnected = pdTRUE;
           
           /* Initialise Queues and Start Tasks */
           
@@ -64,11 +65,11 @@ void vTaskSDCard(void *pvParameters)
         else {
           printf("Unknown file system.\n");
         }
-        connected = 1;
+        xConnected = pdTRUE;
       }
-      else if ((connected == 1) && (alt_up_sd_card_is_Present() == false)) {
+      else if ((xConnected == pdTRUE) && (alt_up_sd_card_is_Present() == pdFALSE)) {
         printf("Card disconnected.\n");
-        connected = 0;
+        xConnected = pdFALSE;
         
         /* Remove items from Queues and delete Tasks */
         vEndReadFileNamesTask();
@@ -302,6 +303,7 @@ portBASE_TYPE xSendFileLines(portCHAR *pcFileName)
   else
   {
     printf("File not found\n");
+    vPrintToLCD(1,"File not found");
     return -1;
   }
   return 0;

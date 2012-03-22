@@ -29,7 +29,7 @@ extern void vTaskPlay( void *pvParameters );
 
 void vTaskMenu( void *pvParameters )
 {
-  portSHORT lReceivedValue;
+  portSHORT sReceivedValue;
   portBASE_TYPE xKeyPadQueueStatus;
   const portTickType xTicksToWait = 1000 / portTICK_RATE_MS;
   enum xChoice_t {RECORD_A_PROGRAM, PLAY_A_PROGRAM} xChoice;
@@ -43,10 +43,6 @@ void vTaskMenu( void *pvParameters )
   printf("Menu\n");
   if (xSystemState != MENU_SELECT)
   {
-    printf("Press Reset to Begin\n");
-    vPrintToLCD(1,"Press Reset");
-    vPrintToLCD(2,"to begin");
-    
     vWaitForReset();
   }
   
@@ -59,11 +55,11 @@ void vTaskMenu( void *pvParameters )
     {
       printf( "Queue should have been empty!\r\n" );
     }
-    xKeyPadQueueStatus = xQueueReceive( xKeyPadQueue, &lReceivedValue, xTicksToWait );
+    xKeyPadQueueStatus = xQueueReceive( xKeyPadQueue, &sReceivedValue, xTicksToWait );
     if( xKeyPadQueueStatus == pdPASS )
     {
-//      printf( "Received = %d \t", lReceivedValue);
-      switch (lReceivedValue)
+//      printf( "Received = %d \t", sReceivedValue);
+      switch (sReceivedValue)
       {
 
         case RESET:
@@ -112,6 +108,8 @@ void vTaskMenu( void *pvParameters )
         case DOWN:
         case XLEFT:
         case LEFT:
+        /* enum is an unsigned int, checking below zero doesn't work 
+         * so check if value is above the max number aswell */
           --xChoice;
           if (xChoice < 0 || xChoice > NUMBER_OF_CHOICES)
           {
@@ -134,7 +132,7 @@ void vTaskMenu( void *pvParameters )
   
   for (;;)
   {
-    /* Do nothing */
+    /* Catch a problem - Do nothing */
   }
   
    vTaskDelete(NULL);

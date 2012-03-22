@@ -43,7 +43,7 @@ void vSenderTask( void *pvParameters )
 
 void vReceiverTask( void *pvParameters )
 {
-  long lReceivedValue;
+  portSHORT sReceivedValue;
   portBASE_TYPE xStatus;
   const portTickType xTicksToWait = 200 / portTICK_RATE_MS;
 
@@ -53,10 +53,10 @@ void vReceiverTask( void *pvParameters )
     {
       printf( "Queue should have been empty!\r\n" );
     }
-    xStatus = xQueueReceive( xKeyPadQueue, &lReceivedValue, xTicksToWait );
+    xStatus = xQueueReceive( xKeyPadQueue, &sReceivedValue, xTicksToWait );
     if( xStatus == pdPASS )
     {
-      printf( "Received = %ld\r\n", lReceivedValue );
+      printf( "Received = %ld\r\n", sReceivedValue );
     }
     else
     {

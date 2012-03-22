@@ -51,14 +51,13 @@ void vTaskKeyPad(void *pvParameters)
       usKeyPadStatus = IORD_ALTERA_AVALON_PIO_DATA(KEYPAD_BASE); // Read HW
       //printf("status: %d\n",usKeyPadStatus);
       
-      if (usKeyPadStatus < 0x10){
-/* Perform another read, since there's a bug that the value don't get updated quick enough*/
-        vTaskDelay(20 / portTICK_RATE_MS);
-        usKeyPadStatus = IORD_ALTERA_AVALON_PIO_DATA(KEYPAD_BASE); // Read HW
-      }
-      
       if (usKeyPadStatus < 0x10){ //value latched
         if (usPreviousKeyPadStatus != usKeyPadStatus){
+          /* Perform another read, since there's a bug that the value don't get updated quick enough*/
+          vTaskDelay(20 / portTICK_RATE_MS);
+          usKeyPadStatus = IORD_ALTERA_AVALON_PIO_DATA(KEYPAD_BASE); // Read HW
+          if (usKeyPadStatus >= 0x10)
+            continue;
           hold = 0;
         }
         if(hold == 0 || hold >= THRESHOLD){

@@ -60,12 +60,10 @@ int serial_main(void)
 
 void vTaskArmCom(void *pvParameters)
 {
-  unsigned int status = 0;
-  const char *pcTaskName = "Serial test\n";
-  printf(pcTaskName);
+  portBASE_TYPE xStatus = 0;
   
-  status = serial_main();
-  printf("status = %d\n",status);
+  xStatus = serial_main();
+  printf("status = %ld\n",xStatus);
   for (;;)
   {
     /* Do nothing */

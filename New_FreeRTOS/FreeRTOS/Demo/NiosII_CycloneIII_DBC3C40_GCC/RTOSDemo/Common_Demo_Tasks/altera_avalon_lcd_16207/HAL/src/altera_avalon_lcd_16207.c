@@ -250,7 +250,7 @@ void lcd_repaint_screen(altera_avalon_lcd_16207_state* sp)
     int offset = (scrollpos * sp->line[y].speed) >> 8;
     if (offset >= width)
       offset = 0;
-
+    
     for (x = 0 ; x < ALT_LCD_WIDTH ; x++)
     {
       char c = sp->line[y].data[(x + offset) % width];

@@ -57,4 +57,7 @@ extern xQueueHandle xStringQueue;
 extern xTaskHandle xStringHandle;
 
 /*-----------------------------------*/
+
+extern portBASE_TYPE xConnected;
+
 #endif /*SD_CARD_H_*/
