@@ -21,7 +21,9 @@
 /* Arms Race */
 #include "keypad.h"
 
-#define DEBUG
+//#define DEBUG
+
+#define THRESHOLD 20
 
 extern int sd_card_read_names(void);
 extern int sd_card_read_file(char *);
@@ -47,7 +49,13 @@ void vTaskKeyPad(void *pvParameters)
   {
       vTaskDelay(xTicksToWait); // Chill out the for loop a bit
       usKeyPadStatus = IORD_ALTERA_AVALON_PIO_DATA(KEYPAD_BASE); // Read HW
-      //printf("status: %d\n",status);
+      //printf("status: %d\n",usKeyPadStatus);
+      
+      if (usKeyPadStatus < 0x10){
+/* Perform another read, since there's a bug that the value don't get updated quick enough*/
+        vTaskDelay(20 / portTICK_RATE_MS);
+        usKeyPadStatus = IORD_ALTERA_AVALON_PIO_DATA(KEYPAD_BASE); // Read HW
+      }
       
       if (usKeyPadStatus < 0x10){ //value latched
         if (usPreviousKeyPadStatus != usKeyPadStatus){
@@ -79,6 +87,7 @@ void vTaskKeyPad(void *pvParameters)
           
 #ifdef DEBUG
           printf("no key pressed\n");
+          //printf("status: %d\n",usKeyPadStatus);
 #endif
         }
         hold = 0;

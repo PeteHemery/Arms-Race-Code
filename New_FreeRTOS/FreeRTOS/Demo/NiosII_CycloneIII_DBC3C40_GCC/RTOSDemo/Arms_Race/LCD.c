@@ -24,7 +24,6 @@
 #include "altera_avalon_lcd_16207_mod.h"
 #include "altera_avalon_lcd_16207.h"
 
-
 extern int altera_avalon_lcd_16207_write(altera_avalon_lcd_16207_state* sp, const char* ptr, int len, int flags);
 extern altera_avalon_lcd_16207_state* pxSp;
 /* --------------------------------------------------------------------- */
@@ -56,34 +55,5 @@ void vPrintToLCD(unsigned char ucLineNumber ,char *pcString)
       sprintf(pcBuffer,"\n\n\n");      
       altera_avalon_lcd_16207_write(pxSp, pcBuffer, strlen(pcBuffer), 0);
       break;
-  }
-}
-
-void vTaskLCD(void *pvParameters)
-{
-  const portTickType xTicksToWait = 100 / portTICK_RATE_MS;
-  portBASE_TYPE xStatus;
-  LCDQueue_TYPE xLCDQueueItem;
-  /* New LCD doesn't work the same as old =( *//*
-  lcd_clear_screen(pxSp);
-  altera_avalon_lcd_16207_write(pxSp,"TESTER");
-*/
-  for (;;){
-    if( uxQueueMessagesWaiting( xLCDQueue ) != 0)
-    {
-      printf( "Queue should have been empty!\r\n" );
-    }
-    xStatus = xQueueReceive( xLCDQueue, &xLCDQueueItem, xTicksToWait );
-    if( xStatus == pdPASS )
-    {
-      printf( "LCD Received = %d %s\r\n", xLCDQueueItem.ucLineNumber,xLCDQueueItem.cString );
-      vPrintToLCD(xLCDQueueItem.ucLineNumber,xLCDQueueItem.cString);
-    }
-    else
-    {
-      //printf( "Could not receive to the queue.\r\n");
-    }
-    
-    taskYIELD();
   }
 }

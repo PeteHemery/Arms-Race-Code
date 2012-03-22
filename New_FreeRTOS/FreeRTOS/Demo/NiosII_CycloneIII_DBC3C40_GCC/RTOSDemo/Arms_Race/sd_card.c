@@ -26,56 +26,25 @@
 #include "LCD.h"
 
 
-#define FILE_NAME_MAX 30
-#define FILE_NAME_QUEUE_LENGTH 10
-#define FILE_NAME_QUEUE_SIZE (sizeof(portCHAR) *FILE_NAME_MAX)
-#define FILE_NAME_STACK_SIZE 3000
-
 xQueueHandle xFileNameQueue = NULL;
 xTaskHandle xFileNameHandle = NULL;
 
-/* Define data type that will be queued */
-typedef struct Play_Settings
-{
-  portCHAR pcFileName[FILE_NAME_MAX];
-  portSHORT psLoopCount;
-} PlaySettings_TYPE;
-
-#define PLAY_QUEUE_LENGTH 1
-#define PLAY_QUEUE_SIZE sizeof(PlaySettings_TYPE)
-#define PLAY_STACK_SIZE 3000
-
 xQueueHandle xPlayQueue = NULL;
-xTaskHandle xPlayHandle = NULL;
-
-#define LOOP_MAX 100
-
-//#define STRING_MAX 100 /* also in LCD.h */
-#define STRING_QUEUE_LENGTH 1
-#define STRING_QUEUE_SIZE sizeof(portCHAR * STRINGMAX)
-#define STRING_STACK_SIZE 3000
 
 xQueueHandle xStringQueue = NULL;
 xTaskHandle xStringHandle = NULL;
 
-/*-----------------------------------*/
-void vTaskSDCard(void *pvParameters);
-portBASE_TYPE xStartReadFileNamesTask(void);
-void vEndReadFileNamesTask(void);
-void vTaskReadFileNames(void *pvParameters);
-void vTaskReadFileContents(void *pvParameters);
-portBASE_TYPE xSendFileLines(portCHAR *pcFileName);
-portSHORT sd_card_write_file(char *file_name, char *chars_to_write);
-portSHORT sd_card_append_file(char *file_name, char *chars_to_write);
 
 /*-----------------------------------*/
 void vTaskSDCard(void *pvParameters)
 {
   portBASE_TYPE connected = 0;
   alt_up_sd_card_dev *device_reference = NULL;
-  
   device_reference = alt_up_sd_card_open_dev(ALTERA_UP_SD_CARD_NAME);
+  const portTickType xTicksToWait = 2000 / portTICK_RATE_MS;
+  
   while(1) {
+    vTaskDelay(xTicksToWait); // Chill out the for loop a bit
     if (device_reference != NULL) {
       if ((connected == 0) && (alt_up_sd_card_is_Present())) {
         printf("Card connected.\n");
@@ -110,6 +79,7 @@ void vTaskSDCard(void *pvParameters)
       printf("device_reference = NULL\n");
       break;
     }
+    taskYIELD();
   }
   for (;;)
   {
@@ -210,6 +180,7 @@ void vTaskReadFileNames(void *pvParameters)
     /* Close the SD card file handle */
     alt_up_sd_card_fclose(psHandler);
     
+    xNumberOfFiles = 0;
     /* Good Job, now sleep */
     vTaskSuspend( NULL );
     /* Once woken start again */
@@ -341,7 +312,6 @@ portBASE_TYPE xSendFileLines(portCHAR *pcFileName)
 portSHORT sCreateFile(portCHAR *pcFileName)
 {
   portSHORT psHandler;
-  portBASE_TYPE i = 0;
   
   /* Attempt to create file */
   if ((psHandler = alt_up_sd_card_fopen(pcFileName, true)) != -1)

@@ -73,68 +73,59 @@
 #include "alt_types.h"
 
 /* Pete written */
+#include "system_state.h"
 #include "waypoints.h"
 #include "keypad.h"
 #include "LCD.h"
 #include "sd_card.h"
 #include "arm_com.h"
 
-extern void vTaskSerial(void *pvParameters);
-
-extern void vTesterTask( void *pvParameters );
-extern void vTaskRecord( void *pvParameters );
-extern void vTaskMenu( void *pvParameters );
-
 xQueueHandle xKeyPadQueue;
-xQueueHandle xLCDQueue;
 xQueueHandle xArmComQueue;
 
-enum xSystemState
-{
-  WAITING_FOR_RESET,
-  RESETTING,
-  MENU_SELECT,
-  RECORDING,
-  PLAYING
-};
+xTaskHandle xArmComHandle = NULL;
+xTaskHandle xSDCardHandle = NULL;
+xTaskHandle xLCDTimeOutHandle = NULL;
+xTaskHandle xKeyPadHandle = NULL;
+xTaskHandle xMenuHandle = NULL;
+xTaskHandle xRecordHandle = NULL;
+xTaskHandle xPlayHandle = NULL;
+
+enum xSystemState_t xSystemState = WAITING_FOR_RESET;
 
 int main( void )
 {
-
-    //xTaskCreate(vTaskArmCom, "ARM COM", 1000, NULL, 1, NULL);
-    //xTaskCreate(vTaskSDCard, "SD Card", 1000, NULL, 1, NULL); 
-    xTaskCreate(vTaskLCDTimeOut, "LCD Timer", 1000, NULL, 1, NULL);
+  xKeyPadQueue = xQueueCreate( 1, sizeof(unsigned portSHORT));
+  xArmComQueue = xQueueCreate( 1, sizeof(ArmComQueue_TYPE));
+  
+  
+  /* Upon resetting, reinitialise everything */
     
-    /* hacksy test of the functions in heap_2.c */
-    //size_t test;
-    //test = xPortGetFreeHeapSize();
-    
-    xKeyPadQueue = xQueueCreate ( 1, sizeof(unsigned short));
-    xLCDQueue = xQueueCreate ( 1, sizeof(LCDQueue_TYPE));
-    xArmComQueue = xQueueCreate ( 1, sizeof(ArmComQueue_TYPE));
-    
-    if (xKeyPadQueue != NULL && xLCDQueue != NULL)
+  if (xKeyPadQueue != NULL)
+  {
+    for (;;)
     {
-      xTaskCreate(vTaskKeyPad, "Keypad", 1000, NULL, 1, NULL);
-      //xTaskCreate(vTaskLCD, "LCD", 1000, NULL, 1, NULL);
-      //xTaskCreate(vTesterTask, "Tester", 1000, NULL, 1, NULL);
-      //xTaskCreate(vTaskRecord, "Record", 2000, NULL, 1, NULL);
-      xTaskCreate(vTaskMenu, "Menu", 2000, NULL, 1, NULL);
+      //xTaskCreate(vTaskArmCom, "ARM COM", 1000, NULL, 1, &xArmComHandle);
+      xTaskCreate(vTaskSDCard, "SD Card", 1000, NULL, 1, &xSDCardHandle); 
+      xTaskCreate(vTaskLCDTimeOut, "LCD Timer", 1000, NULL, 1, &xLCDTimeOutHandle);
       
-      //xTaskCreate( vTaskWayPointCreate, "WayPoints", 100, NULL, 1, NULL );
-     
+      
+      xTaskCreate(vTaskKeyPad, "Keypad", 1000, NULL, 1, &xKeyPadHandle);
+      xTaskCreate(vTaskMenu, "Menu", 2000, NULL, 1, &xMenuHandle);
+        
       /* Finally start the scheduler. */
       vTaskStartScheduler();
-      printf("Scheduler Went Wrong\n");
-      
-      /* Will only reach here if there is insufficient heap available to start
-      the scheduler. */
-      for( ;; );
+      printf("Resetting System\n");
+      /* hacksy test of the functions in heap_2.c */
+      //size_t test;
+      //test = xPortGetFreeHeapSize();
+      //printf("Free Heap Size = %d\n",test);
     }
-    else
-    {
-      printf("Queues could not be created\n");
-    }
+  }
+  else
+  {
+    printf("Queues could not be created\n");
+  }
 }
 
 

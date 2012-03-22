@@ -42,6 +42,11 @@ float base;
 
 float theta1, theta2, theta3, Base;
 
+float servovalue1;
+float servovalue2;
+float servovalue3;
+float servovalue4;
+
 
 void vTaskCalculateInverse(void *pvParameters)
 {
@@ -77,18 +82,22 @@ void vTaskCalculateInverse(void *pvParameters)
   theta3 = 180 / pi * J3;
   Base = 180 / pi * base;
   
-   printf("Theta 1\n%0.0f\n", roundf(theta1*10.0f)/10.0f);
-   printf("Theta 2\n%0.0f\n", roundf(theta2*10.0f)/10.0f);
-   printf("Theta 3\n%0.0f\n", roundf(theta3*10.0f)/10.0f);
-   printf("Base\n%0.0f\n", roundf(Base*10.0f)/10.0f);
-   printf("\n");
-   
-   sprintf(pxInverseStruct->pcOutput,"#0 P%0.0f #1 P%0.0f #2 P%0.0f #3 P%0.0f\r\n",
-                                      roundf(theta1*10.0f)/10.0f,
-                                      roundf(theta2*10.0f)/10.0f,
-                                      roundf(theta3*10.0f)/10.0f,
-                                      roundf(Base*10.0f)/10.0f);
-                                      
+  printf("Theta 1\t%0.0f\n", roundf(theta1*10.0f)/10.0f);
+  printf("Theta 2\t%0.0f\n", roundf(theta2*10.0f)/10.0f);
+  printf("Theta 3\t%0.0f\n", roundf(theta3*10.0f)/10.0f);
+  printf("Base\t%0.0f\n", roundf(Base*10.0f)/10.0f);
+  printf("\n");
+  servovalue1 = 11.11 * theta1 + 500;
+  servovalue2 = 11.11 * theta2 + 500;
+  servovalue3 = 11.11 * theta3 + 500;
+  servovalue4 = 11.11 * Base + 500;  
+  sprintf(pxInverseStruct->pcOutput,"#0 P%0.0f #1 P%0.0f #2 P%0.0f #3 P%0.0f\r\n",
+                                      roundf(servovalue1*10.0f)/10.0f,
+                                      roundf(servovalue2*10.0f)/10.0f,
+                                      roundf(servovalue3*10.0f)/10.0f,
+                                      roundf(servovalue4*10.0f)/10.0f);
+
+  
   printf("OUTPUT = %s\n",pxInverseStruct->pcOutput);
-   vTaskDelete( NULL );
+  return;
 }

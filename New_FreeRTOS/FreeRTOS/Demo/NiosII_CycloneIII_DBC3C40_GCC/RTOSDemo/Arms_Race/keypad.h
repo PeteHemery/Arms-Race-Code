@@ -8,8 +8,6 @@
 #ifndef KEYPAD_H_
 #define KEYPAD_H_
 
-#define THRESHOLD 20
-
 enum {
   RESET, XUP, BLANK1, PLAY,
   XLEFT,  UP, XRIGHT, PAUSE,
@@ -18,8 +16,6 @@ enum {
 };
 
 extern char *key_assignment[];
-
-extern void vTaskKeyPad(void *pvParameters);
 
 extern xQueueHandle xKeyPadQueue;
 

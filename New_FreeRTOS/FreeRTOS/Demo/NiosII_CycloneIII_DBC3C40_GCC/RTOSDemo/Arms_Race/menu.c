@@ -15,69 +15,41 @@
 #include "altera_avalon_lcd_16207_mod.h"
 
 /* Pete written */
+#include "system_state.h"
 #include "waypoints.h"
 #include "keypad.h"
 #include "LCD.h"
 #include "sd_card.h"
-
-extern enum xSystemState;
-
-
-void vWaitForReset(void)
-{
-  unsigned short lReceivedValue;
-  portBASE_TYPE xKeyPadQueueStatus;
-  const portTickType xTicksToWait = 1000 / portTICK_RATE_MS;
-  portBASE_TYPE xResetPressed = 0;
-  
-  while(xResetPressed == 0)
-  {
-    if( uxQueueMessagesWaiting( xKeyPadQueue ) != 0)
-    {
-      printf( "Queue should have been empty!\r\n" );
-    }
-    xKeyPadQueueStatus = xQueueReceive( xKeyPadQueue, &lReceivedValue, xTicksToWait );
-    if( xKeyPadQueueStatus == pdPASS )
-    {
-      switch (lReceivedValue)
-      {
-        case RESET:
-          printf("Reset received\n");
-          xResetPressed = 1;
-          break;
-        default:
-          break;
-      }
-    }
-    else
-    {
-      //printf( "Could not receive from the queue.\r\n");
-    }
-    taskYIELD();
-  }
-}
+#include "record.h"
 
 #define NUMBER_OF_CHOICES 2
+
+extern void vWaitForReset(void);
+extern void vTaskPlay( void *pvParameters );
 
 void vTaskMenu( void *pvParameters )
 {
   portSHORT lReceivedValue;
-  //struct LCDQueue_TYPE xLCDQueueItem;
   portBASE_TYPE xKeyPadQueueStatus;
-  //portBASE_TYPE xLCDQueueStatus;
   const portTickType xTicksToWait = 1000 / portTICK_RATE_MS;
-  portCHAR pcBuffer[STRING_MAX] = {0};
   enum xChoice_t {RECORD_A_PROGRAM, PLAY_A_PROGRAM} xChoice;
-  portCHAR *pcChoices[] = {"Record a Program","Play a Program"};
+  portCHAR *pcChoices[] = 
+  {
+    "Record a Program",
+    "Play a Program"
+  };
+  xChoice = RECORD_A_PROGRAM;
   
+  printf("Menu\n");
+  if (xSystemState != MENU_SELECT)
+  {
+    printf("Press Reset to Begin\n");
+    vPrintToLCD(1,"Press Reset");
+    vPrintToLCD(2,"to begin");
+    
+    vWaitForReset();
+  }
   
-  printf("Press Reset to Begin\n");
-  vPrintToLCD(1,"Press Reset");
-  vPrintToLCD(2,"to begin");
-  
-  vWaitForReset();
-  
-  xChoice = 0;
   vPrintToLCD(1,"Select Option:");
   vPrintToLCD(2,pcChoices[xChoice]);
   
@@ -90,7 +62,7 @@ void vTaskMenu( void *pvParameters )
     xKeyPadQueueStatus = xQueueReceive( xKeyPadQueue, &lReceivedValue, xTicksToWait );
     if( xKeyPadQueueStatus == pdPASS )
     {
-      printf( "Received = %d \t xChoice %d\n", lReceivedValue ,xChoice);
+//      printf( "Received = %d \t", lReceivedValue);
       switch (lReceivedValue)
       {
 
@@ -108,11 +80,19 @@ void vTaskMenu( void *pvParameters )
           {
             case RECORD_A_PROGRAM:
               printf("%s\n",pcChoices[xChoice]);
+              xSystemState = RECORDING;
+              xTaskCreate(vTaskRecord, "Record Task", 2000, NULL, 1, &xRecordHandle);
+              /* Get out of here */
+              vTaskDelete( NULL);
               break;
             case PLAY_A_PROGRAM:
               printf("%s\n",pcChoices[xChoice]);
+              xSystemState = PLAYING;
+              xTaskCreate(vTaskPlay, "Play Task", 2000, NULL, 1, &xPlayHandle);
+              /* Get out of here */
+              vTaskDelete( NULL);
               break;
-              default:
+            default:
               break;
           }
           break;

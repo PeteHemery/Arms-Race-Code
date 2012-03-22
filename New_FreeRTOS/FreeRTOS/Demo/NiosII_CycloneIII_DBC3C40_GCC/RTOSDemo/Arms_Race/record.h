@@ -9,8 +9,10 @@
 #define RECORD_H_
 
 extern void vTaskCalculateInverse(void *pvParameters);
+void vTaskRecord( void *pvParameters );
+void vSetAxisValues(void);
 
-#define OUTPUT_MAX 50 
+#define OUTPUT_MAX 100 
 
 typedef struct {
   portSHORT X;
