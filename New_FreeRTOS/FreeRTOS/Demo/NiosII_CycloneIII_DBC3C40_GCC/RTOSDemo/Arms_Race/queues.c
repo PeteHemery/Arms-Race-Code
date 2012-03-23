@@ -23,7 +23,7 @@ extern xQueueHandle xKeyPadQueue;
 /* Blocking when Receiving from a Queue */
 void vSenderTask( void *pvParameters )
 {
-  long lValueToSend;
+  portLONG lValueToSend;
   portBASE_TYPE xStatus;
   const portTickType xTicksToWait = 100 / portTICK_RATE_MS;
 
@@ -56,7 +56,7 @@ void vReceiverTask( void *pvParameters )
     xStatus = xQueueReceive( xKeyPadQueue, &sReceivedValue, xTicksToWait );
     if( xStatus == pdPASS )
     {
-      printf( "Received = %ld\r\n", sReceivedValue );
+      printf( "Received = %d\r\n", sReceivedValue );
     }
     else
     {

@@ -24,58 +24,124 @@
 
 #include "arm_com.h"
 
-int serial_main(void)
-{
-    FILE* fp;
-    char* msg = "hello world";
-    int i = 0;
-        
-    fp = fopen ("/dev/uart", "w+");
-    if (fp!=NULL)
-    {
-        
-        fprintf(fp, "#0 P500\r");
-        printf("#0 P500\r");
-            vTaskDelay(1000 / portTICK_RATE_MS);
-        fprintf(fp, "#1 P1500 #2 P1500 T2000\r");
-        printf("#1 p1500 #2 p1500 T2000\r");
-            vTaskDelay(1000 / portTICK_RATE_MS);
-        fprintf(fp, "#3 P500 #4 P1000 T2000\r");
-        printf("#3 p500 #4 p1000 T2000\r");
-            vTaskDelay(1000 / portTICK_RATE_MS);
-        fprintf(fp, "#0 P1500 #1 P1400 #2 P2000 #3 P1000 #4 P2000 #5 P500 T2500\r");
-        printf("#0 p1500 #1 p1400 #2 p2000 #3 p1000 #4 p2000 #5 p500 T2500\r");
-            vTaskDelay(1000 / portTICK_RATE_MS);
-        /*for (;;)
-        {
-            fprintf(fp, "%d - %s\n",i++,msg);
-            vTaskDelay(200 / portTICK_RATE_MS);
-        }*/
-    }
-    else
-        return 1;
-    fclose (fp);
-    return 0;
-}
+ArmControlFlag_t ArmControlFlag = WAITING_NOW; 
 
 void vTaskArmCom(void *pvParameters)
 {
-  portBASE_TYPE xStatus = 0;
+  portBASE_TYPE xStatus = pdFALSE;
+  const portTickType xTicksToWait = 200 / portTICK_RATE_MS;
+  FILE* fp;
+  portCHAR pcReceive[2] = {0};
+  portBASE_TYPE xFinishedFlag = pdFALSE;
+  /* Initialise the Queue Item */
+  portCHAR pcArmQueueItem[STRING_MAX] = {0};
   
-  xStatus = serial_main();
-  printf("status = %ld\n",xStatus);
-  for (;;)
+  /* Open the serial port with read/write capability */
+  fp = fopen ("/dev/uart", "w+");
+  if (fp!=NULL)
   {
-    /* Do nothing */
+    for(;;)
+    {
+      vTaskDelay(200 / portTICK_RATE_MS); // Chill the loop out
+      
+      if( uxQueueMessagesWaiting( xArmComQueue ) != 0)
+      {
+        //printf( "xArmComQueue should have been empty!\n" );
+      }
+      
+      if (ArmControlFlag == WAITING_NOW)
+      {
+        /* Receive way point from the queue */
+        xStatus = xQueueReceive( xArmComQueue, &pcArmQueueItem, xTicksToWait );
+        
+        /* Fall into the while loop below */
+        xFinishedFlag = pdFALSE;
+      }
+      else
+      /* If we aren't waiting then don't read the queue */
+      {
+        switch(ArmControlFlag)
+        {
+          case STOP_NOW:
+            /* Send stop command */
+            fprintf(fp,"\033");
+            xStatus = pdFALSE;
+            xFinishedFlag = pdTRUE;
+            ArmControlFlag = WAITING_NOW;
+            printf("STOP command received\n");
+            break;
+          case PAUSE_NOW:
+            /* Send stop command */
+            fprintf(fp,"\033");
+            xStatus = pdFALSE;
+            printf("PAUSE command received\n");
+            break;
+          case PLAY_NOW:
+            /* Play button pressed
+             * send previous command again */
+            xStatus = pdTRUE;
+            printf("RESUME command received\n");
+            break;
+            
+          default:
+            break;
+        }
+      }
+      
+      
+      /* If an item becomes available, send it and wait for response. */
+      if( xStatus == pdPASS )
+      {
+        printf( "ArmCom Received = %s\n", pcArmQueueItem);
+        ArmControlFlag = PLAY_NOW;
+        
+        /* Send the command to the arm */
+        fprintf(fp, pcArmQueueItem);
+        
+        while ( xFinishedFlag == pdFALSE && ArmControlFlag == PLAY_NOW)
+        {
+          vTaskDelay(100 / portTICK_RATE_MS);
+          /* Query the Arm */
+          fprintf(fp, "Q\r\n");
+          
+          vTaskDelay(100 / portTICK_RATE_MS);
+          
+          /* Upon query to the arm:
+           * '.' is returned if move is complete,
+           * '+' is returned if move is still in progress */
+          bzero(pcReceive, 2);
+          fread(pcReceive, 1, 1, fp);
+          
+          printf("received: %s\n",pcReceive);
+          if (strncmp(pcReceive,".",1) == 0)
+          {
+            xFinishedFlag = pdTRUE;
+            ArmControlFlag = WAITING_NOW;
+          }
+        }
+        /* If the while loop was broken because of a key press
+         * then respond accordingly */
+        if (ArmControlFlag != WAITING_NOW)
+          xFinishedFlag = pdFALSE;
+      }
+      else
+      {
+        /* If WAITING_NOW and here, we couldn't read the queue.
+         * If not then a control button was pressed. */
+        /*if (ArmControlFlag == WAITING_NOW)
+          printf( "Could not receive from xArmComQueue.\n");
+        */
+      }
+      taskYIELD();
+    }
   }
-/*  
-  for (;;)
+  
+  for(;;)
   {
-      status = IORD_ALTERA_AVALON_PIO_DATA(UART_BASE);
-      vTaskDelay(200 / portTICK_RATE_MS);
-      printf("%c\n",status);
+    /* Error opening serial com */
+    printf("Unable to open serial com\n");
+    vTaskDelay(200 / portTICK_RATE_MS);
   }
-*/
-   vTaskDelete(NULL);   
+  fclose(fp);
+  vTaskDelete(NULL);
 }
-

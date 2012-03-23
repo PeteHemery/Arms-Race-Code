@@ -24,6 +24,7 @@
 #include "altera_up_sd_card_avalon_interface.h"
 #include "sd_card.h"
 #include "LCD.h"
+#include "arm_com.h"
 
 
 xQueueHandle xFileNameQueue = NULL;
@@ -197,7 +198,7 @@ void vTaskReadFileContents(void *pvParameters)
   portBASE_TYPE xStatus;
   portSHORT i;
   PlaySettings_TYPE xPlaySettings;
-
+  
   /* Check if queue is ready */
   if( xPlayQueue == NULL )
   {
@@ -242,7 +243,7 @@ void vTaskReadFileContents(void *pvParameters)
   else if (xPlaySettings.psLoopCount == -1)
   {
     /* Continuously send all lines in the file */
-    while(1)      /* TODO: Change this condition to respond to cancel */
+    while(ArmControlFlag == PLAY_NOW)      /* TODO: Change this condition to respond to cancel */
     {
       if (xSendFileLines(xPlaySettings.pcFileName) != 0)
       {
@@ -264,6 +265,11 @@ portBASE_TYPE xSendFileLines(portCHAR *pcFileName)
   portCHAR *pcPtr;
   portSHORT psHandler;
   portBASE_TYPE xStatus;
+  
+  portCHAR pcBufferName[FILE_NAME_MAX] = {0};
+  
+  /* Must open root before above to access SD Card */
+  psHandler = alt_up_sd_card_find_first("/.", pcBufferName);
   
   /* Initialise pointer with address of the buffer */
   pcPtr = pcFileLine;
@@ -314,60 +320,67 @@ portBASE_TYPE xSendFileLines(portCHAR *pcFileName)
 portSHORT sCreateFile(portCHAR *pcFileName)
 {
   portSHORT psHandler;
+  portCHAR pcBufferName[FILE_NAME_MAX] = {0};
+  
+  /* Must open root before above to access SD Card */
+  psHandler = alt_up_sd_card_find_first("/.", pcBufferName);
   
   /* Attempt to create file */
   if ((psHandler = alt_up_sd_card_fopen(pcFileName, true)) != -1)
   {
     /* File Created - Write New Line and save*/
-    if ((alt_up_sd_card_write(psHandler, '\n')) != 1)
+    /*if ((alt_up_sd_card_write(psHandler, '\n')) != 1)
       printf("new line fail\n");
-    
+    */
     alt_up_sd_card_fclose(psHandler);
     
     printf("%s created\n",pcFileName);
     
-    psHandler = 0;
+    return pdTRUE;
   }
   else
   {
     printf("file already exists\n");
+    return pdFALSE;
   }
-  return psHandler;
 }
 
 /*-----------------------------------*/
 
-portSHORT sd_card_append_file(char *pcFileName, char *chars_to_write)
+portSHORT psSDCardAppendFile(portCHAR *pcFileName, portCHAR *pcString, portBASE_TYPE xLen)
 {
   portSHORT psHandler = -1;
   portSHORT read;
   portSHORT i = 0;
-  portSHORT psStringLength = 0;
   
-  if ((psStringLength = strlen(pcFileName)) == 0);
+  portCHAR pcBufferName[FILE_NAME_MAX] = {0};
+  
+  if (xLen == 0)
   {
-    printf("File name = 0\n");
-    return -1;
+    printf("String length = 0\n");
+    return pdFALSE;
   }
+  
+  /* Must open root before above to access SD Card */
+  psHandler = alt_up_sd_card_find_first("/.", pcBufferName);
+  
   if ((psHandler = alt_up_sd_card_fopen(pcFileName, false)) != -1){
     /* Read to the end of the file */
     while ((read = alt_up_sd_card_read(psHandler)) != -1);
-    for (i=0;i<psStringLength;i++)
+    for (i=0;i<xLen;i++)
     {
-      if ((alt_up_sd_card_write(psHandler, chars_to_write[i])) != 1)
+      if ((alt_up_sd_card_write(psHandler, pcString[i])) != 1)
         printf("failed to write\n");
     }
-    if ((alt_up_sd_card_write(psHandler, '\n')) != 1)
-      printf("new line fail\n");
       
-    /* Should set the handler to true */
-    psHandler = alt_up_sd_card_fclose(psHandler);
+    alt_up_sd_card_fclose(psHandler);
+    return pdTRUE;
   }
   else
   {
     printf("cannot open file\n");
+    return pdFALSE;
   }
-  return psHandler;
 }
 
 /*-----------------------------------*/

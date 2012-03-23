@@ -21,9 +21,11 @@
 #include "LCD.h"
 #include "sd_card.h"
 #include "record.h"
+#include "arm_com.h"
 
 #define NUMBER_OF_CHOICES 6
 
+/* Local Function Prototypes */
 portBASE_TYPE xSetAxisValue(xInverseStruct_t *pxInverseStruct);
 portBASE_TYPE xSetAValue(xSetValueParam xValueParam, portBASE_TYPE *pxInValueIn);
 
@@ -42,7 +44,7 @@ void vTaskRecord( void *pvParameters )
   portBASE_TYPE xGripValue = 1500;
   portBASE_TYPE xTimeValue = 1000;
   portBASE_TYPE xWaitValue = 1000;
-    
+  /* Menu choices */
   portCHAR *pcChoices[] = 
   {
     "Axis values",
@@ -54,7 +56,35 @@ void vTaskRecord( void *pvParameters )
   };
   xChoice_t xChoice = SELECT_AXIS;
 
-  /* Get file name () */
+  /* Get file name */
+  portBASE_TYPE xFileNameFound = pdFALSE;
+  portBASE_TYPE xProgNumber = 1;
+  portCHAR pcFileName[FILE_NAME_MAX] = {0};
+  /* Waypoint String */
+  portCHAR pcWayPointString[OUTPUT_MAX] = {0};
+  portCHAR pcWayPointTemp[20] = {0};
+  portBASE_TYPE xLen = 0;
+  
+  while (xFileNameFound == pdFALSE)
+  {
+    sprintf(pcFileName,PROGRAM_NAME,xProgNumber);
+    printf("filename: %s\n",pcFileName);
+    xFileNameFound = sCreateFile(pcFileName);
+    if (xFileNameFound == pdFALSE)
+    {
+      if (++xProgNumber == 999)
+      {
+        printf("Could not create new program!\n");
+        for(;;)
+        {
+          printf("Error!\n");
+        }
+      }
+    }
+  }
+  vPrintToLCD(1,"File Name:");
+  vPrintToLCD(2,pcFileName);
+  vTaskDelay(3000 / portTICK_RATE_MS);
   
   
   vPrintToLCD(1,"Select Option:");
@@ -97,10 +127,61 @@ void vTaskRecord( void *pvParameters )
             case SELECT_WAIT:
               xWayPointFlags.xWaitSet = xSetAValue(WAIT_VALUE, &xWaitValue);
               break;
+              
             case SET_WAYPOINT:
               printf("%s\n",pcChoices[xChoice]);
-              
+             
+              bzero(pcWayPointString,OUTPUT_MAX);
+              if (xWayPointFlags.xAxisSet == 1)
+              {
+                strcat(pcWayPointString,xInverseStruct.pcOutput);
+              }
+              if (xWayPointFlags.xGripSet == 1)
+              {
+                sprintf(pcWayPointTemp,"#5 P%ld ",xGripValue);
+                strcat(pcWayPointString,pcWayPointTemp);
+              }
+              if (xWayPointFlags.xTimeSet == 1)
+              {
+                sprintf(pcWayPointTemp,"T%ld",xTimeValue);
+                strcat(pcWayPointString,pcWayPointTemp);
+              }
+              /* Only append a \r\n if any values have been set */
+              if (xWayPointFlags.xAxisSet ||
+                  xWayPointFlags.xGripSet ||
+                  xWayPointFlags.xTimeSet)
+              {
+                xWayPointFlags.xAxisSet = 0;
+                xWayPointFlags.xGripSet = 0;
+                xWayPointFlags.xTimeSet = 0;
+                strcat(pcWayPointString,"\r\n");
+              }
+              if (xWayPointFlags.xWaitSet == 1)
+              {
+                xWayPointFlags.xWaitSet = 0;
+                sprintf(pcWayPointTemp,"W%ld\r\n",xTimeValue);
+                strcat(pcWayPointString,pcWayPointTemp);
+              }
+              if (pcWayPointString != NULL)
+              {
+                printf("string:\n%s\n",pcWayPointString);
+              }
+              /* Get the string length and write to the SD card */
+              xLen = strlen(pcWayPointString);
+              if ((sd_card_append_file(pcFileName, pcWayPointString, xLen)) != pdTRUE)
+              {
+                printf("Could not write to %s!\n",pcFileName);
+                vPrintToLCD(2,"Waypoint Not Set!");
+              }
+              else
+              {
+                printf("Waypoint Set!\n");
+                vPrintToLCD(2,"Waypoint Set!");
+              }
+              /* Wait while message is displayed */
+              vTaskDelay(3000 / portTICK_RATE_MS);
               break;
+              
             case SELECT_EXIT:
               printf("%s\n",pcChoices[xChoice]);
               printf("TODO Must end in reset position\n");
@@ -159,12 +240,14 @@ void vTaskRecord( void *pvParameters )
   }
 }
 
+/*----------------------------*/
 portBASE_TYPE xSetAxisValue(xInverseStruct_t *xInverseStruct)
 {
   portSHORT sReceivedValue;
   portBASE_TYPE xKeyPadQueueStatus;
   const portTickType xTicksToWait = 1000 / portTICK_RATE_MS;
   portCHAR pcBuffer[STRING_MAX] = {0};
+  portBASE_TYPE xStatus = pdFALSE;
 
 
   printf("Set Axis Values\n");
@@ -174,7 +257,7 @@ portBASE_TYPE xSetAxisValue(xInverseStruct_t *xInverseStruct)
                                     xInverseStruct->Z);
   vPrintToLCD(2,pcBuffer);
 
-  strcpy(xInverseStruct->pcOutput,"Hi");
+  strcpy(xInverseStruct->pcOutput,"NOT SET");
   printf("psX=%d psY=%d psZ=%d\npcOutput=%s\n",xInverseStruct->X,
                                                xInverseStruct->Y,
                                                xInverseStruct->Z,
@@ -195,10 +278,13 @@ portBASE_TYPE xSetAxisValue(xInverseStruct_t *xInverseStruct)
         case RESET:
           break;
         case PLAY:
+          ArmControlFlag = PLAY_NOW;
           break;
         case PAUSE:
+          ArmControlFlag = PAUSE_NOW;
           break;
         case STOP:
+          ArmControlFlag = STOP_NOW;
           break;
       /* Pressing Enter or Cancel exits this function
        * Return value determines if the value has been set or not */
@@ -291,12 +377,21 @@ portBASE_TYPE xSetAxisValue(xInverseStruct_t *xInverseStruct)
         default:
           break;
       }
-      strcpy(xInverseStruct->pcOutput,"");
+      bzero(xInverseStruct->pcOutput,OUTPUT_MAX);
       vCalculateInverse(xInverseStruct);
       printf("X=%d Y=%d Z=%d\npcOutput=%s\n",xInverseStruct->X,
                                              xInverseStruct->Y,
                                              xInverseStruct->Z,
                                              xInverseStruct->pcOutput);
+      bzero(pcBuffer,STRING_MAX);
+      strcpy(pcBuffer,xInverseStruct->pcOutput);
+      
+      /* Send updated servo values to the arm */
+      xStatus = xQueueSendToBack( xArmComQueue, &pcBuffer, xTicksToWait);
+      if( xStatus != pdPASS )
+      {
+        printf( "Could not send to the queue.\r\n");
+      }
     }
     else
     {
@@ -306,6 +401,7 @@ portBASE_TYPE xSetAxisValue(xInverseStruct_t *xInverseStruct)
   }
 }
 
+/*----------------------------*/
 portBASE_TYPE xSetAValue(xSetValueParam xValueParam, portBASE_TYPE *pxInValue)
 {
   portSHORT sReceivedValue;
@@ -357,7 +453,8 @@ portBASE_TYPE xSetAValue(xSetValueParam xValueParam, portBASE_TYPE *pxInValue)
           break;
         case STOP:
           break;
-      /* Pressing Enter or Cancel exits this function */
+      /* Pressing Enter or Cancel exits this function
+       * Return value determines if the value has been set or not */
         case ENTER:
           return 1;
         case CANCEL:
@@ -368,6 +465,7 @@ portBASE_TYPE xSetAValue(xSetValueParam xValueParam, portBASE_TYPE *pxInValue)
           (*pxInValue) += 10;
           switch(xValueParam)
           {
+            /* Limit the values to the upper max */
             case GRIP_VALUE:
               if ((*pxInValue) >= GRIP_MAX)
                 (*pxInValue) = GRIP_MAX;
@@ -396,6 +494,10 @@ portBASE_TYPE xSetAValue(xSetValueParam xValueParam, portBASE_TYPE *pxInValue)
           (*pxInValue) -= 10;
           switch(xValueParam)
           {
+            /* Limit the values to the minimum.
+             * Since enums are unsigned ints,
+             *  need to check for greater than max
+             *  since (0 - 1) = 4,294,967,295 */
             case GRIP_VALUE:
               if ((*pxInValue) < GRIP_MIN || (*pxInValue) > GRIP_MAX)
                 (*pxInValue) = GRIP_MIN; 
@@ -424,6 +526,7 @@ portBASE_TYPE xSetAValue(xSetValueParam xValueParam, portBASE_TYPE *pxInValue)
           (*pxInValue)++;
           switch(xValueParam)
           {
+            /* Limit the values to the upper max */
             case GRIP_VALUE:
               if ((*pxInValue) >= GRIP_MAX)
                 (*pxInValue) = GRIP_MAX;
@@ -452,6 +555,10 @@ portBASE_TYPE xSetAValue(xSetValueParam xValueParam, portBASE_TYPE *pxInValue)
           (*pxInValue)--;
           switch(xValueParam)
           {
+            /* Limit the values to the minimum.
+             * Since enums are unsigned ints,
+             *  need to check for greater than max
+             *  since (0 - 1) = 4,294,967,295 */
             case GRIP_VALUE:
               if ((*pxInValue) < GRIP_MIN || (*pxInValue) > GRIP_MAX)
                 (*pxInValue) = GRIP_MIN; 

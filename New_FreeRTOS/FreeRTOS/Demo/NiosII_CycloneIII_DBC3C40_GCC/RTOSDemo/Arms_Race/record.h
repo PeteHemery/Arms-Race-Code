@@ -8,11 +8,8 @@
 #ifndef RECORD_H_
 #define RECORD_H_
 
-extern void vCalculateInverse(void *pvParameters);
-void vTaskRecord( void *pvParameters );
-void vSetAxisValues(void);
-
 #define OUTPUT_MAX 100 
+#define PROGRAM_NAME "PROG%03ld.ARM"
 
 typedef struct {
   portSHORT X;
@@ -55,5 +52,11 @@ typedef enum {
 
 #define WAIT_MAX 10000
 #define WAIT_MIN 0
+
+/* Global prototypes */
+extern void vCalculateInverse(xInverseStruct_t *pxInverseStruct);
+/* Local prototypes */
+void vTaskRecord( void *pvParameters );
+void vSetAxisValues(void);
 
 #endif /*RECORD_H_*/

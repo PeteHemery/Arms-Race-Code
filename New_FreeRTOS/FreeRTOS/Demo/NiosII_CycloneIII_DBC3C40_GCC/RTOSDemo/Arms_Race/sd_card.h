@@ -17,8 +17,8 @@ void vEndReadFileNamesTask(void);
 void vTaskReadFileNames(void *pvParameters);
 void vTaskReadFileContents(void *pvParameters);
 portBASE_TYPE xSendFileLines(portCHAR *pcFileName);
-portSHORT sd_card_write_file(char *file_name, char *chars_to_write);
-portSHORT sd_card_append_file(char *file_name, char *chars_to_write);
+portSHORT psSDCardAppendFile(portCHAR *pcFileName, portCHAR *pcString, portBASE_TYPE xLen);
+portSHORT sCreateFile(portCHAR *pcFileName);
 
 /*-----------------------------------*/
 #define FILE_NAME_MAX 30

@@ -96,20 +96,20 @@ enum xSystemState_t xSystemState = WAITING_FOR_RESET;
 int main( void )
 {
   xKeyPadQueue = xQueueCreate( 1, sizeof(unsigned portSHORT));
-  xArmComQueue = xQueueCreate( 1, sizeof(ArmComQueue_TYPE));
+  xArmComQueue = xQueueCreate( 1, sizeof(portCHAR) * STRING_MAX);
   
   
   /* Upon resetting, reinitialise everything */
     
-  if (xKeyPadQueue != NULL)
+  if (xKeyPadQueue != NULL && xArmComQueue != NULL)
   {
     for (;;)
     {
-      //xTaskCreate(vTaskArmCom, "ARM COM", 1000, NULL, 1, &xArmComHandle);
+      xTaskCreate(vTaskArmCom, "ARM COM", 1000, NULL, 1, &xArmComHandle);
       xTaskCreate(vTaskSDCard, "SD Card", 1000, NULL, 1, &xSDCardHandle); 
       xTaskCreate(vTaskLCDTimeOut, "LCD Timer", 1000, NULL, 1, &xLCDTimeOutHandle);
-      
       xTaskCreate(vTaskKeyPad, "Keypad", 1000, NULL, 1, &xKeyPadHandle);
+      
       xTaskCreate(vTaskMenu, "Menu", 2000, NULL, 1, &xMenuHandle);
         
       /* Finally start the scheduler. */

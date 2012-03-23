@@ -42,21 +42,17 @@ float base;
 
 float theta1, theta2, theta3, Base;
 
-float servovalue1;
-float servovalue2;
-float servovalue3;
-float servovalue4;
+float servovalue[4];
 
 
-void vCalculateInverse(void *pvParameters)
+void vCalculateInverse(xInverseStruct_t *pxInverseStruct)
 {
   float x;
   float y;
   float z;
-  
-  xInverseStruct_t *pxInverseStruct;
-  /* Cast the parameter to the required type */
-  pxInverseStruct = ( xInverseStruct_t * ) pvParameters;
+  float rounding;
+  int i;
+  portCHAR pcTestBuffer[6] = {0};
   
   x = pxInverseStruct->X;
   y = pxInverseStruct->Y;
@@ -88,17 +84,24 @@ void vCalculateInverse(void *pvParameters)
   printf("Base\t%0.0f\n", roundf(Base*10.0f)/10.0f);
   printf("\n");
   */
-  servovalue1 = 11.11 * theta1 + 500;
-  servovalue2 = 11.11 * theta2 + 500;
-  servovalue3 = 11.11 * theta3 + 500;
-  servovalue4 = 11.11 * Base + 500;  
-  sprintf(pxInverseStruct->pcOutput,"#0 P%0.0f #1 P%0.0f #2 P%0.0f #3 P%0.0f\r\n",
-                                      roundf(servovalue1*10.0f)/10.0f,
-                                      roundf(servovalue2*10.0f)/10.0f,
-                                      roundf(servovalue3*10.0f)/10.0f,
-                                      roundf(servovalue4*10.0f)/10.0f);
-
+  servovalue[0] = 11.11 * theta1 + 500;
+  servovalue[1] = 11.11 * theta2 + 500;
+  servovalue[2] = 11.11 * theta3 + 500;
+  servovalue[3] = 11.11 * Base + 500;
   
+  /* NaN stands for Not a Number.
+   * If this is produced when printing the float, don't print it */ 
+  for(i=0; i<4; i++)
+  {
+    rounding = roundf(servovalue[i]*10.0f)/10.0f;
+    sprintf(pcTestBuffer,"%0.0f",rounding);
+    if (strcmp(pcTestBuffer,"NaN") != 0)
+    {
+      sprintf(pcTestBuffer,"#%d P%0.0f ",i,rounding);
+      strcat(pxInverseStruct->pcOutput,pcTestBuffer);
+    }
+  }
+
   //printf("OUTPUT = %s\n",pxInverseStruct->pcOutput);
   return;
 }

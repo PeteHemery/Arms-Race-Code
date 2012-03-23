@@ -10,26 +10,15 @@
 
 #define STRING_MAX 100
 
+typedef enum {
+  WAITING_NOW,
+  STOP_NOW,
+  PLAY_NOW,
+  PAUSE_NOW
+} ArmControlFlag_t;
+
 extern xQueueHandle xArmComQueue;
 
-typedef struct 
-{
-  char cString[STRING_MAX];
-} ArmComQueue_TYPE;
-
-enum ArmControlFlag_t{
-    STOP_NOW,
-    PLAY_NOW,
-    PAUSE_NOW,
-    RESUME_NOW,
-    FINISHED_NOW
-};
-
-typedef struct 
-{
-  enum ArmControlFlag_t ArmControlFlag;  
-} ArmControlQueue_TYPE;
-
-
+extern ArmControlFlag_t ArmControlFlag;
 
 #endif /*ARM_COM_H_*/
