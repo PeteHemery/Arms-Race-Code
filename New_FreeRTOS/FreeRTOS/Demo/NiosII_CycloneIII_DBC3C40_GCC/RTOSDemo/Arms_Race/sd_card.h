@@ -58,6 +58,6 @@ extern xTaskHandle xStringHandle;
 
 /*-----------------------------------*/
 
-extern portBASE_TYPE xConnected;
+extern portBASE_TYPE xSDConnected;
 
 #endif /*SD_CARD_H_*/

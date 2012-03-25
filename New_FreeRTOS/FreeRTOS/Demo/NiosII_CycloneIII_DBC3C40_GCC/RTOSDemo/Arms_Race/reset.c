@@ -61,7 +61,7 @@ void vWaitForReset(void)
   printf("Press Insert SD Card!\n");
   vPrintToLCD(1,"Please Insert");
   vPrintToLCD(2,"SD Card!");
-  while(xConnected != pdTRUE)
+  while(xSDConnected != pdTRUE)
   {
     vTaskDelay( 100 / portTICK_RATE_MS);
     /* Wait until the card is inserted and read */

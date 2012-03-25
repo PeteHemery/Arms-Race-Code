@@ -24,6 +24,8 @@
 #define NUMBER_OF_CHOICES 2
 #define TIMEOUT_VALUE 1
 
+portCHAR pcProgramNames[100][FILE_NAME_MAX];
+
 portBASE_TYPE xGetNumberOfFiles(void)
 {
   portCHAR pcBufferName[FILE_NAME_MAX] = {0};
@@ -67,16 +69,19 @@ void vTaskPlay( void *pvParameters )
   
   xChoice = 0;
   
-  if (xConnected == pdFALSE)
+  if (xSDConnected == pdFALSE)
   {
     printf("Please Insert SD Card!\n");
     vPrintToLCD(1,"Please Insert");
     vPrintToLCD(2,"SD Card!");
-    while(xConnected != pdTRUE)
+    while(xSDConnected != pdTRUE)
     {
       vTaskDelay( 100 / portTICK_RATE_MS);
       /* Wait until the card is inserted and read */
     }
+    vPrintToLCD(1,"SD Card");
+    vPrintToLCD(2,"Connected");
+    
   }
   vTaskResume(xFileNameHandle);
   xNumOfFiles = xGetNumberOfFiles();
