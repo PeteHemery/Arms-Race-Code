@@ -16,7 +16,6 @@
 
 /* Pete written */
 #include "system_state.h"
-#include "waypoints.h"
 #include "keypad.h"
 #include "LCD.h"
 #include "sd_card.h"
@@ -45,7 +44,7 @@ void vTaskReset(void)
       break;
   }
   //vArmCom(RESET);
-  vTaskEndScheduler();
+  //vTaskEndScheduler();
   
 }
 
@@ -61,7 +60,7 @@ void vWaitForReset(void)
   printf("Press Insert SD Card!\n");
   vPrintToLCD(1,"Please Insert");
   vPrintToLCD(2,"SD Card!");
-  while(xConnected != pdTRUE)
+  while(xSDConnected != pdTRUE)
   {
     vTaskDelay( 100 / portTICK_RATE_MS);
     /* Wait until the card is inserted and read */

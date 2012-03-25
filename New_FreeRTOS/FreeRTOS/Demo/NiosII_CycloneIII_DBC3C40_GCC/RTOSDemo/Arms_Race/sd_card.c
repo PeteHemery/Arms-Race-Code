@@ -26,54 +26,38 @@
 #include "LCD.h"
 #include "arm_com.h"
 
-
-xQueueHandle xFileNameQueue = NULL;
-xTaskHandle xFileNameHandle = NULL;
-
-xQueueHandle xPlayQueue = NULL;
-
 xQueueHandle xStringQueue = NULL;
 xTaskHandle xStringHandle = NULL;
 
-
-portBASE_TYPE xConnected = 0;
+portBASE_TYPE xSDConnected = 0;
   
 /*-----------------------------------*/
+/* This function was modified from the Altera example */
 void vTaskSDCard(void *pvParameters)
 {
   alt_up_sd_card_dev *device_reference = NULL;
   device_reference = alt_up_sd_card_open_dev(ALTERA_UP_SD_CARD_NAME);
-  const portTickType xTicksToWait = 2000 / portTICK_RATE_MS;
+  const portTickType xTicksToWait = 1000 / portTICK_RATE_MS;
   
-  while(1) {
+  for(;;) {
+    
     vTaskDelay(xTicksToWait); // Chill out the for loop a bit
+    
     if (device_reference != NULL) {
-      if ((xConnected == pdFALSE) && (alt_up_sd_card_is_Present())) {
+      if ((xSDConnected == pdFALSE) && (alt_up_sd_card_is_Present())) {
         printf("Card connected.\n");
         if (alt_up_sd_card_is_FAT16()) {
           printf("FAT16 file system detected.\n");
-          xConnected = pdTRUE;
-          
-          /* Initialise Queues and Start Tasks */
-          
-          if (xStartReadFileNamesTask() != 0)
-          {
-            /* Could not start task */
-            printf("vStartFileNameTask failed\n");
-          }
-          
+          xSDConnected = pdTRUE;
         }
         else {
           printf("Unknown file system.\n");
         }
-        xConnected = pdTRUE;
+        xSDConnected = pdTRUE;
       }
-      else if ((xConnected == pdTRUE) && (alt_up_sd_card_is_Present() == pdFALSE)) {
+      else if ((xSDConnected == pdTRUE) && (alt_up_sd_card_is_Present() == pdFALSE)) {
         printf("Card disconnected.\n");
-        xConnected = pdFALSE;
-        
-        /* Remove items from Queues and delete Tasks */
-        vEndReadFileNamesTask();
+        xSDConnected = pdFALSE;
       }
     }
     else
@@ -91,175 +75,88 @@ void vTaskSDCard(void *pvParameters)
 }
 
 /*-----------------------------------*/
-
-portBASE_TYPE xStartReadFileNamesTask(void)
+/* Check should be performed for if SD card is present before calling this function */ 
+portBASE_TYPE xGetFileNames(portCHAR pcFileNameList[NUMBER_OF_PROGS_MAX][FILE_NAME_MAX])
 {
-  xFileNameQueue = xQueueCreate( FILE_NAME_QUEUE_LENGTH, FILE_NAME_QUEUE_SIZE);
-  if (xFileNameQueue == NULL)
-  {
-    /* Queue could not be created */
-    printf("xFileNameQueue could not be created\n");
-    return -1;
-  }
-  if ( xTaskCreate( vTaskReadFileNames,
-                    "Read File Names",
-                    FILE_NAME_STACK_SIZE,
-                    NULL, /* No Parameters Passed */
-                    1,    /* Priority - Just above idle */
-                    &xFileNameHandle
-                  ) != pdPASS )
-  {
-    /* The task could not be created, insufficient heap memory remaining */
-    printf("vTaskReadFileNames could not be created\n");
-    return -2;
-  }
-  return 0;
-}
-
-/*-----------------------------------*/
-
-void vEndReadFileNamesTask(void)
-{
-  vTaskSuspend( xFileNameHandle );
-  while (uxQueueMessagesWaiting( xFileNameQueue ) != 0)
-  {
-    /* Dump queue contents */
-    xQueueReceive( xFileNameQueue, NULL, 0 );
-  }
-  /* Delete Queue and Task */
-  vQueueDelete( xFileNameQueue );
-  vTaskDelete( xFileNameHandle );
-  
-  /* Reset Queue and Handle variables */
-  xFileNameQueue = NULL;
-  xFileNameHandle = NULL;
-}
-/*-----------------------------------*/
-
-void vTaskReadFileNames(void *pvParameters)
-{
-  const portTickType xTicksToWait = 1000 / portTICK_RATE_MS;
   portBASE_TYPE xNumberOfFiles = 0;
   portCHAR pcBufferName[FILE_NAME_MAX] = {0};
   portCHAR *pcPtr;
   portSHORT psHandler;
-  portBASE_TYPE xStatus;
 
-  /* Loop endlessly - sleeping when needed */
-  for (;;)
+  /* Find the name of the SD card's root directory */
+  psHandler = alt_up_sd_card_find_first("/.", pcBufferName);
+  
+  printf("SD CARD: %s\n\n List of Programs:\n\n", pcBufferName);
+  
+  /* Read every file looking for the .ARM file extension */
+  while ((psHandler = alt_up_sd_card_find_next(pcBufferName)) != -1)
   {
-    /* Find the name of the SD card's root directory */
-    psHandler = alt_up_sd_card_find_first("/.", pcBufferName);
-    
-    printf("SD CARD: %s\n\n List of Programs:\n\n", pcBufferName);
-    
-    /* Read every file looking for the .ARM file extension */
-    while ((psHandler = alt_up_sd_card_find_next(pcBufferName)) != -1)
+    if ( (pcPtr = strstr(pcBufferName,".ARM")) != NULL)
     {
-      if ( (pcPtr = strstr(pcBufferName,".ARM")) != NULL)
-      {
-        /* Send file name to the queue */
-        xStatus = xQueueSendToBack(xFileNameQueue, &pcBufferName, xTicksToWait);
-        if( xStatus != pdPASS )
-        {
-          printf( "Could not send %s to xFileNameQueue.\n", pcBufferName);
-        }
-        else
-        {
-          /* Strip the .ARM extention off the file name for display */
-          *pcPtr = '\0';
-          printf("%s\n",pcBufferName);
-          
-          /* Keep a count of number of files for debug */
-          xNumberOfFiles++;
-        }
-      }
+      strcpy(pcFileNameList[xNumberOfFiles],pcBufferName);
+      printf("%s\n",pcBufferName);
+      
+      /* Keep a count of number of files */
+      xNumberOfFiles++;
     }
-    
-    /* All file names have been written */
-    printf("\nNumber of files: %ld\n",xNumberOfFiles);
-    
-    /* Close the SD card file handle */
-    alt_up_sd_card_fclose(psHandler);
-    
-    xNumberOfFiles = 0;
-    /* Good Job, now sleep */
-    vTaskSuspend( NULL );
-    /* Once woken start again */
   }
-  /* Task should be deleted externally when need be */
+  
+  /* All file names have been written */
+  printf("\nNumber of files: %ld\n",xNumberOfFiles);
+  
+  /* Close the SD card file handle */
+  alt_up_sd_card_fclose(psHandler);
+  return xNumberOfFiles;
 }
 
 /*-----------------------------------*/
-
+/* Used during play */
 void vTaskReadFileContents(void *pvParameters)
 {  
-  const portTickType xTicksToWait = 1000 / portTICK_RATE_MS;
-  portBASE_TYPE xStatus;
   portSHORT i;
-  PlaySettings_TYPE xPlaySettings;
+  PlaySettings_TYPE *xPlaySettings;
   
-  /* Check if queue is ready */
-  if( xPlayQueue == NULL )
-  {
-    printf( "xPlayQueue is not ready.\n");
-    
-    /* Fatal Error! */
-    printf( "Deleting vTaskReadFileContents\n");
-    vTaskDelete( NULL );
-  }
-
-  /* Check the queue isn't empty */
-  while( uxQueueMessagesWaiting( xPlayQueue ) == 0)
-  {
-    printf( "xPlayQueue should not be empty!\n" );
-    vTaskDelay(xTicksToWait);
-  }
-  
-  /* Receive item from the queue */
-  xStatus = xQueueReceive( xPlayQueue, &xPlaySettings, xTicksToWait );
-  if( xStatus != pdPASS )
-  {
-    printf( "Could not receive from the xPlayQueue.\n");
-    
-    /* Fatal Error! */
-    printf( "Deleting vTaskReadFileContents\n");
-    vTaskDelete( NULL );
-  }
-
+  xPlaySettings = (PlaySettings_TYPE *) pvParameters;
+ 
   /* Check loop count is within sane limits */
-  if (xPlaySettings.psLoopCount > 0 && xPlaySettings.psLoopCount < LOOP_MAX)
+  if (xPlaySettings->xLoopCount >= LOOP_MIN &&
+      xPlaySettings->xLoopCount < LOOP_MAX)
   { 
     /* Send all lines from the file the specified number of times */
-    for (i=0; i<xPlaySettings.psLoopCount; i++)
+    for (i=0; i<xPlaySettings->xLoopCount; i++)
     {
-      if (xSendFileLines(xPlaySettings.pcFileName) != 0)
+      if (xGetFileLines(xPlaySettings->pcFileName) != 0)
       {
-        vTaskDelete( NULL );
+        printf("Could not open file!\n");
+        break;
       }
     }
+    xPlaySettings->xFinished = pdTRUE;
   }
   /* If loop mode has been set to continuous */
-  else if (xPlaySettings.psLoopCount == -1)
+  else if (xPlaySettings->xLoopCount == 0)
   {
     /* Continuously send all lines in the file */
-    while(ArmControlFlag == PLAY_NOW)      /* TODO: Change this condition to respond to cancel */
+    while(ArmControlFlag == PLAY_NOW || ArmControlFlag == PAUSE_NOW)
     {
-      if (xSendFileLines(xPlaySettings.pcFileName) != 0)
+      if (xGetFileLines(xPlaySettings->pcFileName) != 0)
       {
-        vTaskDelete( NULL );
+        /* Stop was pressed */
+        printf("Continuous playback interrupted\n");
+        break;
       }
     }
   } 
+  xPlaySettings->xFinished = pdTRUE;
   printf("Finished Playback\n");
   vTaskDelete( NULL );
 }
 
 /*-----------------------------------*/
-
-portBASE_TYPE xSendFileLines(portCHAR *pcFileName)
+/* Used during play */
+portBASE_TYPE xGetFileLines(portCHAR *pcFileName)
 {
-  const portTickType xTicksToWait = 1000 / portTICK_RATE_MS;
+  const portTickType xTicksToWait = 10000 / portTICK_RATE_MS;
   portCHAR pcRead;
   portCHAR pcFileLine[STRING_MAX] = {0};
   portCHAR *pcPtr;
@@ -287,20 +184,53 @@ portBASE_TYPE xSendFileLines(portCHAR *pcFileName)
       /* Check for new line, if found then send string to the queue */
       if ( pcRead == '\n' )
       {
+        /* Wait for 10 seconds for previous queue item to be processed */
         xStatus = xQueueSendToBack(xStringQueue, &pcFileLine, xTicksToWait);
         if( xStatus != pdPASS )
         {
           printf( "Could not send to xStringQueue.\r\n");
         }
-        /* Reset pointer to the beginning of the buffer */
-        pcPtr = pcFileLine;
-        /* NULL the buffer */
-        bzero(pcFileLine,STRING_MAX);
       }
       else
       {
         /* Keep walking along the buffer */
         pcPtr++;
+      }
+      
+      /* Check for button press action */
+      if(ArmControlFlag == PAUSE_NOW)
+      {
+        printf("Playback interrupted\n");
+        while(ArmControlFlag == PAUSE_NOW)
+        {
+          /* Wait for another button press */
+          vTaskDelay(100 / portTICK_RATE_MS);
+        }
+        /* Pressed Play - resend last command */
+        if (ArmControlFlag == PLAY_NOW)
+        {
+        /* Wait for 10 seconds for previous queue item to be processed */
+          xStatus = xQueueSendToBack(xStringQueue, &pcFileLine, xTicksToWait);
+          if( xStatus != pdPASS )
+          {
+            printf( "Could not send to xStringQueue.\r\n");
+          }
+        }
+      }
+      
+      /* Stop pressed, get out! */
+      if(ArmControlFlag == STOP_NOW)
+      {
+        printf("Emergency Stop!\n");
+        return -1;
+      }
+      
+      if ( pcRead == '\n' )
+      {
+        /* Reset pointer to the beginning of the buffer */
+        pcPtr = pcFileLine;
+        /* NULL the buffer */
+        bzero(pcFileLine,STRING_MAX);
       }
     }
     /* Reached the end of the file */
@@ -316,7 +246,7 @@ portBASE_TYPE xSendFileLines(portCHAR *pcFileName)
 }
 
 /*-----------------------------------*/
-
+/* Used during record */
 portSHORT sCreateFile(portCHAR *pcFileName)
 {
   portSHORT psHandler;
@@ -346,7 +276,7 @@ portSHORT sCreateFile(portCHAR *pcFileName)
 }
 
 /*-----------------------------------*/
-
+/* Used during record */
 portSHORT psSDCardAppendFile(portCHAR *pcFileName, portCHAR *pcString, portBASE_TYPE xLen)
 {
   portSHORT psHandler = -1;
@@ -367,12 +297,14 @@ portSHORT psSDCardAppendFile(portCHAR *pcFileName, portCHAR *pcString, portBASE_
   if ((psHandler = alt_up_sd_card_fopen(pcFileName, false)) != -1){
     /* Read to the end of the file */
     while ((read = alt_up_sd_card_read(psHandler)) != -1);
+    
+    /* Write the new lines to the file */
     for (i=0;i<xLen;i++)
     {
       if ((alt_up_sd_card_write(psHandler, pcString[i])) != 1)
         printf("failed to write\n");
     }
-      
+    /* Save the contents of the file */
     alt_up_sd_card_fclose(psHandler);
     return pdTRUE;
   }

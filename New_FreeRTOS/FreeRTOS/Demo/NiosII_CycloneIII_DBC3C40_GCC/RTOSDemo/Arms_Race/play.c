@@ -16,70 +16,48 @@
 
 /* Pete written */
 #include "system_state.h"
-#include "waypoints.h"
 #include "keypad.h"
 #include "LCD.h"
 #include "sd_card.h"
+#include "arm_com.h"
 
-#define NUMBER_OF_CHOICES 2
 #define TIMEOUT_VALUE 1
 
-portBASE_TYPE xGetNumberOfFiles(void)
-{
-  portCHAR pcBufferName[FILE_NAME_MAX] = {0};
-  portBASE_TYPE xFileNameQueueStatus;
-  const portTickType xTicksToWait = 500 / portTICK_RATE_MS;
-  portBASE_TYPE xTimeOut = TIMEOUT_VALUE;
-  portBASE_TYPE xNumberOfFiles = 0;
-  
-  while(xTimeOut != 0)
-  {
-    if( uxQueueMessagesWaiting( xFileNameQueue ) != 0)
-      {
-        printf( "Queue should have been empty!\r\n" );
-      }
-      xFileNameQueueStatus = xQueueReceive( xFileNameQueue, &pcBufferName, xTicksToWait );
-      if( xFileNameQueueStatus == pdPASS )
-      {
-        printf("\t%s\n",pcBufferName);
-        xNumberOfFiles++;
-      }
-      else
-      {
-        xTimeOut--;
-      }
-  }
-  return xNumberOfFiles;
-}
+/* Local Prototypes */
+void vTaskPlay( void *pvParameters );
+portBASE_TYPE xSetLoopCount(void);
+void vPlayProgram(portCHAR *pcFileName, portBASE_TYPE xLoopCount);
 
+/*---------------------*/
 void vTaskPlay( void *pvParameters )
 {
   portSHORT sReceivedValue;
   portBASE_TYPE xKeyPadQueueStatus;
   const portTickType xTicksToWait = 1000 / portTICK_RATE_MS;
-  enum xChoice_t {RECORD_A_PROGRAM, PLAY_A_PROGRAM} xChoice;
-  portCHAR *pcChoices[] = 
-  {
-    "Loop Behaviour",
-    "Play a Program"
-  };
+  portBASE_TYPE xChoice = 0;
+  
   portBASE_TYPE xNumOfFiles = 0;
+  /* List of program names */
+  portCHAR pcProgramNameList[NUMBER_OF_PROGS_MAX][FILE_NAME_MAX] = {{0}};
   
-  xChoice = 0;
+  portBASE_TYPE xLoopCount = 1;
   
-  if (xConnected == pdFALSE)
+  /* Check if SD Card is connected */
+  if (xSDConnected == pdFALSE)
   {
     printf("Please Insert SD Card!\n");
     vPrintToLCD(1,"Please Insert");
     vPrintToLCD(2,"SD Card!");
-    while(xConnected != pdTRUE)
+    while(xSDConnected != pdTRUE)
     {
-      vTaskDelay( 100 / portTICK_RATE_MS);
+      vTaskDelay( 200 / portTICK_RATE_MS);
       /* Wait until the card is inserted and read */
     }
   }
-  vTaskResume(xFileNameHandle);
-  xNumOfFiles = xGetNumberOfFiles();
+  
+  /* Reads the list of files */
+  xNumOfFiles = xGetFileNames(pcProgramNameList);
+  
   printf("Play Task\n");
   if (xNumOfFiles == 0)
   {
@@ -87,7 +65,7 @@ void vTaskPlay( void *pvParameters )
     vPrintToLCD(1,"No Files");
     vPrintToLCD(2,"Available");
     vTaskDelay( 3000 / portTICK_RATE_MS );
-    
+    /* Go back to the menu */
     xSystemState = MENU_SELECT;
     xTaskCreate(vTaskMenu, "Menu", 2000, NULL, 1, &xMenuHandle);
     vTaskDelete(NULL);
@@ -95,8 +73,10 @@ void vTaskPlay( void *pvParameters )
   else
   {
     vPrintToLCD(1,"Select a program");
+    vPrintToLCD(2,pcProgramNameList[xChoice]);
   }
 
+  /* Listed the first program name. Now select one! */
   
   for(;;)
   {
@@ -122,49 +102,51 @@ void vTaskPlay( void *pvParameters )
           break;
           
         case ENTER:
-          switch (xChoice)
-          {
-            case RECORD_A_PROGRAM:
-              printf("%s\n",pcChoices[xChoice]);
-              break;
-            case PLAY_A_PROGRAM:
-              printf("%s\n",pcChoices[xChoice]);
-              break;
-            default:
-              break;
-          }
+          printf("%s\n",pcProgramNameList[xChoice]);
+          xLoopCount = xSetLoopCount();
+          printf("Loop Count = %ld\n",xLoopCount);
+          /* Launch playback task */
+          vPlayProgram(pcProgramNameList[xChoice], xLoopCount);
+          
+          vPrintToLCD(1,"Play Finished");
+          vTaskDelay(3000 / portTICK_RATE_MS);
+          xSystemState = MENU_SELECT;
+          xTaskCreate(vTaskMenu, "Menu", 2000, NULL, 1, &xMenuHandle);
+          vTaskDelete(NULL);
           break;
+          
         case CANCEL:
           xSystemState = MENU_SELECT;
           xTaskCreate(vTaskMenu, "Menu", 2000, NULL, 1, &xMenuHandle);
           vTaskDelete(NULL);
           break;
           
-        case XUP:
-        case UP:
+        case XDOWN:
+        case DOWN:
         case XRIGHT:
         case RIGHT:
-          if (++xChoice >= NUMBER_OF_CHOICES)
+          if (++xChoice >= xNumOfFiles)
           {
             xChoice = 0;
           }
           break;
-        case XDOWN:
-        case DOWN:
+          
+        case XUP:
+        case UP:
         case XLEFT:
         case LEFT:
           --xChoice;
-          if (xChoice < 0 || xChoice > NUMBER_OF_CHOICES)
+          if (xChoice < 0 || xChoice > xNumOfFiles)
           {
-            xChoice = NUMBER_OF_CHOICES - 1;
+            xChoice = xNumOfFiles - 1;
           }
           break;
           
         default:
           break;
       }
-      printf( "xChoice %d\n", xChoice);
-      vPrintToLCD(2,pcChoices[xChoice]);
+      printf( "xChoice %ld\n", xChoice);
+      vPrintToLCD(2,pcProgramNameList[xChoice]);
     }
     else
     {
@@ -180,4 +162,196 @@ void vTaskPlay( void *pvParameters )
   }
   
    vTaskDelete(NULL);
+}
+
+/*----------------------------*/
+portBASE_TYPE xSetLoopCount(void)
+{
+  portSHORT sReceivedValue;
+  portBASE_TYPE xKeyPadQueueStatus;
+  const portTickType xTicksToWait = 1000 / portTICK_RATE_MS;
+  portCHAR pcBuffer[STRING_MAX] = {0};
+  portBASE_TYPE xLoopCount = 1;
+  
+  sprintf(pcBuffer,"%ld",xLoopCount);
+  
+
+  printf("Set Loop Count\n");
+  vPrintToLCD(1,"Loop Count:");
+  vPrintToLCD(2,pcBuffer);
+  
+
+  for(;;)
+  {
+    if( uxQueueMessagesWaiting( xKeyPadQueue ) != 0)
+    {
+      printf( "Queue should have been empty!\r\n" );
+    }
+    xKeyPadQueueStatus = xQueueReceive( xKeyPadQueue, &sReceivedValue, xTicksToWait );
+    if( xKeyPadQueueStatus == pdPASS )
+    {
+      printf( "Received = %d\r\n", sReceivedValue );
+      switch (sReceivedValue)
+      {
+
+        case RESET:
+          break;
+        case PLAY:
+          break;
+        case PAUSE:
+          break;
+        case STOP:
+          break;
+        case CANCEL:
+          break;
+      /* Pressing Enter exits this function.
+       * Return xLoopCount */
+        case ENTER:
+          return xLoopCount;
+          
+        case XUP:
+          if (xLoopCount != 0)
+          {
+            xLoopCount += 10;
+            
+            if (xLoopCount >= LOOP_MAX)
+              xLoopCount = LOOP_MAX;
+            printf("%ld\tLoopCount+10;\n",xLoopCount);
+            
+            bzero(pcBuffer,STRING_MAX);
+            sprintf(pcBuffer,"%ld",xLoopCount);
+          }
+          break;
+          
+        case XDOWN:
+          if (xLoopCount != 0)
+          {
+            xLoopCount -= 10;
+            /* Limit the values to the minimum.
+             * Since enums are unsigned ints,
+             *  need to check for greater than max
+             *  since (0 - 1) = 4,294,967,295 */
+            if (xLoopCount < LOOP_MIN || xLoopCount > LOOP_MAX)
+              xLoopCount = LOOP_MIN;
+            printf("%ld\tLoopCount-10;\n",xLoopCount);
+      
+            bzero(pcBuffer,STRING_MAX);
+            sprintf(pcBuffer,"%ld",xLoopCount);
+          }
+          break;
+          
+        case UP:
+          if (xLoopCount != 0)
+          {
+            xLoopCount++;
+              /* Limit the values to the upper max */
+            if (xLoopCount >= LOOP_MAX)
+              xLoopCount = LOOP_MAX;
+            printf("%ld\tLoopCount++;\n",xLoopCount);
+  
+            bzero(pcBuffer,STRING_MAX);
+            sprintf(pcBuffer,"%ld",xLoopCount);
+          }
+          break;
+          
+        case DOWN:
+          if (xLoopCount != 0)
+          {
+            xLoopCount--;
+            /* Limit the values to the minimum.
+             * Since enums are unsigned ints,
+             *  need to check for greater than max
+             *  since (0 - 1) = 4,294,967,295 */
+        
+            if (xLoopCount < LOOP_MIN || xLoopCount > LOOP_MAX)
+              xLoopCount = LOOP_MIN;
+            printf("%ld\tLoopCount--;\n",xLoopCount);
+        
+            bzero(pcBuffer,STRING_MAX);
+            sprintf(pcBuffer,"%ld",xLoopCount);
+          }
+          break;
+          
+        case XRIGHT:
+        case RIGHT:
+        case XLEFT:
+        case LEFT:
+          if (xLoopCount != 0)
+          {
+            xLoopCount = 0;
+            bzero(pcBuffer,STRING_MAX);
+            sprintf(pcBuffer,"Continuous");
+          }
+          else
+          {
+            xLoopCount = 1;
+            bzero(pcBuffer,STRING_MAX);
+            sprintf(pcBuffer,"%ld",xLoopCount);
+          }
+          break;
+        
+        
+        default:
+          break;
+      }
+      vPrintToLCD(2,pcBuffer);
+    }
+    else
+    {
+      //printf( "Could not receive from the queue.\r\n");
+    }
+    taskYIELD();
+  }
+  return xLoopCount;
+}
+
+/*----------------------------*/
+void vPlayProgram(portCHAR *pcFileName, portBASE_TYPE xLoopCount)
+{
+  portSHORT sReceivedValue;
+  portBASE_TYPE xKeyPadQueueStatus;
+  const portTickType xTicksToWait = 1000 / portTICK_RATE_MS;
+  
+  PlaySettings_TYPE xPlaySettings;
+  strcpy(xPlaySettings.pcFileName, pcFileName);
+  xPlaySettings.xLoopCount = xLoopCount;
+  xPlaySettings.xFinished = pdFALSE;
+  
+  xTaskCreate(vTaskReadFileContents,
+              "Read File Contents",
+              2000,
+              &xPlaySettings,
+              1,
+              &xStringHandle);
+              
+  while(xPlaySettings.xFinished == pdFALSE)
+  {
+    /* Wait until playback has been finished */
+    vTaskDelay(500 / portTICK_RATE_MS);
+    /* Read the keypad, waiting for pause, play or stop */
+    if( uxQueueMessagesWaiting( xKeyPadQueue ) != 0)
+    {
+      printf( "Queue should have been empty!\r\n" );
+    }
+    xKeyPadQueueStatus = xQueueReceive( xKeyPadQueue, &sReceivedValue, xTicksToWait );
+    if( xKeyPadQueueStatus == pdPASS )
+    {
+      printf( "Received = %d\r\n", sReceivedValue );
+      switch (sReceivedValue)
+      {
+        case PLAY:
+          ArmControlFlag = PLAY_NOW;
+          break;
+        case PAUSE:
+          ArmControlFlag = PAUSE_NOW;
+          break;
+        case STOP:
+          ArmControlFlag = STOP_NOW;
+          xPlaySettings.xFinished = pdTRUE;
+          break;
+        default:
+          break;
+      }
+    }
+  }
 }

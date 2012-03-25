@@ -29,9 +29,9 @@ extern int sd_card_read_names(void);
 extern int sd_card_read_file(char *);
 
 char *key_assignment[] = {
-  "RESET", "XUP", "BLANK1", "PLAY",
-  "XLEFT",  "UP", "XRIGHT", "PAUSE",
-  "LEFT", "DOWN", "RIGHT",  "BLANK2",
+  "RESET",  "XUP", "BLANK1", "PLAY",
+  "XLEFT",   "UP", "XRIGHT", "PAUSE",
+  "LEFT",  "DOWN",  "RIGHT", "BLANK2",
   "STOP", "XDOWN", "CANCEL", "ENTER"
 };
 
