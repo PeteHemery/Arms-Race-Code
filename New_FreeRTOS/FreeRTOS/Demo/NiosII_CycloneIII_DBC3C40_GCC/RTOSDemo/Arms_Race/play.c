@@ -203,8 +203,8 @@ portBASE_TYPE xSetLoopCount(void)
         case STOP:
           break;
         case CANCEL:
-          break;
-      /* Pressing Enter exits this function.
+          //break;
+      /* Pressing Enter or cancel exits this function.
        * Return xLoopCount */
         case ENTER:
           return xLoopCount;
@@ -302,7 +302,6 @@ portBASE_TYPE xSetLoopCount(void)
     }
     taskYIELD();
   }
-  return xLoopCount;
 }
 
 /*----------------------------*/
