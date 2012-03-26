@@ -12,25 +12,17 @@
 /* Limit the number of programs */
 #define NUMBER_OF_PROGS_MAX 1000
 #define FILE_NAME_MAX 30
+/* Limit the number of loops during playback */
 #define LOOP_MAX 100
 #define LOOP_MIN 1
-/*-----------------------------------*/
 
-/* Define data type that will be queued */
-typedef struct Play_Settings
+/* Define data type that will launch the play task*/
+typedef struct xPlay_Settings
 {
   portCHAR pcFileName[FILE_NAME_MAX];
   portBASE_TYPE xLoopCount;
   portBASE_TYPE xFinished;
-} PlaySettings_TYPE;
-
-/*-----------------------------------*/
-#define STRING_QUEUE_LENGTH 1
-#define STRING_QUEUE_SIZE sizeof(portCHAR * STRINGMAX)
-#define STRING_STACK_SIZE 3000
-
-extern xQueueHandle xStringQueue;
-extern xTaskHandle xStringHandle;
+} xPlaySettings_TYPE;
 
 /*-----------------------------------*/
 

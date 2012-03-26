@@ -26,9 +26,6 @@
 #include "LCD.h"
 #include "arm_com.h"
 
-xQueueHandle xStringQueue = NULL;
-xTaskHandle xStringHandle = NULL;
-
 portBASE_TYPE xSDConnected = 0;
   
 /*-----------------------------------*/
@@ -86,6 +83,16 @@ portBASE_TYPE xGetFileNames(portCHAR pcFileNameList[NUMBER_OF_PROGS_MAX][FILE_NA
   /* Find the name of the SD card's root directory */
   psHandler = alt_up_sd_card_find_first("/.", pcBufferName);
   
+  /* Check if first file is a program */
+  if ( (pcPtr = strstr(pcBufferName,".ARM")) != NULL)
+  {
+    strcpy(pcFileNameList[xNumberOfFiles],pcBufferName);
+    printf("%s\n",pcBufferName);
+    
+    /* Keep a count of number of files */
+    xNumberOfFiles++;
+  }
+  
   printf("SD CARD: %s\n\n List of Programs:\n\n", pcBufferName);
   
   /* Read every file looking for the .ARM file extension */
@@ -114,9 +121,9 @@ portBASE_TYPE xGetFileNames(portCHAR pcFileNameList[NUMBER_OF_PROGS_MAX][FILE_NA
 void vTaskReadFileContents(void *pvParameters)
 {  
   portSHORT i;
-  PlaySettings_TYPE *xPlaySettings;
+  xPlaySettings_TYPE *xPlaySettings;
   
-  xPlaySettings = (PlaySettings_TYPE *) pvParameters;
+  xPlaySettings = (xPlaySettings_TYPE *) pvParameters;
  
   /* Check loop count is within sane limits */
   if (xPlaySettings->xLoopCount >= LOOP_MIN &&
@@ -165,7 +172,7 @@ portBASE_TYPE xGetFileLines(portCHAR *pcFileName)
   
   portCHAR pcBufferName[FILE_NAME_MAX] = {0};
   
-  /* Must open root before above to access SD Card */
+  /* Must open root before able to access SD Card */
   psHandler = alt_up_sd_card_find_first("/.", pcBufferName);
   
   /* Initialise pointer with address of the buffer */
@@ -185,10 +192,10 @@ portBASE_TYPE xGetFileLines(portCHAR *pcFileName)
       if ( pcRead == '\n' )
       {
         /* Wait for 10 seconds for previous queue item to be processed */
-        xStatus = xQueueSendToBack(xStringQueue, &pcFileLine, xTicksToWait);
+        xStatus = xQueueSendToBack(xArmComQueue, &pcFileLine, xTicksToWait);
         if( xStatus != pdPASS )
         {
-          printf( "Could not send to xStringQueue.\r\n");
+          printf( "Could not send to xArmComQueue.\r\n");
         }
       }
       else
@@ -210,10 +217,10 @@ portBASE_TYPE xGetFileLines(portCHAR *pcFileName)
         if (ArmControlFlag == PLAY_NOW)
         {
         /* Wait for 10 seconds for previous queue item to be processed */
-          xStatus = xQueueSendToBack(xStringQueue, &pcFileLine, xTicksToWait);
+          xStatus = xQueueSendToBack(xArmComQueue, &pcFileLine, xTicksToWait);
           if( xStatus != pdPASS )
           {
-            printf( "Could not send to xStringQueue.\r\n");
+            printf( "Could not send to xArmComQueue.\r\n");
           }
         }
       }
@@ -252,16 +259,13 @@ portSHORT sCreateFile(portCHAR *pcFileName)
   portSHORT psHandler;
   portCHAR pcBufferName[FILE_NAME_MAX] = {0};
   
-  /* Must open root before above to access SD Card */
+  /* Must open root before able to access SD Card */
   psHandler = alt_up_sd_card_find_first("/.", pcBufferName);
   
   /* Attempt to create file */
   if ((psHandler = alt_up_sd_card_fopen(pcFileName, true)) != -1)
   {
-    /* File Created - Write New Line and save*/
-    /*if ((alt_up_sd_card_write(psHandler, '\n')) != 1)
-      printf("new line fail\n");
-    */
+    /* File Created - Save it */
     alt_up_sd_card_fclose(psHandler);
     
     printf("%s created\n",pcFileName);
@@ -291,7 +295,7 @@ portSHORT psSDCardAppendFile(portCHAR *pcFileName, portCHAR *pcString, portBASE_
     return pdFALSE;
   }
   
-  /* Must open root before above to access SD Card */
+  /* Must open root before able to access SD Card */
   psHandler = alt_up_sd_card_find_first("/.", pcBufferName);
   
   if ((psHandler = alt_up_sd_card_fopen(pcFileName, false)) != -1){
