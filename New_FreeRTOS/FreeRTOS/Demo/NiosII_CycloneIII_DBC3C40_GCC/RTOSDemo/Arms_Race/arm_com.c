@@ -128,6 +128,7 @@ void vTaskArmCom(void *pvParameters)
       {
         /* If WAITING_NOW and here, we couldn't read the queue.
          * If not then a control button was pressed. */
+         
         /*if (ArmControlFlag == WAITING_NOW)
           printf( "Could not receive from xArmComQueue.\n");
         */

@@ -16,7 +16,6 @@
 
 /* Pete written */
 #include "system_state.h"
-#include "waypoints.h"
 #include "keypad.h"
 #include "LCD.h"
 #include "sd_card.h"
@@ -45,7 +44,7 @@ void vTaskReset(void)
       break;
   }
   //vArmCom(RESET);
-  vTaskEndScheduler();
+  //vTaskEndScheduler();
   
 }
 

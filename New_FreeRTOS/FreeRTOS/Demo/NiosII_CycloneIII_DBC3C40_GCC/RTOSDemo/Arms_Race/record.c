@@ -16,7 +16,6 @@
 
 /* Pete written */
 #include "system_state.h"
-#include "waypoints.h"
 #include "keypad.h"
 #include "LCD.h"
 #include "sd_card.h"
@@ -64,6 +63,19 @@ void vTaskRecord( void *pvParameters )
   portCHAR pcWayPointString[OUTPUT_MAX] = {0};
   portCHAR pcWayPointTemp[20] = {0};
   portBASE_TYPE xLen = 0;
+  
+  /* Check if SD Card is connected */
+  if (xSDConnected == pdFALSE)
+  {
+    printf("Please Insert SD Card!\n");
+    vPrintToLCD(1,"Please Insert");
+    vPrintToLCD(2,"SD Card!");
+    while(xSDConnected != pdTRUE)
+    {
+      vTaskDelay( 200 / portTICK_RATE_MS);
+      /* Wait until the card is inserted and read */
+    }
+  }
   
   while (xFileNameFound == pdFALSE)
   {
@@ -168,7 +180,7 @@ void vTaskRecord( void *pvParameters )
               }
               /* Get the string length and write to the SD card */
               xLen = strlen(pcWayPointString);
-              if ((sd_card_append_file(pcFileName, pcWayPointString, xLen)) != pdTRUE)
+              if ((psSDCardAppendFile(pcFileName, pcWayPointString, xLen)) != pdTRUE)
               {
                 printf("Could not write to %s!\n",pcFileName);
                 vPrintToLCD(2,"Waypoint Not Set!");
@@ -469,24 +481,23 @@ portBASE_TYPE xSetAValue(xSetValueParam xValueParam, portBASE_TYPE *pxInValue)
             case GRIP_VALUE:
               if ((*pxInValue) >= GRIP_MAX)
                 (*pxInValue) = GRIP_MAX;
-              printf("%ld\tGripValue++;\n",*pxInValue);
+              printf("%ld\tGripValue+10;\n",*pxInValue);
               break;
             case TIME_VALUE:
               if ((*pxInValue) >= TIME_MAX)
                 (*pxInValue) = TIME_MAX;
-              printf("%ld\tTimeValue++;\n",*pxInValue);
+              printf("%ld\tTimeValue+10;\n",*pxInValue);
               break;
             case WAIT_VALUE:
               if ((*pxInValue) >= WAIT_MAX)
                 (*pxInValue) = WAIT_MAX;
-              printf("%ld\tWaitValue++;\n",*pxInValue);
+              printf("%ld\tWaitValue+10;\n",*pxInValue);
               break;
             default:
               break;
           }
           bzero(pcBuffer,STRING_MAX);
           sprintf(pcBuffer,"%ld",*pxInValue);
-          vPrintToLCD(2,pcBuffer);
           break;
           
         case XDOWN:
@@ -518,7 +529,6 @@ portBASE_TYPE xSetAValue(xSetValueParam xValueParam, portBASE_TYPE *pxInValue)
           }
           bzero(pcBuffer,STRING_MAX);
           sprintf(pcBuffer,"%ld",*pxInValue);
-          vPrintToLCD(2,pcBuffer);
           break;
           
         case UP:
@@ -547,7 +557,6 @@ portBASE_TYPE xSetAValue(xSetValueParam xValueParam, portBASE_TYPE *pxInValue)
           }
           bzero(pcBuffer,STRING_MAX);
           sprintf(pcBuffer,"%ld",*pxInValue);
-          vPrintToLCD(2,pcBuffer);
           break;
           
         case DOWN:
@@ -579,7 +588,6 @@ portBASE_TYPE xSetAValue(xSetValueParam xValueParam, portBASE_TYPE *pxInValue)
           }
           bzero(pcBuffer,STRING_MAX);
           sprintf(pcBuffer,"%ld",*pxInValue);
-          vPrintToLCD(2,pcBuffer);
           break;
           
         default:

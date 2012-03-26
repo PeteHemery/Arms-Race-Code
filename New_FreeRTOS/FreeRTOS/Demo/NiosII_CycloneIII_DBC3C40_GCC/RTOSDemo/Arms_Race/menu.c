@@ -16,13 +16,13 @@
 
 /* Pete written */
 #include "system_state.h"
-#include "waypoints.h"
 #include "keypad.h"
 #include "LCD.h"
 #include "sd_card.h"
 #include "record.h"
 
 #define NUMBER_OF_CHOICES 2
+#define PLAY_TASK_STACK_SIZE (FILE_NAME_MAX * NUMBER_OF_PROGS_MAX) + 2000
 
 extern void vWaitForReset(void);
 extern void vTaskPlay( void *pvParameters );
@@ -77,14 +77,27 @@ void vTaskMenu( void *pvParameters )
             case RECORD_A_PROGRAM:
               printf("%s\n",pcChoices[xChoice]);
               xSystemState = RECORDING;
-              xTaskCreate(vTaskRecord, "Record Task", 2000, NULL, 1, &xRecordHandle);
+              
+              xTaskCreate(vTaskRecord,
+                          "Record Task",
+                          2000,
+                          NULL,
+                          1,
+                          &xRecordHandle);
               /* Get out of here */
               vTaskDelete( NULL);
               break;
+              
             case PLAY_A_PROGRAM:
               printf("%s\n",pcChoices[xChoice]);
               xSystemState = PLAYING;
-              xTaskCreate(vTaskPlay, "Play Task", 2000, NULL, 1, &xPlayHandle);
+              
+              xTaskCreate(vTaskPlay,
+                          "Play Task",
+                          PLAY_TASK_STACK_SIZE,
+                          NULL,
+                          1,
+                          &xPlayHandle);
               /* Get out of here */
               vTaskDelete( NULL);
               break;
