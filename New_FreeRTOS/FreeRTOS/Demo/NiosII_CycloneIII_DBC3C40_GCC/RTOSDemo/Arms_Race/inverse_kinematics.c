@@ -105,7 +105,6 @@ void vCalculateInverse(xInverseStruct_t *pxInverseStruct)
       strcat(pxInverseStruct->pcOutput,pcTestBuffer);
     }
   }
-  strcat(pxInverseStruct->pcOutput,"T600");
 
   //printf("OUTPUT = %s\n",pxInverseStruct->pcOutput);
   return;

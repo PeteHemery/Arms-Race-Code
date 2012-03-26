@@ -169,12 +169,12 @@ void vTaskRecord( void *pvParameters )
                 xWayPointFlags.xAxisSet = 0;
                 xWayPointFlags.xGripSet = 0;
                 xWayPointFlags.xTimeSet = 0;
-                strcat(pcWayPointString,"\r");
+                strcat(pcWayPointString,"\r\n");
               }
               if (xWayPointFlags.xWaitSet == 1)
               {
                 xWayPointFlags.xWaitSet = 0;
-                sprintf(pcWayPointTemp,"W%ld\r",xTimeValue);
+                sprintf(pcWayPointTemp,"W%ld\r\n",xTimeValue);
                 strcat(pcWayPointString,pcWayPointTemp);
               }
               if (pcWayPointString != NULL)
@@ -193,6 +193,8 @@ void vTaskRecord( void *pvParameters )
                 printf("Waypoint Set!\n");
                 vPrintToLCD(2,"Waypoint Set!");
               }
+              /* Reset menu selection choice */
+              xChoice = SELECT_AXIS;
               /* Wait while message is displayed */
               vTaskDelay(3000 / portTICK_RATE_MS);
               break;
@@ -272,7 +274,7 @@ portBASE_TYPE xSetAxisValue(xInverseStruct_t *xInverseStruct)
                                     xInverseStruct->Z);
   vPrintToLCD(2,pcBuffer);
 
-  strcpy(xInverseStruct->pcOutput,"NOT SET");
+  vCalculateInverse(xInverseStruct);
   printf("psX=%d psY=%d psZ=%d\npcOutput=%s\n",xInverseStruct->X,
                                                xInverseStruct->Y,
                                                xInverseStruct->Z,
@@ -400,7 +402,7 @@ portBASE_TYPE xSetAxisValue(xInverseStruct_t *xInverseStruct)
                                              xInverseStruct->pcOutput);
       bzero(pcBuffer,STRING_MAX);
       strcpy(pcBuffer,xInverseStruct->pcOutput);
-      strcat(pcBuffer,"\r");
+      strcat(pcBuffer," T600\r");
       
       /* Send updated servo values to the arm */
       xStatus = xQueueSendToBack( xArmComQueue, &pcBuffer, xTicksToWait);

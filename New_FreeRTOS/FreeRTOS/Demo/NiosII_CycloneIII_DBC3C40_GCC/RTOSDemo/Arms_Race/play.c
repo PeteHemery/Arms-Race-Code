@@ -314,7 +314,7 @@ portBASE_TYPE xSetLoopCount(void)
 void vPlayProgram(portCHAR *pcFileName, portBASE_TYPE xLoopCount)
 {
   portSHORT sReceivedValue;
-  portBASE_TYPE xKeyPadQueueStatus;
+  portBASE_TYPE xKeyPadQueueStatus = pdFALSE;
   const portTickType xTicksToWait = 1000 / portTICK_RATE_MS;
   
   xPlaySettings_TYPE xPlaySettings;
@@ -322,6 +322,21 @@ void vPlayProgram(portCHAR *pcFileName, portBASE_TYPE xLoopCount)
   xPlaySettings.xLoopCount = xLoopCount;
   xPlaySettings.xFinished = pdFALSE;
   xTaskHandle xReadFileContentsHandle;
+  
+  printf("Press Play to begin\n");
+  vPrintToLCD(1,"Press Play");
+  vPrintToLCD(2,"to begin");
+  
+  while(xKeyPadQueueStatus == pdFALSE)
+  {
+    xKeyPadQueueStatus = xQueueReceive( xKeyPadQueue, &sReceivedValue, xTicksToWait );
+    if( xKeyPadQueueStatus == pdPASS )
+    {
+      printf( "Received = %d\r\n", sReceivedValue );
+      if (sReceivedValue == PLAY)
+        break;
+    }
+  }
   
   xTaskCreate(vTaskReadFileContents,
               "Read File Contents",

@@ -111,8 +111,6 @@ portBASE_TYPE xGetFileNames(portCHAR pcFileNameList[NUMBER_OF_PROGS_MAX][FILE_NA
   /* All file names have been written */
   printf("\nNumber of files: %ld\n",xNumberOfFiles);
   
-  /* Close the SD card file handle */
-  alt_up_sd_card_fclose(psHandler);
   return xNumberOfFiles;
 }
 
@@ -122,6 +120,7 @@ void vTaskReadFileContents(void *pvParameters)
 {  
   portSHORT i;
   xPlaySettings_TYPE *xPlaySettings;
+  portCHAR pcBuffer[5] = {0};
   
   xPlaySettings = (xPlaySettings_TYPE *) pvParameters;
  
@@ -132,6 +131,10 @@ void vTaskReadFileContents(void *pvParameters)
     /* Send all lines from the file the specified number of times */
     for (i=0; i<xPlaySettings->xLoopCount; i++)
     {
+      bzero(pcBuffer,5);
+      sprintf(pcBuffer,"%d",i+1);
+      vPrintToLCD(1,"Loop Count:");
+      vPrintToLCD(2,pcBuffer);
       if (xGetFileLines(xPlaySettings->pcFileName) != 0)
       {
         printf("Could not open file!\n");
@@ -146,6 +149,8 @@ void vTaskReadFileContents(void *pvParameters)
     /* Continuously send all lines in the file */
     while(ArmControlFlag == PLAY_NOW || ArmControlFlag == PAUSE_NOW)
     {
+      vPrintToLCD(1,"Loop Count:");
+      vPrintToLCD(2,"Continuous");
       if (xGetFileLines(xPlaySettings->pcFileName) != 0)
       {
         /* Stop was pressed */
@@ -170,105 +175,88 @@ portBASE_TYPE xGetFileLines(portCHAR *pcFileName)
   portSHORT psHandler;
   portBASE_TYPE xStatus;
   
-  portCHAR pcBufferName[FILE_NAME_MAX] = {0};
-  
-  /* Must open root before able to access SD Card */
-  psHandler = alt_up_sd_card_find_first("/.", pcBufferName);
-  
   /* Initialise pointer with address of the buffer */
   pcPtr = pcFileLine;
   
-  /*if(strcmp(pcBufferName, pcFileName) != 0)
-  {
-  
-    while ((psHandler = alt_up_sd_card_find_next(pcBufferName)) != 0);
-  }*/
-  psHandler = alt_up_sd_card_fopen(pcFileName, false);
-  
-    printf("%i opened %s!\n",psHandler,pcFileName);
-  while ((pcRead = alt_up_sd_card_read(psHandler)) != -1) printf("%c \n", (char)pcRead);
-  printf("finished\n");
-    for (;;)
-    {
-    }
   /* Check if the file is present & open it */
-  //if ((psHandler = alt_up_sd_card_fopen(pcFileName, false)) != -1)
-  (psHandler = alt_up_sd_card_fopen(pcFileName, false));
+  if ((psHandler = alt_up_sd_card_fopen(pcFileName, false)) != -1)
   {
-    
-    /* opened the file */
-    printf("%i opened %s!\n",psHandler,pcFileName);
+    /* Opened the file */
+    printf("Opened %s\n",pcFileName);
     /* Read file char by char */
-    while ( (pcRead = (portCHAR)alt_up_sd_card_read(psHandler)) != -1)
+    while ( (pcRead = alt_up_sd_card_read(psHandler)) != -1)
     {
       /* Print the characer from the file */
       printf("%c", pcRead);
       /* Copy char from file to pcFileLine */
       *pcPtr = pcRead;
       /* Check for new line, if found then send string to the queue */
-      if ( pcRead == '\n' )
+      if ( *pcPtr == '\r' )
       {
+        
         /* Wait for 10 seconds for previous queue item to be processed */
         xStatus = xQueueSendToBack(xArmComQueue, &pcFileLine, xTicksToWait);
         if( xStatus != pdPASS )
         {
           printf( "Could not send to xArmComQueue.\r\n");
         }
+        /* Wait for Arm Com to pick up the message */
+        vTaskDelay(100 / portTICK_RATE_MS);
+        
+        /* Wait until item has been processed */
+        while(ArmControlFlag != WAITING_NOW)
+        {
+          vTaskDelay(100 / portTICK_RATE_MS);
+          
+          /* Check for button press action */
+          if(ArmControlFlag == PAUSE_NOW)
+          {
+            printf("Playback interrupted\n");
+            while(ArmControlFlag == PAUSE_NOW)
+            {
+              /* Wait for another button press */
+              vTaskDelay(100 / portTICK_RATE_MS);
+            }
+            /* Pressed Play - resend last command */
+            if (ArmControlFlag == PLAY_NOW)
+            {
+            /* Wait for 10 seconds for previous queue item to be processed */
+              xStatus = xQueueSendToBack(xArmComQueue, &pcFileLine, xTicksToWait);
+              if( xStatus != pdPASS )
+              {
+                printf( "Could not send to xArmComQueue.\r\n");
+              }
+            }
+          }
+          
+          /* Stop pressed, get out! */
+          if(ArmControlFlag == STOP_NOW)
+          {
+            printf("Emergency Stop!\n");
+            return -1;
+          }
+          
+          /* Reset pointer to the beginning of the buffer */
+          pcPtr = pcFileLine;
+          /* NULL the buffer */
+          bzero(pcFileLine,STRING_MAX);
+        }
       }
       else
       {
         /* Keep walking along the buffer */
-        (*pcPtr)++;
+        pcPtr++;
       }
-      
-      /* Check for button press action */
-      if(ArmControlFlag == PAUSE_NOW)
-      {
-        printf("Playback interrupted\n");
-        while(ArmControlFlag == PAUSE_NOW)
-        {
-          /* Wait for another button press */
-          vTaskDelay(100 / portTICK_RATE_MS);
-        }
-        /* Pressed Play - resend last command */
-        if (ArmControlFlag == PLAY_NOW)
-        {
-        /* Wait for 10 seconds for previous queue item to be processed */
-          xStatus = xQueueSendToBack(xArmComQueue, &pcFileLine, xTicksToWait);
-          if( xStatus != pdPASS )
-          {
-            printf( "Could not send to xArmComQueue.\r\n");
-          }
-        }
-      }
-      
-      /* Stop pressed, get out! */
-      if(ArmControlFlag == STOP_NOW)
-      {
-        printf("Emergency Stop!\n");
-        return -1;
-      }
-      
-      if ( pcRead == '\n' )
-      {
-        /* Reset pointer to the beginning of the buffer */
-        pcPtr = pcFileLine;
-        /* NULL the buffer */
-        bzero(pcFileLine,STRING_MAX);
-      }
-    }
-    for (;;)
-    {
     }
     /* Reached the end of the file */
-    //alt_up_sd_card_fclose(psHandler);
+    alt_up_sd_card_fclose(psHandler);
   }
-  /*else
+  else
   {
     printf("File not found\n");
     vPrintToLCD(1,"File not found");
     return -1;
-  }*/
+  }
   return 0;
 }
 
