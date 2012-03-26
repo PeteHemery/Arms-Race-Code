@@ -19,10 +19,14 @@
 
 /* Johns Variables */
 
-#define EL_WR 107.94 //length between elbow and wrist.
-#define SH_EL 95.25  //length between shoulder and elbo.
-#define WR_END 85.725 // length between the wrist and end effector. 
-
+#define EL_WR 10.794 //length between elbow and wrist.
+#define SH_EL 9.525  //length between shoulder and elbo.
+#define WR_END 8.5725 // length between the wrist and end effector. 
+/*
+#define EL_WR 1270 //length between elbow and wrist.
+#define SH_EL 1210  //length between shoulder and elbo.
+#define WR_END 860 // length between the wrist and end effector. 
+*/
 float pi = 3.14159265;
 
 float xt;
@@ -43,7 +47,6 @@ float base;
 float theta1, theta2, theta3, Base;
 
 float servovalue[4];
-
 
 void vCalculateInverse(xInverseStruct_t *pxInverseStruct)
 {
@@ -84,10 +87,11 @@ void vCalculateInverse(xInverseStruct_t *pxInverseStruct)
   printf("Base\t%0.0f\n", roundf(Base*10.0f)/10.0f);
   printf("\n");
   */
-  servovalue[0] = 11.11 * theta1 + 500;
-  servovalue[1] = 11.11 * theta2 + 500;
-  servovalue[2] = 11.11 * theta3 + 500;
-  servovalue[3] = 11.11 * Base + 500;
+
+  servovalue[0] = 1500.0 - ((Base) * 11.11 ) + 500;
+  servovalue[1] = 1500.0 + (( theta1 - 90.0 ) * 11.11 ) + 500;
+  servovalue[2] = 1500.0 -  (( theta2 - 90.0 ) * 11.11 ) + 500;
+  servovalue[3] = 1500.0 - ( theta3  * 11.11 ) + 500;
   
   /* NaN stands for Not a Number.
    * If this is produced when printing the float, don't print it */ 
@@ -101,6 +105,7 @@ void vCalculateInverse(xInverseStruct_t *pxInverseStruct)
       strcat(pxInverseStruct->pcOutput,pcTestBuffer);
     }
   }
+  strcat(pxInverseStruct->pcOutput,"T600");
 
   //printf("OUTPUT = %s\n",pxInverseStruct->pcOutput);
   return;

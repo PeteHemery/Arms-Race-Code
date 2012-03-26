@@ -68,6 +68,7 @@ void vTaskPlay( void *pvParameters )
     vPrintToLCD(1,"No Files");
     vPrintToLCD(2,"Available");
     vTaskDelay( 3000 / portTICK_RATE_MS );
+    
     /* Go back to the menu */
     xSystemState = MENU_SELECT;
     xTaskCreate(vTaskMenu, "Menu", 2000, NULL, 1, &xMenuHandle);
@@ -108,6 +109,7 @@ void vTaskPlay( void *pvParameters )
           printf("%s\n",pcProgramNameList[xChoice]);
           xLoopCount = xSetLoopCount();
           printf("Loop Count = %ld\n",xLoopCount);
+          
           /* Launch playback task */
           vPlayProgram(pcProgramNameList[xChoice], xLoopCount);
           
@@ -119,6 +121,7 @@ void vTaskPlay( void *pvParameters )
           break;
           
         case CANCEL:
+          vPrintToLCD(1,"Cancalled");
           xSystemState = MENU_SELECT;
           xTaskCreate(vTaskMenu, "Menu", 2000, NULL, 1, &xMenuHandle);
           vTaskDelete(NULL);

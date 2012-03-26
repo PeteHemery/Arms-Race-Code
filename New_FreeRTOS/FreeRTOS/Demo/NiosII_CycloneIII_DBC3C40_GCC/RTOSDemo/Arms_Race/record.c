@@ -63,6 +63,7 @@ void vTaskRecord( void *pvParameters )
   portCHAR pcWayPointString[OUTPUT_MAX] = {0};
   portCHAR pcWayPointTemp[20] = {0};
   portBASE_TYPE xLen = 0;
+
   
   /* Check if SD Card is connected */
   if (xSDConnected == pdFALSE)
@@ -79,6 +80,8 @@ void vTaskRecord( void *pvParameters )
   
   while (xFileNameFound == pdFALSE)
   {
+          FILE* fp;
+          fp = fopen ("/dev/uart", "w+");
     sprintf(pcFileName,PROGRAM_NAME,xProgNumber);
     printf("filename: %s\n",pcFileName);
     xFileNameFound = sCreateFile(pcFileName);
@@ -166,12 +169,12 @@ void vTaskRecord( void *pvParameters )
                 xWayPointFlags.xAxisSet = 0;
                 xWayPointFlags.xGripSet = 0;
                 xWayPointFlags.xTimeSet = 0;
-                strcat(pcWayPointString,"\r\n");
+                strcat(pcWayPointString,"\r");
               }
               if (xWayPointFlags.xWaitSet == 1)
               {
                 xWayPointFlags.xWaitSet = 0;
-                sprintf(pcWayPointTemp,"W%ld\r\n",xTimeValue);
+                sprintf(pcWayPointTemp,"W%ld\r",xTimeValue);
                 strcat(pcWayPointString,pcWayPointTemp);
               }
               if (pcWayPointString != NULL)
@@ -320,9 +323,9 @@ portBASE_TYPE xSetAxisValue(xInverseStruct_t *xInverseStruct)
           break;
         case XDOWN:
           xInverseStruct->Z--;
-          if (xInverseStruct->Z < 0 || xInverseStruct->Z > Z_MAX)
+          if (xInverseStruct->Z < Z_MIN || xInverseStruct->Z > Z_MAX)
           {
-            xInverseStruct->Z = 0;
+            xInverseStruct->Z = Z_MIN;
           }
           printf("%d\tZ--;\n",xInverseStruct->Z);
           bzero(pcBuffer,STRING_MAX);
@@ -346,9 +349,9 @@ portBASE_TYPE xSetAxisValue(xInverseStruct_t *xInverseStruct)
           break;
         case DOWN:
           xInverseStruct->Y--;
-          if (xInverseStruct->Y < 0 || xInverseStruct->Y > Y_MAX)
+            if (xInverseStruct->Y < Y_MIN || xInverseStruct->Y > Y_MAX)
           {
-            xInverseStruct->Y = 0;
+            xInverseStruct->Y = Y_MIN;
           }
           printf("%d\tY--;\n",xInverseStruct->Y);
           bzero(pcBuffer,STRING_MAX);
@@ -375,9 +378,9 @@ portBASE_TYPE xSetAxisValue(xInverseStruct_t *xInverseStruct)
         case XLEFT:
         case LEFT:
           xInverseStruct->X--;
-          if (xInverseStruct->X < 0 || xInverseStruct->X > X_MAX)
+          if (xInverseStruct->X < X_MIN || xInverseStruct->X > X_MAX)
           {
-            xInverseStruct->X = 0;
+            xInverseStruct->X = X_MIN;
           }
           printf("%d\tX--;\n",xInverseStruct->X);
           bzero(pcBuffer,STRING_MAX);
@@ -397,6 +400,7 @@ portBASE_TYPE xSetAxisValue(xInverseStruct_t *xInverseStruct)
                                              xInverseStruct->pcOutput);
       bzero(pcBuffer,STRING_MAX);
       strcpy(pcBuffer,xInverseStruct->pcOutput);
+      strcat(pcBuffer,"\r");
       
       /* Send updated servo values to the arm */
       xStatus = xQueueSendToBack( xArmComQueue, &pcBuffer, xTicksToWait);

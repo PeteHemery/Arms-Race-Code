@@ -68,6 +68,8 @@ void vWaitForReset(void)
   printf("Press Reset to Begin\n");
   vPrintToLCD(1,"Press Reset");
   vPrintToLCD(2,"to begin");
+          FILE* fp;
+          fp = fopen ("/dev/uart", "w+");
   
   
   while(xResetPressed == 0)
@@ -82,6 +84,11 @@ void vWaitForReset(void)
       switch (sReceivedValue)
       {
         case RESET:
+        /* TODO send park value */
+          fprintf(fp, "#0 P1000\r");
+          printf( "#0 P1000\r\n");          
+          usleep(1000000);
+          fclose(fp);
           printf("Reset received\n");
           xResetPressed = 1;
           xSystemState = RESETTING;

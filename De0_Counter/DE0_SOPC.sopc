@@ -6,7 +6,7 @@
    {
       datum _sortIndex
       {
-         value = "23";
+         value = "24";
          type = "int";
       }
    }
@@ -87,20 +87,20 @@
          type = "String";
       }
    }
-   element tristate_bridge.clk
-   {
-      datum _tags
-      {
-         value = "";
-         type = "String";
-      }
-   }
    element clk
    {
       datum _sortIndex
       {
          value = "4";
          type = "int";
+      }
+   }
+   element tristate_bridge.clk
+   {
+      datum _tags
+      {
+         value = "";
+         type = "String";
       }
    }
    element clock_crossing_bridge
@@ -194,7 +194,7 @@
    {
       datum _sortIndex
       {
-         value = "24";
+         value = "23";
          type = "int";
       }
       datum megawizard_uipreferences
@@ -255,75 +255,11 @@
          type = "String";
       }
    }
-   element sd_wp_n.s1
+   element cfi_flash.s1
    {
       datum baseAddress
       {
-         value = "144";
-         type = "long";
-      }
-   }
-   element uart.s1
-   {
-      datum baseAddress
-      {
-         value = "1056";
-         type = "long";
-      }
-   }
-   element switches.s1
-   {
-      datum baseAddress
-      {
-         value = "1104";
-         type = "long";
-      }
-   }
-   element sd_cmd.s1
-   {
-      datum baseAddress
-      {
-         value = "160";
-         type = "long";
-      }
-   }
-   element sdram.s1
-   {
-      datum baseAddress
-      {
-         value = "25165824";
-         type = "long";
-      }
-   }
-   element seg7.s1
-   {
-      datum baseAddress
-      {
-         value = "1168";
-         type = "long";
-      }
-   }
-   element buttons.s1
-   {
-      datum baseAddress
-      {
-         value = "1120";
-         type = "long";
-      }
-   }
-   element pll.s1
-   {
-      datum baseAddress
-      {
-         value = "42012672";
-         type = "long";
-      }
-   }
-   element sd_dat.s1
-   {
-      datum baseAddress
-      {
-         value = "208";
+         value = "37748736";
          type = "long";
       }
    }
@@ -335,35 +271,67 @@
          type = "long";
       }
    }
-   element timer.s1
-   {
-      datum baseAddress
-      {
-         value = "1024";
-         type = "long";
-      }
-   }
-   element leds.s1
-   {
-      datum baseAddress
-      {
-         value = "1088";
-         type = "long";
-      }
-   }
-   element cfi_flash.s1
-   {
-      datum baseAddress
-      {
-         value = "37748736";
-         type = "long";
-      }
-   }
    element onchip_mem.s1
    {
       datum baseAddress
       {
          value = "41975808";
+         type = "long";
+      }
+   }
+   element sd_cmd.s1
+   {
+      datum baseAddress
+      {
+         value = "160";
+         type = "long";
+      }
+   }
+   element sd_wp_n.s1
+   {
+      datum baseAddress
+      {
+         value = "144";
+         type = "long";
+      }
+   }
+   element buttons.s1
+   {
+      datum baseAddress
+      {
+         value = "1120";
+         type = "long";
+      }
+   }
+   element switches.s1
+   {
+      datum baseAddress
+      {
+         value = "1104";
+         type = "long";
+      }
+   }
+   element pll.s1
+   {
+      datum baseAddress
+      {
+         value = "42012672";
+         type = "long";
+      }
+   }
+   element seg7.s1
+   {
+      datum baseAddress
+      {
+         value = "1168";
+         type = "long";
+      }
+   }
+   element sdram.s1
+   {
+      datum baseAddress
+      {
+         value = "25165824";
          type = "long";
       }
    }
@@ -375,11 +343,43 @@
          type = "long";
       }
    }
+   element leds.s1
+   {
+      datum baseAddress
+      {
+         value = "1088";
+         type = "long";
+      }
+   }
+   element sd_dat.s1
+   {
+      datum baseAddress
+      {
+         value = "208";
+         type = "long";
+      }
+   }
    element clock_crossing_bridge.s1
    {
       datum baseAddress
       {
          value = "0";
+         type = "long";
+      }
+   }
+   element uart.s1
+   {
+      datum baseAddress
+      {
+         value = "1056";
+         type = "long";
+      }
+   }
+   element timer.s1
+   {
+      datum baseAddress
+      {
+         value = "1024";
          type = "long";
       }
    }
@@ -544,7 +544,7 @@
  <parameter name="projectName" value="DE0_TOP.qpf" />
  <parameter name="sopcBorderPoints" value="true" />
  <parameter name="systemHash" value="9976862121" />
- <parameter name="timeStamp" value="1332361175633" />
+ <parameter name="timeStamp" value="1332770627007" />
  <module kind="clock_source" version="11.0" enabled="1" name="clk">
   <parameter name="clockFrequency" value="50000000" />
   <parameter name="clockFrequencyKnown" value="true" />
@@ -1161,19 +1161,19 @@
   <parameter name="AUTO_CLK_CLOCK_RATE" value="10000000" />
  </module>
  <module
-   kind="Altera_UP_SD_Card_Avalon_Interface"
-   version="1.0"
-   enabled="1"
-   name="Altera_UP_SD_Card">
-  <parameter name="AUTO_CLOCK_SINK_CLOCK_RATE" value="10000000" />
-  <parameter name="AUTO_DEVICE_FAMILY" value="Cyclone III" />
- </module>
- <module
    kind="altera_nios_custom_instr_floating_point"
    version="11.0"
    enabled="1"
    name="cpu_altera_nios_custom_instr_floating_point_inst">
   <parameter name="useDivider" value="0" />
+  <parameter name="AUTO_DEVICE_FAMILY" value="Cyclone III" />
+ </module>
+ <module
+   kind="Altera_UP_SD_Card_Avalon_Interface"
+   version="1.0"
+   enabled="1"
+   name="Altera_UP_SD_Card">
+  <parameter name="AUTO_CLOCK_SINK_CLOCK_RATE" value="10000000" />
   <parameter name="AUTO_DEVICE_FAMILY" value="Cyclone III" />
  </module>
  <connection
@@ -1422,6 +1422,16 @@
  </connection>
  <connection kind="clock" version="11.0" start="pll.c2" end="keypad.clk" />
  <connection
+   kind="nios_custom_instruction"
+   version="11.0"
+   start="cpu.custom_instruction_master"
+   end="cpu_altera_nios_custom_instr_floating_point_inst.s1">
+  <parameter name="CIName">altera_nios_custom_instr_floating_point_inst</parameter>
+  <parameter name="arbitrationPriority" value="1" />
+  <parameter name="baseAddress" value="252" />
+ </connection>
+ <connection kind="clock" version="11.0" start="pll.c2" end="lcd.clk" />
+ <connection
    kind="clock"
    version="11.0"
    start="pll.c2"
@@ -1434,14 +1444,4 @@
   <parameter name="arbitrationPriority" value="1" />
   <parameter name="baseAddress" value="0x0000" />
  </connection>
- <connection
-   kind="nios_custom_instruction"
-   version="11.0"
-   start="cpu.custom_instruction_master"
-   end="cpu_altera_nios_custom_instr_floating_point_inst.s1">
-  <parameter name="CIName">altera_nios_custom_instr_floating_point_inst</parameter>
-  <parameter name="arbitrationPriority" value="1" />
-  <parameter name="baseAddress" value="252" />
- </connection>
- <connection kind="clock" version="11.0" start="pll.c2" end="lcd.clk" />
 </system>

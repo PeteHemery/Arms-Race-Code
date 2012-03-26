@@ -178,9 +178,26 @@ portBASE_TYPE xGetFileLines(portCHAR *pcFileName)
   /* Initialise pointer with address of the buffer */
   pcPtr = pcFileLine;
   
-  /* Check if the file is present & open it */
-  if ((psHandler = alt_up_sd_card_fopen(pcFileName, false)) != -1)
+  /*if(strcmp(pcBufferName, pcFileName) != 0)
   {
+  
+    while ((psHandler = alt_up_sd_card_find_next(pcBufferName)) != 0);
+  }*/
+  psHandler = alt_up_sd_card_fopen(pcFileName, false);
+  
+    printf("%i opened %s!\n",psHandler,pcFileName);
+  while ((pcRead = alt_up_sd_card_read(psHandler)) != -1) printf("%c \n", (char)pcRead);
+  printf("finished\n");
+    for (;;)
+    {
+    }
+  /* Check if the file is present & open it */
+  //if ((psHandler = alt_up_sd_card_fopen(pcFileName, false)) != -1)
+  (psHandler = alt_up_sd_card_fopen(pcFileName, false));
+  {
+    
+    /* opened the file */
+    printf("%i opened %s!\n",psHandler,pcFileName);
     /* Read file char by char */
     while ( (pcRead = (portCHAR)alt_up_sd_card_read(psHandler)) != -1)
     {
@@ -201,7 +218,7 @@ portBASE_TYPE xGetFileLines(portCHAR *pcFileName)
       else
       {
         /* Keep walking along the buffer */
-        pcPtr++;
+        (*pcPtr)++;
       }
       
       /* Check for button press action */
@@ -240,15 +257,18 @@ portBASE_TYPE xGetFileLines(portCHAR *pcFileName)
         bzero(pcFileLine,STRING_MAX);
       }
     }
+    for (;;)
+    {
+    }
     /* Reached the end of the file */
-    alt_up_sd_card_fclose(psHandler);
+    //alt_up_sd_card_fclose(psHandler);
   }
-  else
+  /*else
   {
     printf("File not found\n");
     vPrintToLCD(1,"File not found");
     return -1;
-  }
+  }*/
   return 0;
 }
 

@@ -40,9 +40,13 @@ typedef enum {
     SELECT_EXIT
   } xChoice_t;
 
-#define X_MAX 15
-#define Y_MAX 15
-#define Z_MAX 15
+#define X_MAX 10
+#define Y_MAX 10
+#define Z_MAX 10
+
+#define X_MIN 0
+#define Y_MIN -10
+#define Z_MIN 0
 
 #define GRIP_MAX 2500
 #define GRIP_MIN 500

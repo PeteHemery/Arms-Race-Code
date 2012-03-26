@@ -102,7 +102,7 @@ void vTaskArmCom(void *pvParameters)
         {
           vTaskDelay(100 / portTICK_RATE_MS);
           /* Query the Arm */
-          fprintf(fp, "Q\r\n");
+          fprintf(fp, "Q\r");
           
           vTaskDelay(100 / portTICK_RATE_MS);
           
@@ -112,9 +112,9 @@ void vTaskArmCom(void *pvParameters)
           bzero(pcReceive, 2);
           fread(pcReceive, 1, 1, fp);
           
-          printf("received: %s\n",pcReceive);
           if (strncmp(pcReceive,".",1) == 0)
           {
+            printf("received: %s\n",pcReceive);
             xFinishedFlag = pdTRUE;
             ArmControlFlag = WAITING_NOW;
           }
