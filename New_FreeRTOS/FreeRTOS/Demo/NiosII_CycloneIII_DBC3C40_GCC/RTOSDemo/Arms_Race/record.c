@@ -426,6 +426,7 @@ portBASE_TYPE xSetAValue(xSetValueParam xValueParam, portBASE_TYPE *pxInValue)
   portBASE_TYPE xKeyPadQueueStatus;
   const portTickType xTicksToWait = 1000 / portTICK_RATE_MS;
   portCHAR pcBuffer[STRING_MAX] = {0};
+  portBASE_TYPE xStatus = pdFALSE;
   
   sprintf(pcBuffer,"%ld",*pxInValue);
   
@@ -600,6 +601,18 @@ portBASE_TYPE xSetAValue(xSetValueParam xValueParam, portBASE_TYPE *pxInValue)
           break;
       }
       vPrintToLCD(2,pcBuffer);
+      
+      if ( xValueParam == GRIP_VALUE)
+      {
+        bzero(pcBuffer,STRING_MAX);
+        sprintf(pcBuffer,"#5 P%ld\r",*pxInValue);
+        /* Send updated servo values to the arm */
+        xStatus = xQueueSendToBack( xArmComQueue, &pcBuffer, xTicksToWait);
+        if( xStatus != pdPASS )
+        {
+          printf( "Could not send to the queue.\r\n");
+        }
+      }
     }
     else
     {

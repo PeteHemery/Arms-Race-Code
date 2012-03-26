@@ -190,7 +190,7 @@ portBASE_TYPE xGetFileLines(portCHAR *pcFileName)
       printf("%c", pcRead);
       /* Copy char from file to pcFileLine */
       *pcPtr = pcRead;
-      /* Check for new line, if found then send string to the queue */
+      /* Check for carriage return, if found then send string to the queue */
       if ( *pcPtr == '\r' )
       {
         
@@ -198,7 +198,7 @@ portBASE_TYPE xGetFileLines(portCHAR *pcFileName)
         xStatus = xQueueSendToBack(xArmComQueue, &pcFileLine, xTicksToWait);
         if( xStatus != pdPASS )
         {
-          printf( "Could not send to xArmComQueue.\r\n");
+          printf( "Could not send to xArmComQueue.\n");
         }
         /* Wait for Arm Com to pick up the message */
         vTaskDelay(100 / portTICK_RATE_MS);
@@ -224,7 +224,7 @@ portBASE_TYPE xGetFileLines(portCHAR *pcFileName)
               xStatus = xQueueSendToBack(xArmComQueue, &pcFileLine, xTicksToWait);
               if( xStatus != pdPASS )
               {
-                printf( "Could not send to xArmComQueue.\r\n");
+                printf( "Could not send to xArmComQueue.\n");
               }
             }
           }
