@@ -314,17 +314,18 @@ void vPlayProgram(portCHAR *pcFileName, portBASE_TYPE xLoopCount)
   portBASE_TYPE xKeyPadQueueStatus;
   const portTickType xTicksToWait = 1000 / portTICK_RATE_MS;
   
-  PlaySettings_TYPE xPlaySettings;
+  xPlaySettings_TYPE xPlaySettings;
   strcpy(xPlaySettings.pcFileName, pcFileName);
   xPlaySettings.xLoopCount = xLoopCount;
   xPlaySettings.xFinished = pdFALSE;
+  xTaskHandle xReadFileContentsHandle;
   
   xTaskCreate(vTaskReadFileContents,
               "Read File Contents",
               2000,
               &xPlaySettings,
               1,
-              &xStringHandle);
+              &xReadFileContentsHandle);
               
   while(xPlaySettings.xFinished == pdFALSE)
   {
