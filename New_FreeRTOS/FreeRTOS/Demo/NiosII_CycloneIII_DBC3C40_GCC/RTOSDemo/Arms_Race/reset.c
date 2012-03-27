@@ -20,6 +20,17 @@
 #include "LCD.h"
 #include "sd_card.h"
 
+
+/**
+* @brief Task Reset.
+*
+*   This function is called when the system initialises and when
+*   the menu system is in an unknown state. Either at the beginning
+*   or when the stop button has been pressed. 
+*
+* @param Void.
+* @return Void.
+*/
 void vTaskReset(void)
 {
   switch (xSystemState)
@@ -48,6 +59,15 @@ void vTaskReset(void)
   
 }
 
+
+/**
+* @brief Wait for Reset.
+*
+*   This function waits for the user to press the reset button. 
+*
+* @param Void.
+* @return Void.
+*/
 void vWaitForReset(void)
 {
   portSHORT sReceivedValue;

@@ -40,6 +40,7 @@ typedef enum {
     SELECT_EXIT
   } xChoice_t;
 
+/* Cartesian Co-ordinate max and min values */
 #define X_MAX 100
 #define Y_MAX 100
 #define Z_MAX 100
@@ -48,6 +49,7 @@ typedef enum {
 #define Y_MIN -100
 #define Z_MIN 0
 
+/* Grip, time and wait max and min values */
 #define GRIP_MAX 2500
 #define GRIP_MIN 500
 

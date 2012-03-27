@@ -35,6 +35,22 @@ char *key_assignment[] = {
   "STOP", "XDOWN", "CANCEL", "ENTER"
 };
 
+/**
+* @brief Key Pad Task.
+*
+*   This function continuously polls the hardware registered checking
+*   for a valid keypress. The No Key Pressed bit is bit 5, which this bit
+*   is set to 0, a key has been pressed and the lower 4 bits will represent
+*   the value of the button pressed.
+* 
+*   There is a bug, sometimes the value of the NKP bit is set
+*   just before or after the register is read, the workaround is to
+*   first read the value, and if its the first time the button's been pressed,
+*   read again after a delay to double check the value is valid.
+*
+* @param [in] pvParameters Standard FreeRTOS parameters.
+* @return Void.
+*/
 void vTaskKeyPad(void *pvParameters)
 {
   static unsigned char hold = 0;
@@ -53,10 +69,14 @@ void vTaskKeyPad(void *pvParameters)
       
       if (usKeyPadStatus < 0x10){ //value latched
         if (usPreviousKeyPadStatus != usKeyPadStatus){
-          /* Perform another read, since there's a bug that the value don't get updated quick enough*/
+          /* Perform another read, since there's a bug
+           * that the value don't get updated quick enough*/
           vTaskDelay(20 / portTICK_RATE_MS);
           usKeyPadStatus = IORD_ALTERA_AVALON_PIO_DATA(KEYPAD_BASE); // Read HW
           if (usKeyPadStatus >= 0x10)
+      /* Break; causes FreeRTOS scheduler to freak out.
+       * so Continue in the infinite for loop.
+       */
             continue;
           hold = 0;
         }

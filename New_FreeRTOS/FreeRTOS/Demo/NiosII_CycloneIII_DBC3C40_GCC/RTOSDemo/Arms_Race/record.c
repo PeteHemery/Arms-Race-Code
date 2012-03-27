@@ -29,6 +29,16 @@ portBASE_TYPE xSetAxisValue(xInverseStruct_t *pxInverseStruct);
 portBASE_TYPE xSetAValue(xSetValueParam xValueParam, portBASE_TYPE *pxInValueIn);
 
 
+/**
+* @brief Recording Task.
+*
+*   This function is responsible for recording waypoints received from user
+*   input to the SD card, for later playback.
+*
+* @param [in] pvParameters Standard FreeRTOS void * method of passing parameters.
+* @return Void.
+*/
+
 void vTaskRecord( void *pvParameters )
 {
   /* Messages */
@@ -257,7 +267,17 @@ void vTaskRecord( void *pvParameters )
   }
 }
 
-/*----------------------------*/
+
+/**
+* @brief Set Axis Values.
+*
+*   This function is used to modify the X, Y and Z co-ordinates, and
+*   sending the values to the arm as they change.
+*
+* @param [in] xInverseStruct Pointer to struct containing X, Y & Z values.
+* @return portBASE_TYPE Enter returns 1, cancel returns 0. These represent
+*         if the axis values shall be saved when a waypoint is created.
+*/
 portBASE_TYPE xSetAxisValue(xInverseStruct_t *xInverseStruct)
 {
   portSHORT sReceivedValue;
@@ -419,7 +439,22 @@ portBASE_TYPE xSetAxisValue(xInverseStruct_t *xInverseStruct)
   }
 }
 
-/*----------------------------*/
+
+/**
+* @brief Set a value.
+*
+*   This function is used to set the values of the gripper of the arm,
+*   the time taken for an entire movement, and the wait value once
+*   a movement has been completed.
+*   
+*   Since the functionality to set these values is similar, they have
+*   been grouped into one function and a switch is used to determine
+*   while value is the one being modified.  
+*
+* @param [in] xValueParam enumeration, containing which value to change.
+* @param [out] pxInValue Contains the updated value. 
+* @return Void.
+*/
 portBASE_TYPE xSetAValue(xSetValueParam xValueParam, portBASE_TYPE *pxInValue)
 {
   portSHORT sReceivedValue;

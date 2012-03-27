@@ -26,6 +26,22 @@
 
 ArmControlFlag_t ArmControlFlag = WAITING_NOW; 
 
+/**
+* @brief Arm Communication Task.
+*
+*   This function is responsible for sending servo, time and wait values
+*   values to the lynx arm, and querying the arm to determine if the last move
+*   command has been completed.
+* 
+*   During the query phase, if the user presses STOP, PLAY or PAUSE
+*   from the keypad, the Arm Com task response accordingly.
+* 
+*   If Pause has been pressed, then Play is pressed, the last waypoint
+*   value is sent to the arm again. 
+*
+* @param [in] pvParameters Standard FreeRTOS void * parameter passing.
+* @return Void.
+*/
 void vTaskArmCom(void *pvParameters)
 {
   portBASE_TYPE xStatus = pdFALSE;

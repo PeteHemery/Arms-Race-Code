@@ -27,6 +27,22 @@
 extern void vWaitForReset(void);
 extern void vTaskPlay( void *pvParameters );
 
+/**
+* @brief Menu Task.
+*
+*   This function allows the user to select which task to start:
+*   Record a program or Play a program.
+* 
+*   On initial launch, the arm may be in an unknown state so the first
+*   function called is used to reset the arm into a known position.
+* 
+*   Upon return to the menu task, from the record and play tasks,
+*   the arm may be in an unknown position, so the reset task may
+*   be called appropriately.
+*
+* @param [in] pvParameter Standard FreeRTOS method of passing parameters.
+* @return Void.
+*/
 void vTaskMenu( void *pvParameters )
 {
   portSHORT sReceivedValue;

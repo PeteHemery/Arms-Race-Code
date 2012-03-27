@@ -79,9 +79,11 @@
 #include "sd_card.h"
 #include "arm_com.h"
 
+/* Communication queue handles */
 xQueueHandle xKeyPadQueue;
 xQueueHandle xArmComQueue;
 
+/* Task handles */
 xTaskHandle xArmComHandle = NULL;
 xTaskHandle xSDCardHandle = NULL;
 xTaskHandle xLCDTimeOutHandle = NULL;
@@ -90,8 +92,21 @@ xTaskHandle xMenuHandle = NULL;
 xTaskHandle xRecordHandle = NULL;
 xTaskHandle xPlayHandle = NULL;
 
+/* Variable indicating the system state */
 enum xSystemState_t xSystemState = WAITING_FOR_RESET;
 
+
+/**
+* @brief Main.
+*
+*   This function calls all the tasks that start on system boot,
+*   sets up the communication queues and starts the scheduler.
+*   Afterwards, it should never return, only when there is a problem
+*   with the scheduler. 
+*
+* @param [in] .
+* @return Void.
+*/
 int main( void )
 {
   xKeyPadQueue = xQueueCreate( 1, sizeof(unsigned portSHORT));
@@ -114,7 +129,9 @@ int main( void )
       /* Finally start the scheduler. */
       vTaskStartScheduler();
       printf("Resetting System\n");
-      /* hacksy test of the functions in heap_2.c */
+      
+      /* Test of the FreeRTOS functions in heap_2.c */
+      
       //size_t test;
       //test = xPortGetFreeHeapSize();
       //printf("Free Heap Size = %d\n",test);

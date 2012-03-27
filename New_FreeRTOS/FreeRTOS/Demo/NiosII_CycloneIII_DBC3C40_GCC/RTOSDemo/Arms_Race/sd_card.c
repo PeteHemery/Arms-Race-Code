@@ -27,9 +27,17 @@
 #include "arm_com.h"
 
 portBASE_TYPE xSDConnected = 0;
-  
-/*-----------------------------------*/
-/* This function was modified from the Altera example */
+
+/**
+* @brief SD Card Task.
+*
+*   This function was modified from the Altera example
+*   It opens the SD card and if one is available sets a global
+*   flag to indicate to the rest of the system the card is connected.
+*
+* @param [in] pvParameters Standard FreeRTOS void * parameters.
+* @return Void.
+*/
 void vTaskSDCard(void *pvParameters)
 {
   alt_up_sd_card_dev *device_reference = NULL;
@@ -71,8 +79,21 @@ void vTaskSDCard(void *pvParameters)
   vTaskDelete( NULL );
 }
 
-/*-----------------------------------*/
-/* Check should be performed for if SD card is present before calling this function */ 
+
+/**
+* @brief Get File Names.
+*
+*   This function reads all the valid program names in the root directory
+*   of the SD card and returns the number of valid files.
+* 
+*   pcFileNameList is a 2D array passed in that is populated with the list
+*   of valid program names, for display during Playback Task.
+* 
+*   Check should be performed for if SD card is present before calling this function.
+*
+* @param [out] pcFileNameList Array of valid program names.
+* @return portBASE_TYPE .
+*/
 portBASE_TYPE xGetFileNames(portCHAR pcFileNameList[NUMBER_OF_PROGS_MAX][FILE_NAME_MAX])
 {
   portBASE_TYPE xNumberOfFiles = 0;
@@ -114,8 +135,18 @@ portBASE_TYPE xGetFileNames(portCHAR pcFileNameList[NUMBER_OF_PROGS_MAX][FILE_NA
   return xNumberOfFiles;
 }
 
-/*-----------------------------------*/
-/* Used during play */
+
+/**
+* @brief Read File Contents.
+*
+*   This task calls the function that reads the contents of the SD card.
+*   It calls this function the number of times defined by LoopCount.
+*   Used during playback.
+*
+* @param [in] pvParameters contains a struct xPlaySettings, containing
+*             LoopCount, FileName and Finished Flag..
+* @return Void.
+*/
 void vTaskReadFileContents(void *pvParameters)
 {  
   portSHORT i;
@@ -164,8 +195,16 @@ void vTaskReadFileContents(void *pvParameters)
   vTaskDelete( NULL );
 }
 
-/*-----------------------------------*/
-/* Used during play */
+
+/**
+* @brief Get File Lines.
+*
+*   This function reads the contents of the SD card and outputs
+*   to the ARM Com task. Used during playback.
+*
+* @param [in] pcFileName File name of program to open.
+* @return portBASE_TYPE indication of success or failure.
+*/
 portBASE_TYPE xGetFileLines(portCHAR *pcFileName)
 {
   const portTickType xTicksToWait = 10000 / portTICK_RATE_MS;
@@ -260,8 +299,17 @@ portBASE_TYPE xGetFileLines(portCHAR *pcFileName)
   return 0;
 }
 
-/*-----------------------------------*/
-/* Used during record */
+/**
+* @brief Create File.
+*
+*   This function checks the SD for relevant file names and
+*   tries to create the file name specified in pcFileName.
+*   If the file already exists then return value is -1, else
+*   0 on successful creation. Used during record. 
+*
+* @param [in] pcFileName file name to try and create.
+* @return portSHORT 0 on success, -1 on error.
+*/
 portSHORT sCreateFile(portCHAR *pcFileName)
 {
   portSHORT psHandler;
@@ -287,8 +335,17 @@ portSHORT sCreateFile(portCHAR *pcFileName)
   }
 }
 
-/*-----------------------------------*/
-/* Used during record */
+/**
+* @brief SD Card Append File.
+*
+*   This function writes the characters contains in pcString to the end
+*   of the file define by pcFileName. Used during record.
+*
+* @param [in] pcFileName File to append.
+* @param [in] pcString String to write to end of the file.
+* @param [in] xLen Length of the string to write.
+* @return portSHORT Returns 0 on success, -1 on failure.
+*/
 portSHORT psSDCardAppendFile(portCHAR *pcFileName, portCHAR *pcString, portBASE_TYPE xLen)
 {
   portSHORT psHandler = -1;
@@ -326,6 +383,3 @@ portSHORT psSDCardAppendFile(portCHAR *pcFileName, portCHAR *pcString, portBASE_
     return pdFALSE;
   }
 }
-
-/*-----------------------------------*/
-

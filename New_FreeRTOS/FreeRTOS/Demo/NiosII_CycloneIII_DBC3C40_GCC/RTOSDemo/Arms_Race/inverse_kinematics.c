@@ -48,6 +48,18 @@ float theta1, theta2, theta3, Base;
 
 float servovalue[4];
 
+/**
+* @brief Calculate Inverse Kinematic Values.
+*
+*   This function calculates the servo values required
+*   to send to the Lynx arm, given the struct containing
+*   X, Y and Z cartesian co-ordinates.  
+*
+* @param [in] pxInverseStruct Pointer to struct containing X, Y & Z
+*             values, and the string for output.
+* @return Void.
+*/
+
 void vCalculateInverse(xInverseStruct_t *pxInverseStruct)
 {
   float x;

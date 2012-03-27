@@ -26,9 +26,22 @@
 
 extern int altera_avalon_lcd_16207_write(altera_avalon_lcd_16207_state* sp, const char* ptr, int len, int flags);
 extern altera_avalon_lcd_16207_state* pxSp;
-/* --------------------------------------------------------------------- */
 
-void vPrintToLCD(unsigned char ucLineNumber ,char *pcString)
+/**
+* @brief Print to the LCD screen.
+*
+*   This function accepts two parameters, line number and
+*   string. These are used to determine where to print
+*   the incoming screen on the LCD display.
+* 
+*   Alternatively, 0 can be used to clear the LCD display.
+*
+* @param [in] ucLineNumber value of either 1 or 2, 
+*             indicating which line of the LCD to print to.
+* @param [in] pcString ASCII string, containing text to print.
+* @return Void.
+*/
+void vPrintToLCD(unsigned portCHAR ucLineNumber, portCHAR *pcString)
 {
   static char pcFirstLine[STRING_MAX] = {0};
   char pcBuffer[STRING_MAX] = {0};
@@ -43,13 +56,6 @@ void vPrintToLCD(unsigned char ucLineNumber ,char *pcString)
       sprintf(pcBuffer,"\n%s\n%s",pcFirstLine,pcString);      
       altera_avalon_lcd_16207_write(pxSp, pcBuffer, strlen(pcBuffer), 0);
       break;
-    /*case 3:
-      if ((char)pcString == '\n') {
-        lcd_write_data(pxSp,"\n");
-      }
-      else {
-        lcd_write_data(pxSp,"%c",(char)pcString);
-      }*/
     case 0:
     default:
       sprintf(pcBuffer,"\n\n\n");      

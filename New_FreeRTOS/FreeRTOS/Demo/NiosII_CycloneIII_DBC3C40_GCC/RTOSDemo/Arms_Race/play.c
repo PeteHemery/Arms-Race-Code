@@ -28,7 +28,19 @@ void vTaskPlay( void *pvParameters );
 portBASE_TYPE xSetLoopCount(void);
 void vPlayProgram(portCHAR *pcFileName, portBASE_TYPE xLoopCount);
 
-/*---------------------*/
+
+/**
+* @brief Task Play.
+*
+*   This function is called by the menu and controls playback
+*   of the waypoints saved on the SD card.
+* 
+*   The user has the option of selecting which program to play
+*   and the number of times to loop the recorded program. 
+*
+* @param [in] pvParameters FreeRTOS default void * parameters.
+* @return Void.
+*/
 void vTaskPlay( void *pvParameters )
 {
   portSHORT sReceivedValue;
@@ -170,7 +182,16 @@ void vTaskPlay( void *pvParameters )
    vTaskDelete(NULL);
 }
 
-/*----------------------------*/
+
+/**
+* @brief Set Loop Count.
+*
+*   This function allows the user to define the number of loops
+*   to perform during playback.
+*
+* @param Void.
+* @return portBASE_TYPE value of the selected loop count.
+*/
 portBASE_TYPE xSetLoopCount(void)
 {
   portSHORT sReceivedValue;
@@ -310,7 +331,20 @@ portBASE_TYPE xSetLoopCount(void)
   }
 }
 
-/*----------------------------*/
+
+/**
+* @brief Play Program.
+*
+*   This function opens the chosen file on the SD card,
+*   reads it line by line and sends to the ARM COM task.
+*   This continues until the end of the file has been reached,
+*   at which point the file is reopened and the process
+*   repeats until the loop count value has been reached.
+*
+* @param [in] pcFileName Contains the file name to play.
+* @param [in] xLoopCount Contains the number of times to play the file.
+* @return Void.
+*/
 void vPlayProgram(portCHAR *pcFileName, portBASE_TYPE xLoopCount)
 {
   portSHORT sReceivedValue;
