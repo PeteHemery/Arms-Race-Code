@@ -1,0 +1,15 @@
+<map id="G" name="G">
+<area shape="rect" id="node3" href="$altera__avalon__lcd__16207__fd_8c.html#a9d4226871636507f0d0308ba95f5f3e2" title="altera_avalon_lcd_16207_write_fd" alt="" coords="273,172,508,201"/>
+<area shape="rect" id="node5" href="$_l_c_d_8c.html#a0e2ffc9e5b863c317718798ec28ec4f0" title="Print to the LCD screen." alt="" coords="343,225,439,254"/>
+<area shape="rect" id="node7" href="$play_8c.html#a656e5a5627513a5507aabdfa5911f1a5" title="Play Program." alt="" coords="940,69,1049,98"/>
+<area shape="rect" id="node9" href="$system__state_8h.html#a082522f2260fe64f7504c88a465d8ddd" title="Task Play." alt="" coords="1099,173,1181,202"/>
+<area shape="rect" id="node11" href="$system__state_8h.html#a6dc5d83a8e8ac37aed656382b79eb319" title="Menu Task." alt="" coords="763,408,853,437"/>
+<area shape="rect" id="node16" href="$system__state_8h.html#ad8abbc57e7517857ddbc1b918b65e92e" title="Recording Task." alt="" coords="945,329,1044,358"/>
+<area shape="rect" id="node20" href="$sd__card_8h.html#a0a7dcc5933d2d9550f4a4bb9ef20ab06" title="Read File Contents." alt="" coords="725,69,891,98"/>
+<area shape="rect" id="node24" href="$reset_8c.html#a3086ee86d8423769920efbae40ee5069" title="Wait for Reset." alt="" coords="563,408,672,437"/>
+<area shape="rect" id="node27" href="$sd__card_8h.html#a7beecb0baa1a4a9dd861abf058a5a60a" title="Get File Lines." alt="" coords="565,94,669,124"/>
+<area shape="rect" id="node30" href="$record_8c.html#ac1fcf4475d292201785e4b073417590b" title="Set a value." alt="" coords="761,304,855,333"/>
+<area shape="rect" id="node33" href="$record_8c.html#acfc7bec0ab24458d1552f0d2f2412cb6" title="Set Axis Values." alt="" coords="752,250,864,280"/>
+<area shape="rect" id="node36" href="$play_8c.html#ac4794ede8cfa1274512919a7bd1832c5" title="Set Loop Count." alt="" coords="557,148,677,177"/>
+<area shape="rect" id="node13" href="$main_8c.html#a840291bc02cba5474a4cb46a9b9566fe" title="Main." alt="" coords="968,382,1021,412"/>
+</map>

@@ -1,0 +1,18 @@
+<map id="G" name="G">
+<area shape="rect" id="node13" href="$_free_r_t_o_s_8h.html" title="FreeRTOS.h" alt="" coords="268,83,361,112"/>
+<area shape="rect" id="node30" href="$task_8h.html" title="task.h" alt="" coords="427,83,488,112"/>
+<area shape="rect" id="node35" href="$queue_8h.html" title="queue.h" alt="" coords="507,160,581,189"/>
+<area shape="rect" id="node42" href="$include_2altera__up__sd__card__avalon__interface_8h.html" title="altera_up_sd_card_avalon_interface.h" alt="" coords="645,83,907,112"/>
+<area shape="rect" id="node48" href="$sd__card_8h.html" title="sd_card.h" alt="" coords="1640,83,1723,112"/>
+<area shape="rect" id="node50" href="$_l_c_d_8h.html" title="LCD.h" alt="" coords="981,83,1040,112"/>
+<area shape="rect" id="node66" href="$arm__com_8h.html" title="arm_com.h" alt="" coords="1747,83,1840,112"/>
+<area shape="rect" id="node16" href="$projdefs_8h.html" title="projdefs.h" alt="" coords="163,160,248,189"/>
+<area shape="rect" id="node18" href="$_free_r_t_o_s_config_8h.html" title="FreeRTOSConfig.h" alt="" coords="5,160,139,189"/>
+<area shape="rect" id="node22" href="$portable_8h.html" title="portable.h" alt="" coords="272,160,357,189"/>
+<area shape="rect" id="node24" href="$portmacro_8h.html" title="portmacro.h" alt="" coords="264,237,365,267"/>
+<area shape="rect" id="node28" href="$mpu__wrappers_8h.html" title="mpu_wrappers.h" alt="" coords="409,237,537,267"/>
+<area shape="rect" id="node33" href="$list_8h.html" title="list.h" alt="" coords="432,160,483,189"/>
+<area shape="rect" id="node52" href="$altera__avalon__lcd__16207__regs_8h.html" title="altera_avalon_lcd_16207_regs.h" alt="" coords="1165,160,1392,189"/>
+<area shape="rect" id="node56" href="$altera__avalon__lcd__16207__mod_8h.html" title="altera_avalon_lcd_16207_mod.h" alt="" coords="897,160,1124,189"/>
+<area shape="rect" id="node63" href="$altera__avalon__lcd__16207__fd_8h.html" title="altera_avalon_lcd_16207_fd.h" alt="" coords="757,237,968,267"/>
+</map>

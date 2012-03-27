@@ -1,0 +1,8 @@
+<map id="G" name="G">
+<area shape="rect" id="node3" href="$altera__avalon__lcd__16207__mod_8h.html#a7c1b745ded085b8d806a074611080c0e" title="alt_lcd_16207_timeout" alt="" coords="191,32,356,61"/>
+<area shape="rect" id="node11" href="$task_8h.html#a3033ef5b1abc8618ea205d1082b21bb6" title="vTaskDelayUntil" alt="" coords="213,85,333,115"/>
+<area shape="rect" id="node13" href="$task_8h.html#a25ba1c4490c7e3ae11bc1e25192b12dc" title="xTaskGetTickCount" alt="" coords="203,139,344,168"/>
+<area shape="rect" id="node5" href="$altera__avalon__lcd__16207__mod_8h.html#a5a61559c713f9d2af4cb6edbbf7eab3f" title="lcd_repaint_screen" alt="" coords="407,32,548,61"/>
+<area shape="rect" id="node7" href="$altera__avalon__lcd__16207__mod_8h.html#a918ba759c343c4934d710e271f6a2287" title="lcd_write_command" alt="" coords="597,5,747,35"/>
+<area shape="rect" id="node9" href="$altera__avalon__lcd__16207__mod_8h.html#a53dfc0bdc05b07e677eede7a1340c8b2" title="lcd_write_data" alt="" coords="616,59,728,88"/>
+</map>

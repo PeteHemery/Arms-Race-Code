@@ -1,0 +1,8 @@
+<map id="G" name="G">
+<area shape="rect" id="node3" href="$altera__up__sd__card__avalon__interface_2_h_a_l_2inc_2altera__up__sd__card__avalon__interface_8h.html#a6c74b035a570e94175d029152e5239c3" title="alt_up_sd_card_fclose" alt="" coords="176,5,339,35"/>
+<area shape="rect" id="node5" href="$altera__up__sd__card__avalon__interface_2_h_a_l_2inc_2altera__up__sd__card__avalon__interface_8h.html#a19ce6ad1004e6ab0027173f2b1f45c1b" title="alt_up_sd_card_find_first" alt="" coords="168,59,347,88"/>
+<area shape="rect" id="node7" href="$altera__up__sd__card__avalon__interface_2_h_a_l_2inc_2altera__up__sd__card__avalon__interface_8h.html#aff74f82b8278552767494d74e88314f5" title="alt_up_sd_card_fopen" alt="" coords="177,112,337,141"/>
+<area shape="rect" id="node9" href="$altera__up__sd__card__avalon__interface_2_h_a_l_2inc_2altera__up__sd__card__avalon__interface_8h.html#aaddff40b24ac4b1ad14a7a416b6e3b5e" title="alt_up_sd_card_read" alt="" coords="180,165,335,195"/>
+<area shape="rect" id="node11" href="$_l_c_d_8c.html#af823fa47698d52859b7ed52f11971505" title="vPrintToLCD" alt="" coords="209,219,305,248"/>
+<area shape="rect" id="node13" href="$_l_c_d_8c.html#aa16a2f72aa9c2f2b95e9664f33535f23" title="altera_avalon_lcd_16207_write" alt="" coords="396,219,612,248"/>
+</map>

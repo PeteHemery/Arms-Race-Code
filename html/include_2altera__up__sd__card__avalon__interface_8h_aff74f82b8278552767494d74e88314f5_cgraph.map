@@ -1,0 +1,21 @@
+<map id="G" name="G">
+<area shape="rect" id="node3" href="$altera__up__sd__card__avalon__interface_2_h_a_l_2inc_2altera__up__sd__card__avalon__interface_8h.html#a118ab602de2949409da0091c50554682" title="alt_up_sd_card_is_Present" alt="" coords="1591,148,1780,177"/>
+<area shape="rect" id="node5" href="$altera__up__sd__card__avalon__interface_8c.html#a13d8533572b7a80132a6c9997745fe8e" title="check_file_name_for_FAT16_compliance" alt="" coords="217,223,492,252"/>
+<area shape="rect" id="node7" href="$altera__up__sd__card__avalon__interface_8c.html#a6129a91da296bbe48699421903ce5e69" title="create_file" alt="" coords="311,276,399,305"/>
+<area shape="rect" id="node43" href="$altera__up__sd__card__avalon__interface_8c.html#abcfbd87dc1c2438e87386b7f54337bf0" title="filename_to_upper_case" alt="" coords="265,329,444,359"/>
+<area shape="rect" id="node45" href="$altera__up__sd__card__avalon__interface_8c.html#a6d34bffe7dea6a2dd368910424d6d095" title="find_file_in_directory" alt="" coords="612,511,761,540"/>
+<area shape="rect" id="node55" href="$altera__up__sd__card__avalon__interface_8c.html#ad5165fc290dea9704a4584c2d9359d01" title="get_home_directory_cluster_for_file" alt="" coords="563,564,811,593"/>
+<area shape="rect" id="node9" href="$altera__up__sd__card__avalon__interface_8c.html#a9462f2cd251992bb2b4cddefc71ceb97" title="convert_filename_to_name_extension" alt="" coords="555,353,819,383"/>
+<area shape="rect" id="node11" href="$altera__up__sd__card__avalon__interface_8c.html#afcabe610aeb842230ec25f6ed37c45b3" title="find_first_empty_cluster" alt="" coords="907,147,1080,176"/>
+<area shape="rect" id="node13" href="$altera__up__sd__card__avalon__interface_8c.html#ac477fe5d63580353557cadc6b62e23ff" title="Read_Sector_Data" alt="" coords="1184,297,1323,327"/>
+<area shape="rect" id="node19" href="$altera__up__sd__card__avalon__interface_8c.html#a348c648ef5dc5272aa95dfed54cb260d" title="find_first_empty_record_in_a_subdirectory" alt="" coords="541,199,832,228"/>
+<area shape="rect" id="node25" href="$altera__up__sd__card__avalon__interface_8c.html#a1d2b8dca7a39fdfb0370f5fb2f06a436" title="mark_cluster" alt="" coords="941,251,1045,280"/>
+<area shape="rect" id="node29" href="$altera__up__sd__card__avalon__interface_8c.html#ae891b5a1c32643802b31214dafb01f19" title="Save_Modified_Sector" alt="" coords="912,93,1075,123"/>
+<area shape="rect" id="node32" href="$altera__up__sd__card__avalon__interface_8c.html#a439b9941d44a2f2fc1da6342067acb7f" title="find_first_empty_record_in_root_directory" alt="" coords="544,407,829,436"/>
+<area shape="rect" id="node35" href="$altera__up__sd__card__avalon__interface_8c.html#a9b6851fc7a92a9d18b94effc7ae958d8" title="get_dir_divider_location" alt="" coords="908,509,1079,539"/>
+<area shape="rect" id="node40" href="$altera__up__sd__card__avalon__interface_8c.html#a653b10b5df96412d3b3a6a5ba1b3ce43" title="Write_File_Record_At_Offset" alt="" coords="1156,52,1351,81"/>
+<area shape="rect" id="node16" href="$altera__up__sd__card__avalon__interface_8c.html#ae2658919d0beb6a4af8fc0e11cf0bb58" title="Write_Sector_Data" alt="" coords="1401,148,1540,177"/>
+<area shape="rect" id="node22" href="$altera__up__sd__card__avalon__interface_8c.html#adb2f15692fc61f643aa3ea922d82a4e0" title="get_cluster_flag" alt="" coords="932,405,1055,435"/>
+<area shape="rect" id="node49" href="$altera__up__sd__card__avalon__interface_8c.html#a8b103ffead346960b7f6f3e572020ced" title="match_file_record_to_name_ext" alt="" coords="880,563,1107,592"/>
+<area shape="rect" id="node51" href="$altera__up__sd__card__avalon__interface_8c.html#a12057ec8ef6a8d29469f560b78a216a9" title="Read_File_Record_At_Offset" alt="" coords="896,667,1091,696"/>
+</map>

@@ -1,0 +1,12 @@
+<map id="G" name="G">
+<area shape="rect" id="node3" href="$waypoints_8c.html#a06687b1203789cab419df1b4cdc38028" title="create_waypoint" alt="" coords="212,32,337,61"/>
+<area shape="rect" id="node15" href="$waypoints_8c.html#a7b3a8fedf66d00b2e68e001b91fe93c4" title="print_struct" alt="" coords="228,85,321,115"/>
+<area shape="rect" id="node17" href="$waypoints_8c.html#a9f10340bc29dfd408e0f96081c0ad9a9" title="set_servo_value" alt="" coords="212,139,337,168"/>
+<area shape="rect" id="node21" href="$task_8h.html#a2134b0c5e285fa1aae510cfbddbd2a14" title="vTaskDelete" alt="" coords="225,192,324,221"/>
+<area shape="rect" id="node5" href="$portable_8h.html#a237d63f90b28e0950bd86f76815cd6e3" title="pvPortMalloc" alt="" coords="388,32,489,61"/>
+<area shape="rect" id="node7" href="$task_8h.html#a366b302eba79d10b5ee2a3756f0fcc43" title="vTaskSuspendAll" alt="" coords="540,5,665,35"/>
+<area shape="rect" id="node9" href="$task_8h.html#afba2c0b51534051cef7f5f5c3fa804d0" title="xTaskResumeAll" alt="" coords="541,59,664,88"/>
+<area shape="rect" id="node11" href="$list_8h.html#a6c083a9d7103fca1c9abd0de20839651" title="vListRemove" alt="" coords="737,32,839,61"/>
+<area shape="rect" id="node13" href="$task_8h.html#aab2f88103023b7e845abe1642da9486d" title="vTaskIncrementTick" alt="" coords="716,85,860,115"/>
+<area shape="rect" id="node19" href="$waypoints_8c.html#a293df49a385ec4a06672218d1bd00182" title="get_input" alt="" coords="397,139,480,168"/>
+</map>

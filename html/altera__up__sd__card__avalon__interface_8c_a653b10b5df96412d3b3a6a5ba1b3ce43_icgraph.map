@@ -1,0 +1,5 @@
+<map id="G" name="G">
+<area shape="rect" id="node3" href="$include_2altera__up__sd__card__avalon__interface_8h.html#a6c74b035a570e94175d029152e5239c3" title="alt_up_sd_card_fclose" alt="" coords="251,5,413,35"/>
+<area shape="rect" id="node5" href="$altera__up__sd__card__avalon__interface_8c.html#a6129a91da296bbe48699421903ce5e69" title="create_file" alt="" coords="288,59,376,88"/>
+<area shape="rect" id="node7" href="$include_2altera__up__sd__card__avalon__interface_8h.html#aff74f82b8278552767494d74e88314f5" title="alt_up_sd_card_fopen" alt="" coords="463,59,623,88"/>
+</map>

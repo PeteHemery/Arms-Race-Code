@@ -1,0 +1,10 @@
+<map id="G" name="G">
+<area shape="rect" id="node3" href="$altera__avalon__lcd__16207_8c.html#a2a88ea0291ae82b6fb9109ca0646045d" title="altera_avalon_lcd_16207_init" alt="" coords="396,5,601,35"/>
+<area shape="rect" id="node5" href="$altera__avalon__lcd__16207_8c.html#aa17673f96087ce61f452904fa22ecc96" title="lcd_clear_screen" alt="" coords="211,57,339,87"/>
+<area shape="rect" id="node12" href="$altera__avalon__lcd__16207_8c.html#a5a61559c713f9d2af4cb6edbbf7eab3f" title="lcd_repaint_screen" alt="" coords="204,111,345,140"/>
+<area shape="rect" id="node8" href="$altera__avalon__lcd__16207_8c.html#a57cbdac41b80a225a2304ac826a6cc48" title="lcd_handle_escape" alt="" coords="428,59,569,88"/>
+<area shape="rect" id="node10" href="$altera__avalon__lcd__16207__fd_8c.html#ace8285527e43972d8d6a102d6e2119b0" title="altera_avalon_lcd_16207_write" alt="" coords="652,84,868,113"/>
+<area shape="rect" id="node14" href="$altera__avalon__lcd__16207_8c.html#a7c1b745ded085b8d806a074611080c0e" title="alt_lcd_16207_timeout" alt="" coords="416,163,581,192"/>
+<area shape="rect" id="node16" href="$altera__avalon__lcd__16207_8c.html#ad776821c4435ccae3eefb82a9a1e7a63" title="vTaskLCDTimeOut" alt="" coords="692,163,828,192"/>
+<area shape="rect" id="node18" href="$main_8c.html#a840291bc02cba5474a4cb46a9b9566fe" title="Main." alt="" coords="919,163,972,192"/>
+</map>

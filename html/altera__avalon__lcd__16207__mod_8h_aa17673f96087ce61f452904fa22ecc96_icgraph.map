@@ -1,0 +1,5 @@
+<map id="G" name="G">
+<area shape="rect" id="node3" href="$altera__avalon__lcd__16207_8c.html#a2a88ea0291ae82b6fb9109ca0646045d" title="altera_avalon_lcd_16207_init" alt="" coords="183,5,388,35"/>
+<area shape="rect" id="node5" href="$altera__avalon__lcd__16207_8c.html#a57cbdac41b80a225a2304ac826a6cc48" title="lcd_handle_escape" alt="" coords="215,59,356,88"/>
+<area shape="rect" id="node7" href="$altera__avalon__lcd__16207__fd_8c.html#ace8285527e43972d8d6a102d6e2119b0" title="altera_avalon_lcd_16207_write" alt="" coords="439,59,655,88"/>
+</map>

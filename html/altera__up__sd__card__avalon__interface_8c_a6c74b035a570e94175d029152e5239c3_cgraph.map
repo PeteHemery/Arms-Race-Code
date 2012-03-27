@@ -1,0 +1,7 @@
+<map id="G" name="G">
+<area shape="rect" id="node3" href="$altera__up__sd__card__avalon__interface_2_h_a_l_2inc_2altera__up__sd__card__avalon__interface_8h.html#a118ab602de2949409da0091c50554682" title="alt_up_sd_card_is_Present" alt="" coords="673,57,863,86"/>
+<area shape="rect" id="node5" href="$altera__up__sd__card__avalon__interface_8c.html#ac477fe5d63580353557cadc6b62e23ff" title="Read_Sector_Data" alt="" coords="228,30,367,60"/>
+<area shape="rect" id="node11" href="$altera__up__sd__card__avalon__interface_8c.html#ae891b5a1c32643802b31214dafb01f19" title="Save_Modified_Sector" alt="" coords="216,84,379,113"/>
+<area shape="rect" id="node14" href="$altera__up__sd__card__avalon__interface_8c.html#a653b10b5df96412d3b3a6a5ba1b3ce43" title="Write_File_Record_At_Offset" alt="" coords="428,136,623,165"/>
+<area shape="rect" id="node8" href="$altera__up__sd__card__avalon__interface_8c.html#ae2658919d0beb6a4af8fc0e11cf0bb58" title="Write_Sector_Data" alt="" coords="456,82,595,112"/>
+</map>

@@ -1,0 +1,13 @@
+<map id="G" name="G">
+<area shape="rect" id="node3" href="$play_8c.html#a656e5a5627513a5507aabdfa5911f1a5" title="Play Program." alt="" coords="521,75,631,105"/>
+<area shape="rect" id="node5" href="$system__state_8h.html#a082522f2260fe64f7504c88a465d8ddd" title="Task Play." alt="" coords="680,75,763,105"/>
+<area shape="rect" id="node7" href="$system__state_8h.html#a0deb06c9f72387b7cdd96d4f6fa867e8" title="Arm Communication Task." alt="" coords="333,257,445,286"/>
+<area shape="rect" id="node11" href="$system__state_8h.html#a97910a3fb8d8af32f7bf1d113178301f" title="Key Pad Task." alt="" coords="339,310,440,339"/>
+<area shape="rect" id="node15" href="$system__state_8h.html#ad8abbc57e7517857ddbc1b918b65e92e" title="Recording Task." alt="" coords="153,154,252,183"/>
+<area shape="rect" id="node22" href="$system__state_8h.html#ace0b3b7feba7ea23108a6cc943a4e58d" title="SD Card Task." alt="" coords="151,362,255,391"/>
+<area shape="rect" id="node25" href="$reset_8c.html#a3086ee86d8423769920efbae40ee5069" title="Wait for Reset." alt="" coords="148,207,257,237"/>
+<area shape="rect" id="node28" href="$sd__card_8h.html#a7beecb0baa1a4a9dd861abf058a5a60a" title="Get File Lines." alt="" coords="151,101,255,130"/>
+<area shape="rect" id="node9" href="$main_8c.html#a840291bc02cba5474a4cb46a9b9566fe" title="Main." alt="" coords="549,283,603,313"/>
+<area shape="rect" id="node17" href="$system__state_8h.html#a6dc5d83a8e8ac37aed656382b79eb319" title="Menu Task." alt="" coords="344,154,435,183"/>
+<area shape="rect" id="node30" href="$sd__card_8h.html#a0a7dcc5933d2d9550f4a4bb9ef20ab06" title="Read File Contents." alt="" coords="307,101,472,130"/>
+</map>

@@ -1,0 +1,6 @@
+<map id="G" name="G">
+<area shape="rect" id="node3" href="$queue_8h.html#aceeba9457d0f30b2a1c438e14352d7c2" title="uxQueueMessagesWaiting" alt="" coords="167,5,353,35"/>
+<area shape="rect" id="node5" href="$inverse__kinematics_8c.html#a8a80361996880abf478ea643c1343c14" title="vCalculateInverse" alt="" coords="193,59,327,88"/>
+<area shape="rect" id="node7" href="$_l_c_d_8c.html#af823fa47698d52859b7ed52f11971505" title="vPrintToLCD" alt="" coords="212,112,308,141"/>
+<area shape="rect" id="node9" href="$_l_c_d_8c.html#aa16a2f72aa9c2f2b95e9664f33535f23" title="altera_avalon_lcd_16207_write" alt="" coords="404,112,620,141"/>
+</map>

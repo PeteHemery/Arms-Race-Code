@@ -1,0 +1,31 @@
+<map id="G" name="G">
+<area shape="rect" id="node3" href="$arm__com_8c.html#a0deb06c9f72387b7cdd96d4f6fa867e8" title="Arm Communication Task." alt="" coords="329,731,441,760"/>
+<area shape="rect" id="node11" href="$keypad_8c.html#a97910a3fb8d8af32f7bf1d113178301f" title="Key Pad Task." alt="" coords="135,629,236,659"/>
+<area shape="rect" id="node14" href="$system__state_8h.html#ad776821c4435ccae3eefb82a9a1e7a63" title="vTaskLCDTimeOut" alt="" coords="117,683,253,712"/>
+<area shape="rect" id="node16" href="$menu_8c.html#a6dc5d83a8e8ac37aed656382b79eb319" title="Menu Task." alt="" coords="140,499,231,528"/>
+<area shape="rect" id="node65" href="$sd__card_8c.html#ace0b3b7feba7ea23108a6cc943a4e58d" title="SD Card Task." alt="" coords="333,785,437,815"/>
+<area shape="rect" id="node75" href="$task_8h.html#aaf9dca1065c60abdeb309d56ab7293cb" title="vTaskStartScheduler" alt="" coords="109,837,261,867"/>
+<area shape="rect" id="node79" href="$queue_8h.html#ab3b70d2ace0dea373bc8057dc2718046" title="xQueueCreate" alt="" coords="128,891,243,920"/>
+<area shape="rect" id="node5" href="$queue_8h.html#aceeba9457d0f30b2a1c438e14352d7c2" title="uxQueueMessagesWaiting" alt="" coords="751,501,937,531"/>
+<area shape="rect" id="node7" href="$task_8h.html#a3fc5adc340b17cb07c12ffa90d7bb8f3" title="vTaskDelay" alt="" coords="560,629,651,659"/>
+<area shape="rect" id="node9" href="$task_8h.html#a2134b0c5e285fa1aae510cfbddbd2a14" title="vTaskDelete" alt="" coords="556,683,655,712"/>
+<area shape="rect" id="node19" href="$_l_c_d_8c.html#a0e2ffc9e5b863c317718798ec28ec4f0" title="Print to the LCD screen." alt="" coords="796,319,892,348"/>
+<area shape="rect" id="node24" href="$menu_8c.html#a082522f2260fe64f7504c88a465d8ddd" title="Task Play." alt="" coords="344,419,427,448"/>
+<area shape="rect" id="node26" href="$record_8c.html#ad8abbc57e7517857ddbc1b918b65e92e" title="Recording Task." alt="" coords="336,472,435,501"/>
+<area shape="rect" id="node60" href="$menu_8c.html#a3086ee86d8423769920efbae40ee5069" title="Wait for Reset." alt="" coords="331,525,440,555"/>
+<area shape="rect" id="node21" href="$_l_c_d_8c.html#aa16a2f72aa9c2f2b95e9664f33535f23" title="altera_avalon_lcd_16207_write" alt="" coords="988,319,1204,348"/>
+<area shape="rect" id="node28" href="$sd__card_8c.html#a59e982b43a78d6b2a1fc36ea2323c187" title="SD Card Append File." alt="" coords="528,112,683,141"/>
+<area shape="rect" id="node40" href="$sd__card_8c.html#a6ba17761e9bf915739c3f2a04add9077" title="Create File." alt="" coords="560,165,651,195"/>
+<area shape="rect" id="node50" href="$record_8c.html#ac1fcf4475d292201785e4b073417590b" title="Set a value." alt="" coords="559,424,652,453"/>
+<area shape="rect" id="node54" href="$record_8c.html#acfc7bec0ab24458d1552f0d2f2412cb6" title="Set Axis Values." alt="" coords="549,371,661,400"/>
+<area shape="rect" id="node30" href="$altera__up__sd__card__avalon__interface_2_h_a_l_2inc_2altera__up__sd__card__avalon__interface_8h.html#a6c74b035a570e94175d029152e5239c3" title="alt_up_sd_card_fclose" alt="" coords="763,219,925,248"/>
+<area shape="rect" id="node32" href="$altera__up__sd__card__avalon__interface_2_h_a_l_2inc_2altera__up__sd__card__avalon__interface_8h.html#a19ce6ad1004e6ab0027173f2b1f45c1b" title="alt_up_sd_card_find_first" alt="" coords="755,112,933,141"/>
+<area shape="rect" id="node34" href="$altera__up__sd__card__avalon__interface_2_h_a_l_2inc_2altera__up__sd__card__avalon__interface_8h.html#aff74f82b8278552767494d74e88314f5" title="alt_up_sd_card_fopen" alt="" coords="764,165,924,195"/>
+<area shape="rect" id="node36" href="$altera__up__sd__card__avalon__interface_2_h_a_l_2inc_2altera__up__sd__card__avalon__interface_8h.html#aaddff40b24ac4b1ad14a7a416b6e3b5e" title="alt_up_sd_card_read" alt="" coords="767,5,921,35"/>
+<area shape="rect" id="node38" href="$altera__up__sd__card__avalon__interface_2_h_a_l_2inc_2altera__up__sd__card__avalon__interface_8h.html#a8751a5831b901db8bc5b581ad8eb9488" title="alt_up_sd_card_write" alt="" coords="767,59,921,88"/>
+<area shape="rect" id="node57" href="$inverse__kinematics_8c.html#a8a80361996880abf478ea643c1343c14" title="Calculate Inverse Kinematic Values." alt="" coords="777,372,911,401"/>
+<area shape="rect" id="node67" href="$altera__up__sd__card__avalon__interface_2_h_a_l_2inc_2altera__up__sd__card__avalon__interface_8h.html#a6aac4c3350018a97c630da2b4baf9c26" title="alt_up_sd_card_is_FAT16" alt="" coords="516,893,695,923"/>
+<area shape="rect" id="node69" href="$altera__up__sd__card__avalon__interface_2_h_a_l_2inc_2altera__up__sd__card__avalon__interface_8h.html#a118ab602de2949409da0091c50554682" title="alt_up_sd_card_is_Present" alt="" coords="511,787,700,816"/>
+<area shape="rect" id="node71" href="$altera__up__sd__card__avalon__interface_2_h_a_l_2inc_2altera__up__sd__card__avalon__interface_8h.html#a100379ea7bc5f31af2dc59d143bcbd3d" title="alt_up_sd_card_open_dev" alt="" coords="512,840,699,869"/>
+<area shape="rect" id="node77" href="$portable_8h.html#a753e556d14df28a4e9ebf5418a886e61" title="xPortStartScheduler" alt="" coords="311,839,460,868"/>
+</map>

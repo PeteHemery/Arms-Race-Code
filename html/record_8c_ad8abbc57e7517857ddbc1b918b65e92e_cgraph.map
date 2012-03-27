@@ -1,0 +1,20 @@
+<map id="G" name="G">
+<area shape="rect" id="node3" href="$sd__card_8c.html#a59e982b43a78d6b2a1fc36ea2323c187" title="SD Card Append File." alt="" coords="152,152,307,181"/>
+<area shape="rect" id="node15" href="$sd__card_8c.html#a6ba17761e9bf915739c3f2a04add9077" title="Create File." alt="" coords="184,72,275,101"/>
+<area shape="rect" id="node20" href="$queue_8h.html#aceeba9457d0f30b2a1c438e14352d7c2" title="uxQueueMessagesWaiting" alt="" coords="583,375,769,404"/>
+<area shape="rect" id="node22" href="$_l_c_d_8c.html#a0e2ffc9e5b863c317718798ec28ec4f0" title="Print to the LCD screen." alt="" coords="628,533,724,563"/>
+<area shape="rect" id="node26" href="$task_8h.html#a3fc5adc340b17cb07c12ffa90d7bb8f3" title="vTaskDelay" alt="" coords="631,663,721,692"/>
+<area shape="rect" id="node28" href="$task_8h.html#a2134b0c5e285fa1aae510cfbddbd2a14" title="vTaskDelete" alt="" coords="395,637,493,667"/>
+<area shape="rect" id="node30" href="$menu_8c.html#a6dc5d83a8e8ac37aed656382b79eb319" title="Menu Task." alt="" coords="184,480,275,509"/>
+<area shape="rect" id="node43" href="$record_8c.html#ac1fcf4475d292201785e4b073417590b" title="Set a value." alt="" coords="397,323,491,352"/>
+<area shape="rect" id="node47" href="$record_8c.html#acfc7bec0ab24458d1552f0d2f2412cb6" title="Set Axis Values." alt="" coords="388,427,500,456"/>
+<area shape="rect" id="node5" href="$altera__up__sd__card__avalon__interface_2_h_a_l_2inc_2altera__up__sd__card__avalon__interface_8h.html#a6c74b035a570e94175d029152e5239c3" title="alt_up_sd_card_fclose" alt="" coords="363,112,525,141"/>
+<area shape="rect" id="node7" href="$altera__up__sd__card__avalon__interface_2_h_a_l_2inc_2altera__up__sd__card__avalon__interface_8h.html#a19ce6ad1004e6ab0027173f2b1f45c1b" title="alt_up_sd_card_find_first" alt="" coords="355,5,533,35"/>
+<area shape="rect" id="node9" href="$altera__up__sd__card__avalon__interface_2_h_a_l_2inc_2altera__up__sd__card__avalon__interface_8h.html#aff74f82b8278552767494d74e88314f5" title="alt_up_sd_card_fopen" alt="" coords="364,59,524,88"/>
+<area shape="rect" id="node11" href="$altera__up__sd__card__avalon__interface_2_h_a_l_2inc_2altera__up__sd__card__avalon__interface_8h.html#aaddff40b24ac4b1ad14a7a416b6e3b5e" title="alt_up_sd_card_read" alt="" coords="367,219,521,248"/>
+<area shape="rect" id="node13" href="$altera__up__sd__card__avalon__interface_2_h_a_l_2inc_2altera__up__sd__card__avalon__interface_8h.html#a8751a5831b901db8bc5b581ad8eb9488" title="alt_up_sd_card_write" alt="" coords="367,165,521,195"/>
+<area shape="rect" id="node24" href="$_l_c_d_8c.html#aa16a2f72aa9c2f2b95e9664f33535f23" title="altera_avalon_lcd_16207_write" alt="" coords="820,533,1036,563"/>
+<area shape="rect" id="node35" href="$menu_8c.html#a082522f2260fe64f7504c88a465d8ddd" title="Task Play." alt="" coords="403,480,485,509"/>
+<area shape="rect" id="node38" href="$menu_8c.html#a3086ee86d8423769920efbae40ee5069" title="Wait for Reset." alt="" coords="389,533,499,563"/>
+<area shape="rect" id="node50" href="$inverse__kinematics_8c.html#a8a80361996880abf478ea643c1343c14" title="Calculate Inverse Kinematic Values." alt="" coords="609,428,743,457"/>
+</map>

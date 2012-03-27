@@ -1,0 +1,11 @@
+<map id="G" name="G">
+<area shape="rect" id="node3" href="$system__state_8h.html#a6dc5d83a8e8ac37aed656382b79eb319" title="vTaskMenu" alt="" coords="352,56,443,85"/>
+<area shape="rect" id="node7" href="$system__state_8h.html#a082522f2260fe64f7504c88a465d8ddd" title="vTaskPlay" alt="" coords="536,107,619,136"/>
+<area shape="rect" id="node9" href="$system__state_8h.html#ad8abbc57e7517857ddbc1b918b65e92e" title="vTaskRecord" alt="" coords="528,160,627,189"/>
+<area shape="rect" id="node14" href="$reset_8c.html#a3086ee86d8423769920efbae40ee5069" title="vWaitForReset" alt="" coords="155,5,264,35"/>
+<area shape="rect" id="node17" href="$sd__card_8h.html#a828b33f117016a6a8dbd13be1c282cd3" title="xSendFileLines" alt="" coords="152,315,267,344"/>
+<area shape="rect" id="node21" href="$record_8c.html#a3cff48a4758c4f9d4d12cb8e3e3b65e9" title="xSetAValue" alt="" coords="351,211,444,240"/>
+<area shape="rect" id="node24" href="$record_8c.html#abda926b8b70bb8ba385734db30f76cd1" title="xSetAxisValue" alt="" coords="153,261,265,291"/>
+<area shape="rect" id="node5" href="$main_8c.html#a840291bc02cba5474a4cb46a9b9566fe" title="main" alt="" coords="551,53,604,83"/>
+<area shape="rect" id="node19" href="$sd__card_8h.html#a0a7dcc5933d2d9550f4a4bb9ef20ab06" title="vTaskReadFileContents" alt="" coords="315,315,480,344"/>
+</map>
