@@ -1,0 +1,1115 @@
+<html>
+
+<head>
+<meta name="GENERATOR" content="Microsoft FrontPage 4.0">
+<meta name="ProgId" content="FrontPage.Editor.Document">
+<link rel="stylesheet" href="/Configuration/default.css" type="text/css">
+<style>
+<!--
+body         { font-family: sans-serif; font-size: .75em; align: left }
+table        { font-size: .9em }
+li           { padding-top: 5px; padding-bottom: 5px }
+.headsm      { font-size: 1.5em; font-weight: bold }
+.headmd      { font-size: 1.75em; font-weight: bold }
+.headlg      { font-size: 2.5em; font-weight: bold }
+.toc         { font-weight: bold }
+li.toc       { padding-top: 0px; padding-bottom: 0px }
+.code        { font-family: monospace; width: 90%; border: 1px solid blue; margin-left: 10px; 
+               padding: 5px }
+#container   { width: 650px }
+@media print {
+#container { width: 100%; }
+.pb    { page-break-after: always; }}
+-->
+</style>
+</head>
+
+<body>
+
+<div id="container">
+  <p align="center"><span class="headlg">SSC-32 Manual.</span>
+  <p align="center">Author: Jim Frye<br>
+  Version: 2.01XE<br>
+  Date: <!--webbot bot="Timestamp" s-type="EDITED" s-format="%B %d, %Y" startspan -->June 16, 2010<!--webbot bot="Timestamp" i-CheckSum="14208" endspan --></p>
+  <table border="0" width="100%">
+    <tr>
+      <td width="50%" align="center"><span class="headmd">Table of Contents</span></td>
+      <td width="50%" align="center"><span class="headmd">Links</span></td>
+    </tr>
+    <tr>
+      <td width="50%">
+        <ul class="toc">
+          <li><a href="#ssc32lay">SSC-32</a>
+            <ul class="toc">
+              <li class="toc"><a href="#ssc32feat">SSC-32 Hardware Information</a></li>
+              <li class="toc"><a href="#aglance">Shorting Bar Jumpers and Connections</a></li>
+            </ul>
+          </li>
+          <li><a href="#comform">Command Formatting for the SSC-32</a>
+            <ul class="toc">
+              <li class="toc"><a href="#comtype">Command Types and Groups</a></li>
+              <li class="toc"><a href="#srvmov">Servo Move or Group Move</a></li>
+              <li class="toc"><a href="#pulseo">Software Position Offset</a></li>
+              <li class="toc"><a href="#genout">General Output Info</a></li>
+              <li class="toc"><a href="#discout">Discrete Output</a></li>
+              <li class="toc"><a href="#byteout">Byte Output</a></li>
+              <li class="toc"><a href="#qmovest">Query Movement Status</a></li>
+              <li class="toc"><a href="#qpwidth">Query Pulse Width</a></li>
+              <li class="toc"><a href="#readdin">Read Digital Inputs</a></li>
+              <li class="toc"><a href="#readain">Read Analog Inputs</a></li>
+              <li class="toc"><a href="#hexseqcom">12 Servo Hexapod Sequencer Commands</a></li>
+              <li class="toc"><a href="#hexseqnote">Notes on Hexapod Sequencer</a></li>
+              <li class="toc"><a href="#qhexseq">Query Hex Sequencer State</a></li>
+              <li class="toc"><a href="#softver">Get Software Version</a></li>
+              <li class="toc"><a href="#firmupg">Firmware Upgrade</a></li>
+              <li class="toc"><a href="#transboot">Transfer to Boot</a></li>
+              <li class="toc"><a href="#sscemu">Mini SSC-II Emulation</a></li>
+            </ul>
+          </li>
+          <li><a href="#ssc32reg">SSC-32 Registers</a>
+            <ul class="toc">
+              <li class="toc"><a href="#reggen">Registers General Info</a></li>
+              <li class="toc"><a href="#enregdef">Enable Register (R0) Bit Definitions</a></li>
+              <li class="toc"><a href="#regrw">Register Read/Write</a></li>
+              <li class="toc"><a href="#miscregcom">Miscellaneous Register Commands</a></li>
+              <li class="toc"><a href="#startstr">Startup Strings</a></li>
+              <li class="toc"><a href="#moreexamp">Additional Examples</a></li>
+            </ul>
+          </li>
+          <li><a href="#tshoot">Troubleshooting Information</a>
+            <ul class="toc">
+              <li class="toc"><a href="#testcont">Testing the Controller</a></li>
+              <li class="toc"><a href="#trouble">General Troubleshooting</a></li>
+              <li class="toc"><a href="#usb2s">Communicating - USB to Serial Cables</a></li>
+            </ul>
+          </li>
+          <li><a href="#baex">Basic Atom Programming Examples</a>
+            <ul class="toc">
+              <li class="toc"><a href="#ssc32ex">Atom / SSC-32 Test Example</a></li>
+              <li class="toc"><a href="#bipedex">Simple Biped Example</a></li>
+            </ul>
+          </li>
+        </ul>
+      </td>
+      <td width="50%" valign="top">
+        <ul class="toc">
+          <li><a href="/images/data/ssc32sch.pdf" target="_blank">SSC-32 Schematic (pdf)</a></li>
+          <li><a href="/images/html/build137.htm" target="_blank">SSC-32 (v2) GP Sequencer Usage Manual</a></li>
+          <li><a href="/images/html/build177.htm" target="_blank">SSC-32 (v2) Binary Commands Usage Manual</a></li>
+          <li><a href="/Product.aspx?productID=567&amp;CategoryID=15" target="_blank">LynxTerm Download</a></li>
+        </ul>
+      </td>
+    </tr>
+  </table>
+  <hr width="95%" color="#808080" class="pb">
+  <p align="center"><span class="headmd"><a name="ssc32lay">SSC-32.</a></span></p>
+  <p><img border="0" src="/images/assembly/ssc32/ssc32m01.gif" width="650" height="465"></p>
+  <p><span class="headsm"><a name="ssc32feat">SSC-32 Hardware Information.</a></span></p>
+  <p>The image above illustrates the shorting bar jumpers (the black rectangles) as they are on the board as it is shipped. The jumpers are used to
+  set operating parameters for the board. It should not be assumed that they are correct for your project as changes are likely to be required. Please
+  consult the tutorial for your project for the proper shorting bar jumper positions.</p>
+  <p>The SSC-32 is 3.00" x 2.30" with 0.125" holes set in 0.15" from each edge.</p>
+  <ol>
+    <li>The Low Dropout regulator will provide 5vdc out with as little as 5.5vdc coming in. This is important when operating your robot from a
+      battery. It can accept a maximum of 9vdc in. The regulator is rated for 500mA, but we are de-rating it to 250mA to prevent the regulator from
+      getting too hot.</li>
+    <li>This terminal connects power to servo channels 16 through 31. Apply 4.8vdc to 6.0vdc for most analog or digital servos. This can be directly
+      from a 5-cell NiMH battery pack. 7.2vdc - 7.4vdc can be applied to HSR-5980 or HSR-5990 servos. This can be directly from a 6-cell NiMH battery
+      pack or a 2-cell LiPo battery pack.<br>
+      &nbsp;
+      <table border="1" bordercolor="#000000" width="200">
+        <tr>
+          <td width="248" align="center" bordercolor="#808080" bgcolor="#C0C0C0" height="14"><b>Board</b></td>
+          <td width="248" align="center" bordercolor="#808080" bgcolor="#C0C0C0" height="14"><b>Input</b></td>
+        </tr>
+        <tr>
+          <td width="248" align="center" bordercolor="#C0C0C0" height="1">VS2 +</td>
+          <td width="248" bordercolor="#C0C0C0" bgcolor="#FFFFFF" height="1">RED</td>
+        </tr>
+        <tr>
+          <td width="248" align="center" bordercolor="#C0C0C0" height="14">VS2 -</td>
+          <td width="248" bordercolor="#C0C0C0" bgcolor="#FFFFFF" height="14">BLACK</td>
+        </tr>
+      </table>
+    </li>
+    <li>These jumpers are used to connect VS1 to VS2. Use this option when you are powering all servos from the same battery. Use both jumpers.
+      Alternately, if you want to use two separate battery packs, one on each side, then remove both of these jumpers.</li>
+    <li>This is the Logic Voltage, or VL. This input is normally used with a 9vdc battery connector to provide power to the ICs and anything connected
+      to the 5vdc lines on the board. The valid range for this terminal is 6vdc - 9vdc. This input is used to isolate the logic from the Servo Power
+      Input. It is necessary to remove the VS1=VL jumper when powering the servos separately from the logic VL. The SSC-32 should draw 35mA with
+      nothing connected to the 5vdc output.<br>
+      &nbsp;
+      <table border="1" bordercolor="#000000" width="200">
+        <tr>
+          <td width="248" align="center" bordercolor="#808080" bgcolor="#C0C0C0" height="14"><b>Board</b></td>
+          <td width="248" align="center" bordercolor="#808080" bgcolor="#C0C0C0" height="14"><b>Input</b></td>
+        </tr>
+        <tr>
+          <td width="248" align="center" bordercolor="#C0C0C0" height="1">VL +</td>
+          <td width="248" bordercolor="#C0C0C0" bgcolor="#FFFFFF" height="1">RED</td>
+        </tr>
+        <tr>
+          <td width="248" align="center" bordercolor="#C0C0C0" height="14">VL -</td>
+          <td width="248" bordercolor="#C0C0C0" bgcolor="#FFFFFF" height="14">BLACK</td>
+        </tr>
+      </table>
+    </li>
+    <li>This jumper allows powering the microcontroller and support circuitry from the servo power supply. This requires at least 6vdc to operate
+      correctly. If the microcontroller resets when too many servos are moving at the same time, it may be necessary to power the microcontroller
+      separately using the VL input. A 9vdc works nicely for this. This jumper must be removed when powering the microcontroller separately!</li>
+    <li>This terminal connects power to servo channels 16 through 31. Apply 4.8vdc to 6.0vdc for most analog or digital servos. This can be directly
+      from a 5-cell NiMH battery pack. 7.2vdc - 7.4vdc can be applied to HSR-5980 or HSR-5990 servos. This can be directly from a 6-cell NiMH battery
+      pack or a 2-cell LiPo battery pack.<br>
+      &nbsp;
+      <table border="1" bordercolor="#000000" width="200">
+        <tr>
+          <td width="248" align="center" bordercolor="#808080" bgcolor="#C0C0C0" height="14"><b>Board</b></td>
+          <td width="248" align="center" bordercolor="#808080" bgcolor="#C0C0C0" height="14"><b>Input</b></td>
+        </tr>
+        <tr>
+          <td width="248" align="center" bordercolor="#C0C0C0" height="1">VS1 +</td>
+          <td width="248" bordercolor="#C0C0C0" bgcolor="#FFFFFF" height="1">RED</td>
+        </tr>
+        <tr>
+          <td width="248" align="center" bordercolor="#C0C0C0" height="14">VS1 -</td>
+          <td width="248" bordercolor="#C0C0C0" bgcolor="#FFFFFF" height="14">BLACK</td>
+        </tr>
+      </table>
+    </li>
+    <li>This is where you connect the servos or other output devices. Use caution and remove power when connecting anything to the I/O
+      bus.
+      <p>For discrete outputs (Hi / Low), each output can sync or source up to
+      35mA. However there is a maximum limit of 70mA per 8 I/O pin group. I.e.
+      0-7, 8-15, 16-23, 24-31.<br>
+      &nbsp;
+      <table border="1" bordercolor="#000000" width="200">
+        <tr>
+          <td width="248" align="center" bordercolor="#808080" bgcolor="#C0C0C0" height="14"><b>Board</b></td>
+          <td width="248" align="center" bordercolor="#808080" bgcolor="#C0C0C0" height="14"><b>Wire</b></td>
+        </tr>
+        <tr>
+          <td width="248" align="center" bordercolor="#C0C0C0" height="1">Pulse</td>
+          <td width="248" bordercolor="#C0C0C0" bgcolor="#FFFFFF" height="1">Yellow or White</td>
+        </tr>
+        <tr>
+          <td width="248" align="center" bordercolor="#C0C0C0" height="14">VS</td>
+          <td width="248" bordercolor="#C0C0C0" bgcolor="#FFFFFF" height="14">Red</td>
+        </tr>
+        <tr>
+          <td width="248" align="center" bordercolor="#C0C0C0" height="14">Ground</td>
+          <td width="248" bordercolor="#C0C0C0" bgcolor="#FFFFFF" height="14">Black or Brown</td>
+        </tr>
+      </table>
+    </li>
+    <li>This is where the Atmel IC chip goes. Be careful to insert it with Pin 1 in the upper right corner as pictured. Take care to not bend the
+      pins.</li>
+    <li>The two BAUD inputs allow configuring the baud rate. Please see the examples below.<br>
+      &nbsp;
+      <table border="1" bordercolor="#000000" width="400">
+        <tr>
+          <td width="25%" align="center" bordercolor="#808080" bgcolor="#C0C0C0" height="14"><b>Jumpers</b></td>
+          <td width="25%" align="center" bordercolor="#808080" bgcolor="#C0C0C0" height="14"><b>Baud Rate</b></td>
+          <td width="50%" align="center" bordercolor="#808080" bgcolor="#C0C0C0" height="14"><b>Usage</b></td>
+        </tr>
+        <tr>
+          <td width="25%" align="center" bordercolor="#C0C0C0" height="1">0 0</td>
+          <td width="25%" bordercolor="#C0C0C0" bgcolor="#FFFFFF" height="1">2400</td>
+          <td width="50%" bordercolor="#C0C0C0" bgcolor="#FFFFFF" height="1">Slower Processors</td>
+        </tr>
+        <tr>
+          <td width="25%" align="center" bordercolor="#C0C0C0" height="14">0 1</td>
+          <td width="25%" bordercolor="#C0C0C0" bgcolor="#FFFFFF" height="14">9600</td>
+          <td width="50%" bordercolor="#C0C0C0" bgcolor="#FFFFFF" height="14">Slower Processors</td>
+        </tr>
+        <tr>
+          <td width="25%" align="center" bordercolor="#C0C0C0" height="14">1 0</td>
+          <td width="25%" bordercolor="#C0C0C0" bgcolor="#FFFFFF" height="14">38.4k</td>
+          <td width="50%" bordercolor="#C0C0C0" bgcolor="#FFFFFF" height="14">Atom/Stamp Communication</td>
+        </tr>
+        <tr>
+          <td width="25%" align="center" bordercolor="#C0C0C0" height="14">1 1</td>
+          <td width="25%" bordercolor="#C0C0C0" bgcolor="#FFFFFF" height="14">115.2k</td>
+          <td width="50%" bordercolor="#C0C0C0" bgcolor="#FFFFFF" height="14">PC Communication, Firmware Update</td>
+        </tr>
+      </table>
+    </li>
+    <li>The ABCD inputs have both static and latching support. The inputs have internal weak (50k) pullups that are used when a Read Digital Input command is used. A normally open switch connected from the input to ground will work fine. There are two pins that have 5vdc, two pins with ground, and four inputs labled A, B, C, and D.</li>
+    <li>This is the Processor Good LED. It will light steady when power is applied and will remain lit until the processor has received serial data. It will then go out and will blink whenever it is receiving serial data. Note, the LED will go out even if the data is the wrong baud rate, formatted wrong, or even complete giberish. But it is a useful tool to know if the SSC-32 is receiving data ir not. </li>
+    <li>Simply plug a straight-through M/F DB9 cable from this plug to a free 9-pin serial port con your PC for receiving servo positioning data.
+      Alternately a USB-to-serial adapter will work well. Please see the <a href="#usb2s">USB-to-serial section</a> for more information.</li>
+    <li>This is an 8-pin EEPROM socket. The EEPROM is supported by the 2.01GP firmware. It supports the 24LC256 which is a 32KB chip. The 24LC512 memory chips will work but the extra storage will not be available. </li>
+    <li>This is the TTL serial port or DB9 serial port enable. Install two jumpers as illustrated below to enable the DB9 port. Install wire
+      connectors to utilize TTL serial communication from a host microcontroller.</li>
+  </ol>
+  <hr width="95%" color="#808080" class="pb">
+  <p><span class="headsm"><a name="aglance">Shorting Bar Jumpers and Connectors at a glance.</a></span></p>
+  <p><img border="0" src="/images/assembly/ssc32/ssc32m02.gif" width="650" height="598"></p>
+  <hr width="95%" color="#808080">
+  <p align="center"><span class="headmd"><a name="comform">Command Formatting for the SSC-32.</a></span></p>
+  <p><span class="headsm"><a name="comtype">Command Types and Groups.</a></span></p>
+  <p>With the exception of MiniSSC-II mode, all SSC-32 commands must end with a carriage return character (ASCII 13). Multiple commands of the same
+  type can be issued simultaneously in a <i>Command Group</i>. All of the commands in a command group will be executed after the final carriage return
+  is received. Commands of different types cannot be mixed in the same command group. In addition, numeric arguments to all SSC-32 commands must be
+  ASCII strings of decimal numbers, e.g. &quot;1234&quot;. Some commands accept negative numbers, e.g. &quot;-5678&quot;. Programming examples will be
+  provided. ASCII format is not case sensitive. Use as many bytes as required. Spaces, tabs, and line feeds are ignored.</p>
+  <table border="1" bordercolor="#000000" width="500" height="1">
+    <tr>
+      <td width="100%" align="center" bordercolor="#808080" bgcolor="#C0C0C0" colspan="4" height="14"><b>Command Types and Groups</b></td>
+    </tr>
+    <tr>
+      <td width="5%" align="center" bordercolor="#808080" bgcolor="#C0C0C0" height="1">1</td>
+      <td width="45%" bordercolor="#C0C0C0" bgcolor="#FFFFFF" height="1">Servo Movement</td>
+      <td width="5%" align="center" bordercolor="#808080" bgcolor="#C0C0C0" height="1">7</td>
+      <td width="45%" bordercolor="#C0C0C0" bgcolor="#FFFFFF" height="1">Read Analog Inputs</td>
+    </tr>
+    <tr>
+      <td width="5%" align="center" bordercolor="#808080" bgcolor="#C0C0C0" height="14">2</td>
+      <td width="45%" bordercolor="#C0C0C0" bgcolor="#FFFFFF" height="14">Discrete Output</td>
+      <td width="5%" align="center" bordercolor="#808080" bgcolor="#C0C0C0" height="14">8</td>
+      <td width="45%" bordercolor="#C0C0C0" bgcolor="#FFFFFF" height="14">12 Servo Hexapod Gait Sequencer</td>
+    </tr>
+    <tr>
+      <td width="5%" align="center" bordercolor="#808080" bgcolor="#C0C0C0" height="14">3</td>
+      <td width="45%" bordercolor="#C0C0C0" bgcolor="#FFFFFF" height="14">Byte Output</td>
+      <td width="5%" align="center" bordercolor="#808080" bgcolor="#C0C0C0" height="14">9</td>
+      <td width="45%" bordercolor="#C0C0C0" bgcolor="#FFFFFF" height="14">Query Hex Sequencer</td>
+    </tr>
+    <tr>
+      <td width="5%" align="center" bordercolor="#808080" bgcolor="#C0C0C0" height="14">4</td>
+      <td width="45%" bordercolor="#C0C0C0" bgcolor="#FFFFFF" height="14">Query Movement Status</td>
+      <td width="5%" align="center" bordercolor="#808080" bgcolor="#C0C0C0" height="14">10</td>
+      <td width="45%" bordercolor="#C0C0C0" bgcolor="#FFFFFF" height="14">Get Version</td>
+    </tr>
+    <tr>
+      <td width="5%" align="center" bordercolor="#808080" bgcolor="#C0C0C0" height="14">5</td>
+      <td width="45%" bordercolor="#C0C0C0" bgcolor="#FFFFFF" height="14">Query Pulse Width</td>
+      <td width="5%" align="center" bordercolor="#808080" bgcolor="#C0C0C0" height="14">11</td>
+      <td width="45%" bordercolor="#C0C0C0" bgcolor="#FFFFFF" height="14">Go to Boot</td>
+    </tr>
+    <tr>
+      <td width="5%" align="center" bordercolor="#808080" bgcolor="#C0C0C0" height="14">6</td>
+      <td width="45%" bordercolor="#C0C0C0" bgcolor="#FFFFFF" height="14">Read Digital Inputs</td>
+      <td width="5%" align="center" bordercolor="#808080" bgcolor="#C0C0C0" height="14">12</td>
+      <td width="45%" bordercolor="#C0C0C0" bgcolor="#FFFFFF" height="14">MiniSSC-II Compatibility</td>
+    </tr>
+  </table>
+  <p><span class="headsm"><a name="srvmov">Servo Move or Group Move.</a></span></p>
+  <table border="1" bordercolor="#000000" width="500">
+    <tr>
+      <td width="100%" align="center" bordercolor="#808080" bgcolor="#C0C0C0" colspan="2"><b># &lt;ch&gt; P &lt;pw&gt; S &lt;spd&gt; ... # &lt;ch&gt;
+        P &lt;pw&gt; S &lt;spd&gt; T &lt;time&gt; &lt;cr&gt;</b></td>
+    </tr>
+    <tr>
+      <td width="5%" align="center" bordercolor="#808080" bgcolor="#C0C0C0">&lt;ch&gt;</td>
+      <td width="95%" bordercolor="#C0C0C0" bgcolor="#FFFFFF">Channel number in decimal, 0-31</td>
+    </tr>
+    <tr>
+      <td width="5%" align="center" bordercolor="#808080" bgcolor="#C0C0C0">&lt;pw&gt;</td>
+      <td width="95%" bordercolor="#C0C0C0" bgcolor="#FFFFFF">Pulse width in microseconds, 500-2500</td>
+    </tr>
+    <tr>
+      <td width="5%" align="center" bordercolor="#808080" bgcolor="#C0C0C0">&lt;spd&gt;</td>
+      <td width="95%" bordercolor="#C0C0C0" bgcolor="#FFFFFF">Movement speed in uS per second for one channel (Optional)</td>
+    </tr>
+    <tr>
+      <td width="5%" align="center" bordercolor="#808080" bgcolor="#C0C0C0">&lt;time&gt;</td>
+      <td width="95%" bordercolor="#C0C0C0" bgcolor="#FFFFFF">Time in mS for the wntire move, affects all channels, 65535 max (Optional)</td>
+    </tr>
+    <tr>
+      <td width="5%" align="center" bordercolor="#808080" bgcolor="#C0C0C0">&lt;cr&gt;</td>
+      <td width="95%" bordercolor="#C0C0C0" bgcolor="#FFFFFF">Carriage return character, ASCII 13 (Required to initiate action)</td>
+    </tr>
+    <tr>
+      <td width="5%" align="center" bordercolor="#808080" bgcolor="#C0C0C0">&lt;esc&gt;</td>
+      <td width="95%" bordercolor="#C0C0C0" bgcolor="#FFFFFF">Cancel the current action, ASCII 27</td>
+    </tr>
+  </table>
+  <p>Servo Move Example: &quot;#5 P1600 S750 &lt;cr&gt;&quot;</p>
+  <p>The example will move the servo on channel 5 to position 1600. It will move from its current position at a rate of 750uS per second until it
+  reaches its commanded destination. For a better understanding of the speed argument, consider that 1000uS of travel will result in around 90&deg; of
+  rotation. A speed value of 100uS per second means the servo will take 10 seconds to move 90&deg;. Alternately, a speed value of 2000uS per second
+  equates to 500mS (half a second) to move 90&deg;.</p>
+  <p>Servo Move Example: &quot;#5 P1600 T1000 &lt;cr&gt;&quot;</p>
+  <p>The example will move servo 5 to position 1600. It will take 1 second to complete the move regardless of how far the servo has to travel to reach
+  the destination.</p>
+  <p>Servo Group Move Example: &quot;#5 P1600 #10 P750 T2500 &lt;cr&gt;&quot;</p>
+  <p>The example will move servo 5 to position 1600 and servo 10 to position 750. It will take 2.5 seconds to complete the move, even if one servo has
+  farther to travel than another. The servos will both start and stop moving at the same time. This is a very powerful command. By commanding all the
+  legs in a walking robot with the Group Move it is easy to synchronize complex gaits. The same synchronized motion can benefit the control of a
+  robotic arm as well.</p>
+  <p>You can combine the speed and time commands if desired. The speed for each servo will be calculated according to the following rules:</p>
+  <ol>
+    <li>All channels will start and end the move simultaneously.</li>
+    <li>If a speed is specified for a servo, it will not move any faster than the speed specified (but it might move slower if the time command
+      requires).</li>
+    <li>If a time is specified for the move, then the move will take at least the amount of time specified (but might take longer if the speed command
+      requires).</li>
+  </ol>
+  <p>Servo Move Example: &quot;#5 P1600 #17 P750 S500 #2 P2250 T2000 &lt;cr&gt;&quot;</p>
+  <p>The example provides 1600uS on ch5, 750uS on ch17, and 2250uS on ch2. The entire move will take at least 2 seconds, but ch17 will not move faster
+  than 500uS per second. The actual time for the move will depend on the initial pulse width for ch17. Suppose ch17 starts at position 2000. Then it
+  has to move 1250uS. Since it is limited to 500uS per second, it will require at least 2.5 seconds, so the entire move will take 2.5 seconds. On the
+  other hand, if ch17 starts at position 1000, it only needs to move 250uS, which it can do in 0.5 seconds, so the entire move will take 2 seconds.</p>
+  <p>Important! The first positioning command should be a normal &quot;# &lt;ch&gt; P &lt;pw&gt;&quot; command. Because the controller doesn't know
+  where the servo is positioned on powerup, it will ignore speed and time commands until the first normal command has been received.</p>
+  <p>Any move that involves more than one servo and uses either the S or T modifier is considered a Group Move, and all servos will start and stop
+  moving at the same time. If you require moving several servos at different speeds, you must issue the commands separately.</p>
+  <p><span class="headsm"><a name="pulseo">Software Position Offset.</a></span></p>
+  <table border="1" bordercolor="#000000" width="500">
+    <tr>
+      <td width="100%" align="center" bordercolor="#808080" bgcolor="#C0C0C0" colspan="2"><b># &lt;ch&gt; PO &lt;offset value&gt; ... # &lt;ch&gt; PO
+        &lt;offset value&gt; &lt;cr&gt;</b></td>
+    </tr>
+    <tr>
+      <td width="20%" align="center" bordercolor="#808080" bgcolor="#C0C0C0">&lt;ch&gt;</td>
+      <td width="80%" bordercolor="#C0C0C0" bgcolor="#FFFFFF">Channel number in decimal, 0-31</td>
+    </tr>
+    <tr>
+      <td width="20%" align="center" bordercolor="#808080" bgcolor="#C0C0C0">&lt;offset value&gt;</td>
+      <td width="80%" bordercolor="#C0C0C0" bgcolor="#FFFFFF">100 to -100 in uSeconds</td>
+    </tr>
+    <tr>
+      <td width="20%" align="center" bordercolor="#808080" bgcolor="#C0C0C0">&lt;cr&gt;</td>
+      <td width="80%" bordercolor="#C0C0C0" bgcolor="#FFFFFF">Carriage return character, ASCII 13</td>
+    </tr>
+  </table>
+  <p>This command allows the servos centered (1500uS) position to be aligned perfectly. The servo channel will be offset by the amount indicated in
+  offset value. This represents approximately 15&deg; of range. It's important to build the mechanical assembly as close as possible to the desired
+  centered position before applying the servo offset. This makes it easy to setup servos that do not have mechanical alignment. The Position Offset
+  command should be issued only once in your program. When the SSC-32 is turned off it will forget the Position Offsets.</p>
+  <p>The current SSC-32 now has an internal register method for doing Position Offsets. These are stored in the Atmel chips internal EEPROM and are
+  retained when power is removed. Use of this feature is covered in the <a href="#ssc32reg">SSC-32 Registers</a> section of this manual.</p>
+  <p><span class="headsm"><a name="genout">General Output Information.</a></span></p>
+  <p>The outputs on the SSC-32 come from four 74HC595 8 bit shift register chips. There are four banks of 8 bit outputs as shown 0-7, 8-15, 16-23 and
+  24-32. The outputs can sink or source up to 25mA per pin, but a max of 70mA per bank must be observed.</p>
+  <p><span class="headsm"><a name="discout">Discrete Output.</a></span></p>
+  <table border="1" bordercolor="#000000" width="500">
+    <tr>
+      <td width="100%" align="center" bordercolor="#808080" bgcolor="#C0C0C0" colspan="2"><b># &lt;ch&gt; &lt;lvl&gt; ... # &lt;ch&gt; &lt;lvl&gt;
+        &lt;cr&gt;</b></td>
+    </tr>
+    <tr>
+      <td width="8%" align="center" bordercolor="#808080" bgcolor="#C0C0C0">&lt;ch&gt;</td>
+      <td width="92%" bordercolor="#C0C0C0" bgcolor="#FFFFFF">Channel number in decimal, 0-31</td>
+    </tr>
+    <tr>
+      <td width="8%" align="center" bordercolor="#808080" bgcolor="#C0C0C0">&lt;lvl&gt;</td>
+      <td width="92%" bordercolor="#C0C0C0" bgcolor="#FFFFFF">Logic level for the channel, either 'H' for High or 'L' for Low</td>
+    </tr>
+    <tr>
+      <td width="8%" align="center" bordercolor="#808080" bgcolor="#C0C0C0">&lt;cr&gt;</td>
+      <td width="92%" bordercolor="#C0C0C0" bgcolor="#FFFFFF">Carriage return character, ASCII 13</td>
+    </tr>
+  </table>
+  <p>The channel will go to the level indicated within 20mS of receiving the carriage return.</p>
+  <p>Discrete Output Example: &quot;#3H #4L &lt;cr&gt;&quot;</p>
+  <p>This example will output a High (+5v) on channel 3 and a Low (0v) on channel 4.</p>
+  <p><span class="headsm"><a name="byteout">Byte Output.</a></span></p>
+  <table border="1" bordercolor="#000000" width="500">
+    <tr>
+      <td width="100%" align="center" bordercolor="#808080" bgcolor="#C0C0C0" colspan="2"><b># &lt;bank&gt; : &lt;value&gt; &lt;cr&gt;</b></td>
+    </tr>
+    <tr>
+      <td width="10%" align="center" bordercolor="#808080" bgcolor="#C0C0C0">&lt;bank&gt;</td>
+      <td width="90%" bordercolor="#C0C0C0" bgcolor="#FFFFFF">(0 = Pins 0-7, 1 = Pins 8-15, 2 = Pins 16-23, 3 = Pins 24-31)</td>
+    </tr>
+    <tr>
+      <td width="10%" align="center" bordercolor="#808080" bgcolor="#C0C0C0">&lt;value&gt;</td>
+      <td width="90%" bordercolor="#C0C0C0" bgcolor="#FFFFFF">Decimal value to output to the selected bank (0-255), Bit 0 = LSB of bank</td>
+    </tr>
+    <tr>
+      <td width="10%" align="center" bordercolor="#808080" bgcolor="#C0C0C0">&lt;cr&gt;</td>
+      <td width="90%" bordercolor="#C0C0C0" bgcolor="#FFFFFF">Carriage return character, ASCII 13</td>
+    </tr>
+  </table>
+  <p>This command allows 8 bits of binary data to be written at once. All pins of the bank are updated simultaneously. The banks will be updated
+  within 20mS of receiving the carriage return.</p>
+  <p>Bank Output Example: &quot;#3:123 &lt;cr&gt;&quot;</p>
+  <p>This example will output the value 123 (decimal) to bank 3. 123 (dec) = 01111011 (bin), and bank 3 is pins 24-31. So this command will output a
+  &quot;0&quot; to pins 26 and 31, and will output a &quot;1&quot; to all other pins.</p>
+  <p><span class="headsm"><a name="qmovest">Query Movement Status.</a></span></p>
+  <p>Example: &quot;Q &lt;cr&gt;&quot;</p>
+  <p>This will return a &quot;.&quot; if the previous move is complete, or a &quot;+&quot; if it is still in progress.</p>
+  <p>There will be a delay of 50uS to 5mS before the response is sent.</p>
+  <p><span class="headsm"><a name="qpwidth">Query Pulse Width.</a></span></p>
+  <p>Example: &quot;QP &lt;arg&gt; &lt;cr&gt;&quot;</p>
+  <p>This will return a single byte (in binary format) indicating the pulse width of the selected servo with a resolution of 10uS. For example, if the
+  pulse width is 1500uS, the returned byte would be 150 (binary).</p>
+  <p>Multiple servos may be queried in the same command. The return value will be one byte per servo. There will be a delay of at least 50uS to 5mS
+  before the response is sent Typically the response will be started within 100uS.</p>
+  <p><span class="headsm"><a name="readdin">Read Digital Inputs.</a></span></p>
+  <p>Example: &quot;A B C D AL BL CL DL &lt;cr&gt; &quot;</p>
+  <p>A, B, C, and D are normal input reads. They read the value on the input as a binary value. It returns ASCII &quot;0&quot; if the input is a low
+  (0v) or an ASCII &quot;1&quot; if the input is a high (+5v).</p>
+  <p>AL, BL, CL, and DL are latching input reads. They return the value on the input as an ASCII &quot;0&quot; if the input is a low (0v) or if it has
+  been low since the last *L command. It returns a high (+5v) if the input is high and never went low since the last *L command. Simply stated, it
+  will return a low if the input ever goes low. Reading the status simply resets the latch.</p>
+  <p>The ABCD inputs have a weak pullup (~50k) that is enabled when used as inputs. They are checked approximately every 1mS, and are debounced for
+  approximately 15mS. The logic value for the read commands will not be changed until the input has been at the new logic level continuously for 15mS.
+  The Read Digital Input Commands can be grouped in a single read, up to 8 values per read. They will return a string with one character per input
+  with no spaces.</p>
+  <p>Read Digital Input Example: &quot;A B C DL &lt;cr&gt;&quot;</p>
+  <p><span class="headsm"><a name="readain">Read Analog Inputs.</a></span></p>
+  <p>Example: &quot;VA VB VC VD &lt;cr&gt;&quot;</p>
+  <p>VA, VB, VC, and VD read the value on the input as analog. It returns a single byte with the 8-bit (binary) value for the voltage on the pin.</p>
+  <p>When the ABCD inputs are used as analog inputs the internal pullup is disabled. The inputs are digitally filtered to reduce the effect of noise.
+  The filtered values will settle to their final values within 8mS of a change. A return value of 0 represents 0vdc. A return value of 255 represents
+  +4.98vdc. To convert the return value to a voltage, multiply by 5/256. At power up the ABCD inputs are configured for digital input with pullup. <span style="color: #FF0000">The
+  first time a V* command is used, the pin will be converted to analog without pullup. The result of this first read will not return valid data.</span></p>
+  <p>Read Analog Input Example: &quot;VA VB &lt;cr&gt;&quot;</p>
+  <p>This example will return 2 bytes with the analog values of A and B. For example is the voltage on Pin A is 2vdc and Pin B is 3.5vdc, the return
+  value will be the bytes 102 (binary) and 179 (binary).</p>
+  <p><span class="headsm"><a name="hexseqcom">12 Servo Hexapod Sequencer Commands.</a></span></p>
+  <p>LH &lt;arg&gt;, LM &lt;arg&gt;, LL &lt;arg&gt;</p>
+  <p>Set the value for the vertical servos on the left side of the hexapod. LH sets the high value, i.e. the pulse width to raise the leg to its
+  maximum height; LM sets the mid value; and LL sets the low value. The valid range for the arguments is 500 to 2500uS.</p>
+  <p>RH &lt;arg&gt;, RM &lt;arg&gt;, RL &lt;arg&gt;</p>
+  <p>Set the value for the vertical servos on the right side of the hexapod. RH sets the high value, i.e. the pulse width to raise the leg to its
+  maximum height; RM sets the mid value; RL sets the low value. The valid range for the arguments is 500 to 2500uS.</p>
+  <p>VS &lt;arg&gt;</p>
+  <p>Sets the speed for movement of vertical servos. All vertical servo moves use this speed. Valid range is 0 to 65535uS/Sec.</p>
+  <p>LF &lt;arg&gt;, LR &lt;arg&gt;</p>
+  <p>Set the value for the horizontal servos on the left side of the robot. LF sets the front value, i.e. the pulse width to move the leg to the
+  maximum forward position; LR sets the rear value. The valid range for the arguments is 500 to 2500uS.</p>
+  <p>RF &lt;arg&gt;, RR &lt;arg&gt;</p>
+  <p>Set the values for the horizontal servos on the right side of the robot. RF sets the front value, i.e. the pulse width to move the leg to the
+  maximum forward position; RR sets the rear value. The valid range for the arguments is 500 to 2500uS.</p>
+  <p>HT &lt;arg&gt;</p>
+  <p>Sets the time to move between horizontal front and rear positions. The valid range for the argument is 1 to 65535uS.</p>
+  <p>XL &lt;arg&gt;, XR &lt;arg&gt;</p>
+  <p>Set the travel percentage for left and right legs. The valid range is -100% to 100%. Negative values cause the legs on the side to move in
+  reverse. With a value of 100%, the legs will move between the front and rear positions. Lower values cause the travel to be proportionally less, but
+  always centered. The speed for horizontal moves is adjusted based on the XL and XR commands, so the move time remains the same.</p>
+  <p>XS &lt;arg&gt;</p>
+  <p>Set the horizontal speed percentage for all legs. The valid range is 0% to 200%. With a value of 100%, the horizontal travel time will be the
+  value programmed using the HT command. Higher values proportionally reduce the travel time; lower values increase it. A value of 0% will stop the
+  robot in place. The hex sequencer will not be started until the XS command is received.</p>
+  <p>XSTOP</p>
+  <p>Stop the hex sequencer. Return all servos to normal operation.</p>
+  <p><span class="headsm"><a name="hexseqnote">Notes on Hexapod Sequencer.</a></span></p>
+  <ol>
+    <li>The following servo channels are used for the hex sequencer:<br>
+      &nbsp;
+      <table border="1" bordercolor="#000000" width="500">
+        <tr>
+          <td width="5%" align="center" bordercolor="#808080" bgcolor="#C0C0C0">0</td>
+          <td width="45%" bordercolor="#C0C0C0" bgcolor="#FFFFFF">Right Rear Vertical</td>
+          <td width="5%" align="center" bordercolor="#808080" bgcolor="#C0C0C0">16</td>
+          <td width="45%" bordercolor="#C0C0C0" bgcolor="#FFFFFF">Left Rear Vertical</td>
+        </tr>
+        <tr>
+          <td width="5%" align="center" bordercolor="#808080" bgcolor="#C0C0C0">1</td>
+          <td width="45%" bordercolor="#C0C0C0" bgcolor="#FFFFFF">Right Rear Horizontal</td>
+          <td width="5%" align="center" bordercolor="#808080" bgcolor="#C0C0C0">17</td>
+          <td width="45%" bordercolor="#C0C0C0" bgcolor="#FFFFFF">Left Rear Horizontal</td>
+        </tr>
+        <tr>
+          <td width="5%" align="center" bordercolor="#808080" bgcolor="#C0C0C0">2</td>
+          <td width="45%" bordercolor="#C0C0C0" bgcolor="#FFFFFF">Right Center Vertical</td>
+          <td width="5%" align="center" bordercolor="#808080" bgcolor="#C0C0C0">18</td>
+          <td width="45%" bordercolor="#C0C0C0" bgcolor="#FFFFFF">Left Center Vertical</td>
+        </tr>
+        <tr>
+          <td width="5%" align="center" bordercolor="#808080" bgcolor="#C0C0C0">3</td>
+          <td width="45%" bordercolor="#C0C0C0" bgcolor="#FFFFFF">Right Center Horizontal</td>
+          <td width="5%" align="center" bordercolor="#808080" bgcolor="#C0C0C0">19</td>
+          <td width="45%" bordercolor="#C0C0C0" bgcolor="#FFFFFF">Left Center Horizontal</td>
+        </tr>
+        <tr>
+          <td width="5%" align="center" bordercolor="#808080" bgcolor="#C0C0C0">4</td>
+          <td width="45%" bordercolor="#C0C0C0" bgcolor="#FFFFFF">Right Front Vertical</td>
+          <td width="5%" align="center" bordercolor="#808080" bgcolor="#C0C0C0">20</td>
+          <td width="45%" bordercolor="#C0C0C0" bgcolor="#FFFFFF">Left Front Vertical</td>
+        </tr>
+        <tr>
+          <td width="5%" align="center" bordercolor="#808080" bgcolor="#C0C0C0">5</td>
+          <td width="45%" bordercolor="#C0C0C0" bgcolor="#FFFFFF">Right Front Horizontal</td>
+          <td width="5%" align="center" bordercolor="#808080" bgcolor="#C0C0C0">21</td>
+          <td width="45%" bordercolor="#C0C0C0" bgcolor="#FFFFFF">Left Front Horizontal</td>
+        </tr>
+      </table>
+      &nbsp;</li>
+    <li>The hexapod walking gait is an alternating tripod. The tripods are labeled Tripod A and Tripod B. Tripod A consists of {Left Front, Left Rear,
+      Right Center}, and Tripod B consists of {Left Center, Right Front, Right Rear}.</li>
+    <li>While walking, the legs pass through 6 points: (Low Front), (Low Center), (Low Rear), (Mid Rear), (High Center), and (Mid Front).
+      &quot;Center&quot; refers to the mid-point between the Front and Rear positions.<br>
+      &nbsp;<br>
+      <img border="0" src="/images/assembly/ssc32/h2seqdia.gif" width="320" height="224"><br>
+      &nbsp;</li>
+    <li>The walking sequence consists of 8 states, numbered 0-7. They are defined below:<br>
+      &nbsp;
+      <table border="1" bordercolor="#000000" width="500">
+        <tr>
+          <td width="44" align="center" bordercolor="#808080" bgcolor="#C0C0C0" rowspan="2"><b>State</b></td>
+          <td width="216" align="center" bordercolor="#808080" bgcolor="#C0C0C0" colspan="2"><b>Tripod A</b></td>
+          <td width="218" align="center" bordercolor="#808080" bgcolor="#C0C0C0" colspan="2"><b>Tripod B</b></td>
+        </tr>
+        <tr>
+          <td width="111" align="center" bordercolor="#808080" bgcolor="#C0C0C0"><b>Vertical</b></td>
+          <td width="111" align="center" bordercolor="#808080" bgcolor="#C0C0C0"><b>Horizontal</b></td>
+          <td width="112" align="center" bordercolor="#808080" bgcolor="#C0C0C0"><b>Vertical</b></td>
+          <td width="112" align="center" bordercolor="#808080" bgcolor="#C0C0C0"><b>Horizontal</b></td>
+        </tr>
+        <tr>
+          <td width="44" align="center" bordercolor="#808080" bgcolor="#C0C0C0">0</td>
+          <td width="111" bordercolor="#C0C0C0" bgcolor="#FFFFFF">Low</td>
+          <td width="111" bordercolor="#C0C0C0" bgcolor="#FFFFFF">Front to Center</td>
+          <td width="112" bordercolor="#C0C0C0" bgcolor="#FFFFFF">Mid to High</td>
+          <td width="112" bordercolor="#C0C0C0" bgcolor="#FFFFFF">Rear to Center</td>
+        </tr>
+        <tr>
+          <td width="44" align="center" bordercolor="#808080" bgcolor="#C0C0C0">1</td>
+          <td width="111" bordercolor="#C0C0C0" bgcolor="#FFFFFF">Low</td>
+          <td width="111" bordercolor="#C0C0C0" bgcolor="#FFFFFF">Center to Rear</td>
+          <td width="112" bordercolor="#C0C0C0" bgcolor="#FFFFFF">High to Mid</td>
+          <td width="112" bordercolor="#C0C0C0" bgcolor="#FFFFFF">Center to Front</td>
+        </tr>
+        <tr>
+          <td width="44" align="center" bordercolor="#808080" bgcolor="#C0C0C0">2</td>
+          <td width="111" bordercolor="#C0C0C0" bgcolor="#FFFFFF">Low</td>
+          <td width="111" bordercolor="#C0C0C0" bgcolor="#FFFFFF">Rear</td>
+          <td width="112" bordercolor="#C0C0C0" bgcolor="#FFFFFF">Mid to Low</td>
+          <td width="112" bordercolor="#C0C0C0" bgcolor="#FFFFFF">Front</td>
+        </tr>
+        <tr>
+          <td width="44" align="center" bordercolor="#808080" bgcolor="#C0C0C0">3</td>
+          <td width="111" bordercolor="#C0C0C0" bgcolor="#FFFFFF">Low to Mid</td>
+          <td width="111" bordercolor="#C0C0C0" bgcolor="#FFFFFF">Rear</td>
+          <td width="112" bordercolor="#C0C0C0" bgcolor="#FFFFFF">Low</td>
+          <td width="112" bordercolor="#C0C0C0" bgcolor="#FFFFFF">Front</td>
+        </tr>
+        <tr>
+          <td width="44" align="center" bordercolor="#808080" bgcolor="#C0C0C0">4</td>
+          <td width="111" bordercolor="#C0C0C0" bgcolor="#FFFFFF">Mid to High</td>
+          <td width="111" bordercolor="#C0C0C0" bgcolor="#FFFFFF">Rear to Center</td>
+          <td width="112" bordercolor="#C0C0C0" bgcolor="#FFFFFF">Low</td>
+          <td width="112" bordercolor="#C0C0C0" bgcolor="#FFFFFF">Front to Center</td>
+        </tr>
+        <tr>
+          <td width="44" align="center" bordercolor="#808080" bgcolor="#C0C0C0">5</td>
+          <td width="111" bordercolor="#C0C0C0" bgcolor="#FFFFFF">High to Mid</td>
+          <td width="111" bordercolor="#C0C0C0" bgcolor="#FFFFFF">Center to Front</td>
+          <td width="112" bordercolor="#C0C0C0" bgcolor="#FFFFFF">Low</td>
+          <td width="112" bordercolor="#C0C0C0" bgcolor="#FFFFFF">Center to Rear</td>
+        </tr>
+        <tr>
+          <td width="44" align="center" bordercolor="#808080" bgcolor="#C0C0C0">6</td>
+          <td width="111" bordercolor="#C0C0C0" bgcolor="#FFFFFF">Mid to Low</td>
+          <td width="111" bordercolor="#C0C0C0" bgcolor="#FFFFFF">Front</td>
+          <td width="112" bordercolor="#C0C0C0" bgcolor="#FFFFFF">Low</td>
+          <td width="112" bordercolor="#C0C0C0" bgcolor="#FFFFFF">Rear</td>
+        </tr>
+        <tr>
+          <td width="44" align="center" bordercolor="#808080" bgcolor="#C0C0C0">7</td>
+          <td width="111" bordercolor="#C0C0C0" bgcolor="#FFFFFF">Low</td>
+          <td width="111" bordercolor="#C0C0C0" bgcolor="#FFFFFF">Front</td>
+          <td width="112" bordercolor="#C0C0C0" bgcolor="#FFFFFF">Low to Mid</td>
+          <td width="112" bordercolor="#C0C0C0" bgcolor="#FFFFFF">Rear</td>
+        </tr>
+      </table>
+      <br>
+      In this table, &quot;Front&quot; and &quot;Rear&quot; are modified by the XL and XR commands. A value of 100% results in the movement in the
+      table. Between 0 and 100%, the Front/Rear positions are moved closer to Center. For negative values, Front and Rear are exchanged. For example,
+      with an XL of -100%, in State 0, Tripod A on the left side would be moving Rear to Center, and Tripod B would be moving Front to Center.</li>
+    <li>When a horizontal servo is moving, its speed will be adjusted based on the Front/Rear pulse widths, the XL/XR percentage, and the XS
+      percentage. Regardless of the travel distance from front to rear (adjusted by XL/XR), the total move time will be the HT divided by the XS
+      percentage.</li>
+    <li>When a vertical servo is moving from Low to Mid or from Mid to Low, it will move at the speed specified by the VS command. When a vertical
+      servo is moving from Mid to High or High to Mid, the vertical speed will be adjusted so that the horizontal and vertical movements end at the
+      same time.</li>
+    <li>Any of the Hex Sequencer commands can be issued while the sequencer is operating. They will take effect immediately.</li>
+  </ol>
+  <p>Hex Sequencer Examples:</p>
+  <p>&quot;LH1000 LM1400 LL1800 RH2000 RM1600 RL1200 VS3000 &lt;cr&gt;&quot;</p>
+  <p>Sets the vertical servo parameters.</p>
+  <p>&quot;LF1700 LR1300 RF1300 RR1700 HT1500 &lt;cr&gt;&quot;</p>
+  <p>Sets the horizontal servo parameters.</p>
+  <p>&quot;XL50 XR100 XS100 &lt;cr&gt;&quot;</p>
+  <p>Causes the gradual left turn at 100% speed (and starts the sequencer if it is not already started).</p>
+  <p>&quot;XL -100 XR 100 XS 50 &lt;cr&gt;&quot;</p>
+  <p>Causes a left rotate in place at 50% speed.</p>
+  <p>&quot;XSTOP &lt;cr&gt;&quot;</p>
+  <p>Stops the sequencer and allows servo channels 0-5, 16-21 to be controlled using the normal servo commands.</p>
+  <p><span class="headsm"><a name="qhexseq">Query Hex Sequencer State.</a></span></p>
+  <p>XQ &lt;cr&gt;</p>
+  <p>Returns 1 digit representing the state of the hex sequencer, and the approximate percentage of movement in the state. The high nibble will be '0'
+  to '7', and the low nibble will be '0' to '9'. For example, if the sequencer is 80% of the way through state 5, it will return the value 58 (hex).</p>
+  <p><span class="headsm"><a name="softver">Get Software Version.</a></span></p>
+  <p>VER &lt;cr&gt;</p>
+  <p>Returns the software version number as an ASCII string.</p>
+  <p><span class="headsm"><a name="firmupg">Firmware Upgrade.</a></span></p>
+  <p>Updating the firmware is an easy straight forward task, but can only be done at 115.2k baud. Unlike simple VER or servo move commands, updating the firmware requires fast
+  bi-directional serial communications. If you are experiencing problems with this please check over the
+  <a href="http://www.lynxmotion.net/viewtopic.php?t=4702" target="_blank"> serial port troubleshooting guide</a> to ensure your serial port and or USB to serial drivers are
+  optimized.</p>
+  <p>Upgrading the firmware is best done with Lynxterm or one of our other software packages. Detailed instructions on upgrading the firmware is
+  included in the software manuals.</p>
+  <p><span class="headsm"><a name="transboot">Transfer to Boot.</a></span></p>
+  <p>GOBOOT &lt;cr&gt;</p>
+  <p>Starts the bootloader running for software updates. To exit the bootloader and start running the application, power cycle the control or enter
+  (case sensitive, no spaces):</p>
+  <p>&quot;g0000&lt;cr&gt;&quot;</p>
+  <p><span class="headsm"><a name="sscemu">Mini SSC-II Emulation.</a></span></p>
+  <p>Binary format, 3-bytes.</p>
+  <table border="1" bordercolor="#000000" width="500">
+    <tr>
+      <td width="10%" align="center" bordercolor="#808080" bgcolor="#C0C0C0"><b>Byte 1</b></td>
+      <td width="90%" bordercolor="#C0C0C0" bgcolor="#FFFFFF">255, the sync byte</td>
+    </tr>
+    <tr>
+      <td width="10%" align="center" bordercolor="#808080" bgcolor="#C0C0C0"><b>Byte 2</b></td>
+      <td width="90%" bordercolor="#C0C0C0" bgcolor="#FFFFFF">0 - 31, the servo number</td>
+    </tr>
+    <tr>
+      <td width="10%" align="center" bordercolor="#808080" bgcolor="#C0C0C0"><b>Byte 3</b></td>
+      <td width="90%" bordercolor="#C0C0C0" bgcolor="#FFFFFF">0 - 250, the pulse width; 0=500uS, 125=1500uS, 250=2500uS</td>
+    </tr>
+  </table>
+  <br>
+  <hr width="95%" color="#808080">
+  <p align="center"><span class="headmd"><a name="ssc32reg">SSC-32 Registers</a></span></p>
+  <p><span class="headsm"><a name="reggen">Register General Info</a></span></p>
+  <table border="1" bordercolor="#000000" width="500">
+    <tr>
+      <td width="8%" align="center" bordercolor="#808080" bgcolor="#C0C0C0"><b>Number</b></td>
+      <td width="15%" bordercolor="#808080" bgcolor="#C0C0C0" align="center"><b>Name</b></td>
+      <td width="7%" bordercolor="#808080" bgcolor="#C0C0C0" align="center"><b>Minimum</b></td>
+      <td width="7%" bordercolor="#808080" bgcolor="#C0C0C0" align="center"><b>Maximum</b></td>
+      <td width="7%" bordercolor="#808080" bgcolor="#C0C0C0" align="center"><b>Default</b></td>
+      <td bordercolor="#808080" bgcolor="#C0C0C0" align="center"><b>Description</b></td>
+    </tr>
+    <tr>
+      <td width="8%" align="center" bordercolor="#C0C0C0">0</td>
+      <td width="15%" bordercolor="#C0C0C0" bgcolor="#FFFFFF">Enable</td>
+      <td width="7%" bordercolor="#C0C0C0" bgcolor="#FFFFFF">0</td>
+      <td width="7%" bordercolor="#C0C0C0" bgcolor="#FFFFFF">65535</td>
+      <td width="7%" bordercolor="#C0C0C0" bgcolor="#FFFFFF">0</td>
+      <td bordercolor="#C0C0C0" bgcolor="#FFFFFF">A bit field (16 bits) that enables various features of the SSC-32.</td>
+    </tr>
+    <tr>
+      <td width="8%" align="center" bordercolor="#C0C0C0">1</td>
+      <td width="15%" bordercolor="#C0C0C0" bgcolor="#FFFFFF">Transmit Delay</td>
+      <td width="7%" bordercolor="#C0C0C0" bgcolor="#FFFFFF">0</td>
+      <td width="7%" bordercolor="#C0C0C0" bgcolor="#FFFFFF">65535</td>
+      <td width="7%" bordercolor="#C0C0C0" bgcolor="#FFFFFF">600</td>
+      <td bordercolor="#C0C0C0" bgcolor="#FFFFFF">The delay, in microseconds, before transmitting the first byte of a response from the SSC-32.</td>
+    </tr>
+    <tr>
+      <td width="8%" align="center" bordercolor="#C0C0C0">2</td>
+      <td width="15%" bordercolor="#C0C0C0" bgcolor="#FFFFFF">Transmit Pacing</td>
+      <td width="7%" bordercolor="#C0C0C0" bgcolor="#FFFFFF">0</td>
+      <td width="7%" bordercolor="#C0C0C0" bgcolor="#FFFFFF">65535</td>
+      <td width="7%" bordercolor="#C0C0C0" bgcolor="#FFFFFF">70</td>
+      <td bordercolor="#C0C0C0" bgcolor="#FFFFFF">The delay, in microseconds, between bytes in a response from the SSC-32.</td>
+    </tr>
+    <tr>
+      <td width="8%" align="center" bordercolor="#C0C0C0">3-31</td>
+      <td width="15%" bordercolor="#C0C0C0" bgcolor="#FFFFFF">(Reserved)</td>
+      <td width="7%" bordercolor="#C0C0C0" bgcolor="#FFFFFF">--</td>
+      <td width="7%" bordercolor="#C0C0C0" bgcolor="#FFFFFF">--</td>
+      <td width="7%" bordercolor="#C0C0C0" bgcolor="#FFFFFF">--</td>
+      <td bordercolor="#C0C0C0" bgcolor="#FFFFFF">--</td>
+    </tr>
+    <tr>
+      <td width="8%" align="center" bordercolor="#C0C0C0">32-63</td>
+      <td width="15%" bordercolor="#C0C0C0" bgcolor="#FFFFFF">Initial Pulse Offset</td>
+      <td width="7%" bordercolor="#C0C0C0" bgcolor="#FFFFFF">-100</td>
+      <td width="7%" bordercolor="#C0C0C0" bgcolor="#FFFFFF">100</td>
+      <td width="7%" bordercolor="#C0C0C0" bgcolor="#FFFFFF">0</td>
+      <td bordercolor="#C0C0C0" bgcolor="#FFFFFF">The initial value of the pulse offset (PO) for each servo. Register 32 corresponds to servo #0,
+        register 33 to servo #1, etc.</td>
+    </tr>
+    <tr>
+      <td width="8%" align="center" bordercolor="#C0C0C0">64-95</td>
+      <td width="15%" bordercolor="#C0C0C0" bgcolor="#FFFFFF">Initial Pulse Width</td>
+      <td width="7%" bordercolor="#C0C0C0" bgcolor="#FFFFFF">0</td>
+      <td width="7%" bordercolor="#C0C0C0" bgcolor="#FFFFFF">65535</td>
+      <td width="7%" bordercolor="#C0C0C0" bgcolor="#FFFFFF">1500</td>
+      <td bordercolor="#C0C0C0" bgcolor="#FFFFFF">The initial value of the pulse width for each servo. Register 64 corresponds to servo #0, register
+        65 to servo #1, etc. A value of 0 leaves the servo output at a continuous logic '0'; a value of 65535 leaves the servo output at a continuous
+        logic '1'. All other values are clipped to the range 500 - 2500 microseconds.</td>
+    </tr>
+    <tr>
+      <td width="8%" align="center" bordercolor="#C0C0C0">96-255</td>
+      <td width="15%" bordercolor="#C0C0C0" bgcolor="#FFFFFF">(Reserved)</td>
+      <td width="7%" bordercolor="#C0C0C0" bgcolor="#FFFFFF">--</td>
+      <td width="7%" bordercolor="#C0C0C0" bgcolor="#FFFFFF">--</td>
+      <td width="7%" bordercolor="#C0C0C0" bgcolor="#FFFFFF">--</td>
+      <td bordercolor="#C0C0C0" bgcolor="#FFFFFF">--</td>
+    </tr>
+  </table>
+  <p>Note: Registers 0-15 are intended for global use, affecting all operation of the SSC-32; registers 32-255 are intended for individual servo
+  channel configuration, and so are in groups of 32 registers.</p>
+  <p><span class="headsm"><a name="enregdef">Enable Register (R0) Bit Definitions</a></span></p>
+  <table border="1" bordercolor="#000000" width="500">
+    <tr>
+      <td width="8%" align="center" bordercolor="#808080" bgcolor="#C0C0C0"><b>Bit</b></td>
+      <td width="15%" bordercolor="#808080" bgcolor="#C0C0C0" align="center"><b>Name</b></td>
+      <td bordercolor="#808080" bgcolor="#C0C0C0" align="center"><b>Definition</b></td>
+    </tr>
+    <tr>
+      <td width="8%" align="center" bordercolor="#C0C0C0">15 (msb)</td>
+      <td width="15%" bordercolor="#C0C0C0" bgcolor="#FFFFFF">Global Disable</td>
+      <td bordercolor="#C0C0C0" bgcolor="#FFFFFF">If '1', disables all of the featured controlled by the Enable register.<br>
+        If '0', the individual bit values will be used to enable or disable the features.</td>
+    </tr>
+    <tr>
+      <td width="8%" align="center" bordercolor="#C0C0C0">14-4</td>
+      <td width="15%" bordercolor="#C0C0C0" bgcolor="#FFFFFF">(Reserved)</td>
+      <td bordercolor="#C0C0C0" bgcolor="#FFFFFF">--</td>
+    </tr>
+    <tr>
+      <td width="8%" align="center" bordercolor="#C0C0C0">3</td>
+      <td width="15%" bordercolor="#C0C0C0" bgcolor="#FFFFFF">Initial Pulse Width Enable</td>
+      <td bordercolor="#C0C0C0" bgcolor="#FFFFFF">If '1', enables the Initial Pulse Width register values at startup.<br>
+        If '0', the default value of 0 will be used.</td>
+    </tr>
+    <tr>
+      <td width="8%" align="center" bordercolor="#C0C0C0">2</td>
+      <td width="15%" bordercolor="#C0C0C0" bgcolor="#FFFFFF">Initial Pulse Offset Enable</td>
+      <td bordercolor="#C0C0C0" bgcolor="#FFFFFF">If '1', enables the Initial Pulse Offset register values at startup.<br>
+        If '0', the default value of 0 will be used.</td>
+    </tr>
+    <tr>
+      <td width="8%" align="center" bordercolor="#C0C0C0">1</td>
+      <td width="15%" bordercolor="#C0C0C0" bgcolor="#FFFFFF">TX Delay/Pacing Enable</td>
+      <td bordercolor="#C0C0C0" bgcolor="#FFFFFF">If '1', enables the Transmit Delay and Transmit Pacing values.<br>
+        If '0', the default values of 600uS and 70uS will be used.</td>
+    </tr>
+    <tr>
+      <td width="8%" align="center" bordercolor="#C0C0C0">0 (lsb)</td>
+      <td width="15%" bordercolor="#C0C0C0" bgcolor="#FFFFFF">Startup String Enable</td>
+      <td bordercolor="#C0C0C0" bgcolor="#FFFFFF">If '1', enables execution of the startup string when power is applied to the SSC-32.<br>
+        If '0', the startup string will not be executed.</td>
+    </tr>
+  </table>
+  <p><span class="headsm"><a name="regrw">Register Read/Write</a></span></p>
+  <table border="1" bordercolor="#000000" width="500">
+    <tr>
+      <td align="center" bordercolor="#808080" bgcolor="#C0C0C0" width="20%"><b>Command</b></td>
+      <td bordercolor="#808080" bgcolor="#C0C0C0" width="25%" align="center"><b>Argument</b></td>
+      <td bordercolor="#808080" bgcolor="#C0C0C0" align="center"><b>Description</b></td>
+      <td bordercolor="#808080" bgcolor="#C0C0C0" width="20%" align="center"><b>Examples</b></td>
+    </tr>
+    <tr>
+      <td align="center" bordercolor="#C0C0C0" width="20%">Register write:<br>
+        R &lt;r&gt; = &lt;n&gt; &lt;cr&gt;</td>
+      <td bordercolor="#C0C0C0" bgcolor="#FFFFFF" width="25%">r = reg number, 0-255<br>
+        n = value</td>
+      <td bordercolor="#C0C0C0" bgcolor="#FFFFFF">Programs the value of a register. Spaces are optional around the register number and value.</td>
+      <td bordercolor="#C0C0C0" bgcolor="#FFFFFF" width="20%">R0=1023 &lt;cr&gt;<br>
+        R32 = -50 &lt;cr&gt;</td>
+    </tr>
+    <tr>
+      <td align="center" bordercolor="#C0C0C0" width="20%">Register read:<br>
+        R &lt;r&gt; &lt;cr&gt;</td>
+      <td bordercolor="#C0C0C0" bgcolor="#FFFFFF" width="25%">r = reg number, 0-255</td>
+      <td bordercolor="#C0C0C0" bgcolor="#FFFFFF">Displays the value of a register, followed by a carriage return. The displayed value is in ASCII
+        format, and is terminated with a carriage return.</td>
+      <td bordercolor="#C0C0C0" bgcolor="#FFFFFF" width="20%">R0 &lt;cr&gt;<br>
+        &nbsp;result: 1023&lt;cr&gt;<br>
+        R32 &lt;cr&gt;<br>
+        &nbsp;result: -50&lt;cr&gt;</td>
+    </tr>
+    <tr>
+      <td align="center" bordercolor="#C0C0C0" width="20%">Set to defaults:<br>
+        RDFLT &lt;cr&gt;</td>
+      <td bordercolor="#C0C0C0" bgcolor="#FFFFFF" width="25%">none</td>
+      <td bordercolor="#C0C0C0" bgcolor="#FFFFFF">Sets all of the registers to their default values. When the command is complete the SSC-32 will
+        transmit the string OK&lt;cr&gt;.</td>
+      <td bordercolor="#C0C0C0" bgcolor="#FFFFFF" width="20%">RDFLT &lt;cr&gt;<br>
+        &nbsp;result: OK&lt;cr&gt;</td>
+    </tr>
+  </table>
+  <p>The RDFLT command may take over a second to execute. It should not be invoked while a timed move or sequence player is active. No register writes
+  should be performed until the RDFLT is complete (as indicated by the 'ok' response).</p>
+  <p>If multiple R= commands are being sent by software, it is recommended that the software read the value of each register after it is written. This
+  will ensure that each register write has completed before the next is started.</p>
+  <p>If an RDFLT or R= command is executing, do not power down the SSC-32 until the command has completed. To determine whether the command has
+  completed, read a register value.</p>
+  <p>Each time a register is written, the EEPROM location(s) used to store the value experience a small amount of wearout. The typical maximum number
+  of writes is 100,000. Do not write your software to rapidly change the register values, or you might cause a permanent wearout of the EEPROM in the
+  ATMega168 processor.</p>
+  <p><span class="headsm"><a name="miscregcom">Miscellaneous Register Commands</a></span></p>
+  <table border="1" bordercolor="#000000" width="500">
+    <tr>
+      <td align="center" bordercolor="#808080" bgcolor="#C0C0C0" width="20%"><b>Command</b></td>
+      <td bordercolor="#808080" bgcolor="#C0C0C0" width="15%" align="center"><b>Argument</b></td>
+      <td bordercolor="#808080" bgcolor="#C0C0C0" align="center"><b>Description</b></td>
+      <td bordercolor="#808080" bgcolor="#C0C0C0" width="20%" align="center"><b>Examples</b></td>
+    </tr>
+    <tr>
+      <td align="center" bordercolor="#C0C0C0" width="20%">STOP &lt;n&gt; &lt;cr&gt;</td>
+      <td bordercolor="#C0C0C0" bgcolor="#FFFFFF" width="15%">0-31</td>
+      <td bordercolor="#C0C0C0" bgcolor="#FFFFFF">Immediately stops the specified servo at its current position. A space is optional before the servo
+        number.</td>
+      <td bordercolor="#C0C0C0" bgcolor="#FFFFFF" width="20%">STOP0 &lt;cr&gt;<br>
+        STOP 31 &lt;cr&gt;</td>
+    </tr>
+  </table>
+  <p>If the servo is part of a timed move, the other servos will continue moving and a query command will indicate that the move continues until the
+  total time for the original move has elapsed. This is true even if <i>all</i> of the servos in the original move are stopped.</p>
+  <p>The EER and EEW commands no longer work to access internal EEPROM. They are replaced by Register Read/Write and Startup String commands. EER and
+  EEW continue to function for external EEPROM.</p>
+  <p><span class="headsm"><a name="startstr">Startup Strings</a></span></p>
+  <table border="1" bordercolor="#000000" width="500">
+    <tr>
+      <td align="center" bordercolor="#808080" bgcolor="#C0C0C0" width="20%"><b>Command</b></td>
+      <td bordercolor="#808080" bgcolor="#C0C0C0" width="17%" align="center"><b>Argument</b></td>
+      <td bordercolor="#808080" bgcolor="#C0C0C0" align="center"><b>Description / Examples</b></td>
+    </tr>
+    <tr>
+      <td align="center" bordercolor="#C0C0C0" width="20%">Delete characters:<br>
+        SSDEL &lt;n&gt; &lt;cr&gt;</td>
+      <td bordercolor="#C0C0C0" bgcolor="#FFFFFF" width="17%">0-255</td>
+      <td bordercolor="#C0C0C0" bgcolor="#FFFFFF">Deletes &lt;n&gt; characters from the end of the startup string. If &lt;n&gt; is greater than the
+        length of the startup string, then SSDEL deletes the entire string.
+        <p>SSDEL 5 &lt;cr&gt;<br>
+        &nbsp;- Deleted the last 5 characters of the startup string<br>
+        SSDEL 255 &lt;cr&gt;<br>
+        &nbsp;- Deletes the entire startup string</td>
+    </tr>
+    <tr>
+      <td align="center" bordercolor="#C0C0C0" width="20%">Concatenate:<br>
+        SSCAT &lt;string&gt; &lt;cr&gt;</td>
+      <td bordercolor="#C0C0C0" bgcolor="#FFFFFF" width="17%">Up to 100 ASCII characters</td>
+      <td bordercolor="#C0C0C0" bgcolor="#FFFFFF">Concatenates &lt;string&gt; to the current startup string. The blank space immediately following
+        &quot;SSCAT&quot; is ignored, but all other spaces are part of the string. The string is terminated by a carriage return, and may not contain
+        embedded carriage returns. Commands in the startup string are terminated with a semicolon (including the last command).
+        <p>SSCAT #0P1000#1P2000T3000;&lt;cr&gt;<br>
+        SSCAT PL0 SQ5 SM50;&lt;cr&gt;</td>
+    </tr>
+    <tr>
+      <td align="center" bordercolor="#C0C0C0" width="20%">Display startup string:<br>
+        SS &lt;cr&gt;</td>
+      <td bordercolor="#C0C0C0" bgcolor="#FFFFFF" width="17%">none</td>
+      <td bordercolor="#C0C0C0" bgcolor="#FFFFFF">Displays the entire startup string, surrounded by quotation marks and followed by a carriage return.
+        <p>SS &lt;cr&gt;<br>
+        &nbsp;result: &quot;#0P1000#1P2000T3000;PL0 SQ5 SM50;&quot;&lt;cr&gt;</td>
+    </tr>
+  </table>
+  <p>The programmed startup string is executed at powerup of the SSC-32, if the Startup String Enable bit is set in the Enable register. The Startup
+  String is executed after any register values are applied (e.g. initial pulse width).</p>
+  <p>The maximum total length of the startup string is 100 ASCII characters. Any additional characters will be ignored.</p>
+  <p>The following commands should not be used in a startup string: EER, EEW, R=, SSCAT, SSDEL.</p>
+  <p>The SS command may take hundreds of milliseconds to execute, depending on baud rate. It should not be invoked while a timed move or sequence
+  player is active.</p>
+  <p>The SSCAT command may take hundreds of milliseconds to execute. It should not be invoked while a timed move or sequence player is active.</p>
+  <p>If an SSDEL or SSCAT command is executing, do not power down the SSC-32 until the command has been completed. To determine whether the command
+  has completed, send an SS command and wait for the response.</p>
+  <p>Each time the startup string is changed the EEPROM locations used to store the value experience a small amount of wearout. The typical maximum
+  number of writes is 100,000. Do not write your software to rapidly change the startup string, or you might cause permanent wearout of the EEPROM in
+  the ATmega168 processor.</p>
+  <table border="1" bordercolor="#000000" width="500">
+    <tr>
+      <td width="490" align="center" bordercolor="#808080" bgcolor="#C0C0C0" colspan="2"><b>Startup String Examples</b></td>
+    </tr>
+    <tr>
+      <td width="248" align="center" bordercolor="#808080" bgcolor="#C0C0C0"><b>Command</b></td>
+      <td bordercolor="#808080" bgcolor="#C0C0C0" width="248"><b>Result</b></td>
+    </tr>
+    <tr>
+      <td width="248" align="center" bordercolor="#C0C0C0">SSDEL 255 &lt;cr&gt;<br>
+        SS &lt;cr&gt;</td>
+      <td bordercolor="#C0C0C0" bgcolor="#FFFFFF" width="248">&quot;&quot;&lt;cr&gt;</td>
+    </tr>
+    <tr>
+      <td width="248" align="center" bordercolor="#C0C0C0">SSCAT #0P2000T5000;&lt;cr&gt;<br>
+        SS &lt;cr&gt;</td>
+      <td bordercolor="#C0C0C0" bgcolor="#FFFFFF" width="248">&quot;#0P2000T5000;&quot;&lt;cr&gt;</td>
+    </tr>
+    <tr>
+      <td width="248" align="center" bordercolor="#C0C0C0">SSCAT XXXX&lt;cr&gt;<br>
+        SSC &lt;cr&gt;</td>
+      <td bordercolor="#C0C0C0" bgcolor="#FFFFFF" width="248">&quot;#0P2000T5000;XXXX&quot;&lt;cr&gt;</td>
+    </tr>
+    <tr>
+      <td width="248" align="center" bordercolor="#C0C0C0">SSDEL 4 &lt;cr&gt;<br>
+        SS &lt;cr&gt;</td>
+      <td bordercolor="#C0C0C0" bgcolor="#FFFFFF" width="248">&quot;#0P2000T5000;&quot;&lt;cr&gt;</td>
+    </tr>
+    <tr>
+      <td width="248" align="center" bordercolor="#C0C0C0">SSDEL 6 &lt;cr&gt;<br>
+        SS &lt;cr&gt;</td>
+      <td bordercolor="#C0C0C0" bgcolor="#FFFFFF" width="248">&quot;#0P2000&quot;&lt;cr&gt;</td>
+    </tr>
+    <tr>
+      <td width="248" align="center" bordercolor="#C0C0C0">SSCAT #1P1000T4000;PL0SQ5;&lt;cr&gt;<br>
+        SS &lt;cr&gt;</td>
+      <td bordercolor="#C0C0C0" bgcolor="#FFFFFF" width="248">&quot;#0P2000#1P1000T4000;PL0SQ5;&quot;&lt;cr&gt;</td>
+    </tr>
+  </table>
+  <p><span class="headsm"><a name="moreexamp">Additional Examples</a></span></p>
+  <table border="1" bordercolor="#000000" width="500">
+    <tr>
+      <td width="490" align="center" bordercolor="#808080" bgcolor="#C0C0C0" colspan="2"><b>Additional</b><b> Examples</b></td>
+    </tr>
+    <tr>
+      <td width="248" align="center" bordercolor="#808080" bgcolor="#C0C0C0"><b>Command</b></td>
+      <td bordercolor="#808080" bgcolor="#C0C0C0" width="248"><b>Result</b></td>
+    </tr>
+    <tr>
+      <td width="248" align="center" bordercolor="#C0C0C0">RDFLT</td>
+      <td bordercolor="#C0C0C0" bgcolor="#FFFFFF" width="248">Set all registers to default values</td>
+    </tr>
+    <tr>
+      <td width="248" align="center" bordercolor="#C0C0C0">SSDEL 255</td>
+      <td bordercolor="#C0C0C0" bgcolor="#FFFFFF" width="248">Erase the startup string</td>
+    </tr>
+    <tr>
+      <td width="248" align="center" bordercolor="#C0C0C0">R0</td>
+      <td bordercolor="#C0C0C0" bgcolor="#FFFFFF" width="248">Display register 0</td>
+    </tr>
+    <tr>
+      <td width="248" align="center" bordercolor="#C0C0C0">R0=2<br>
+        R1=2000<br>
+        R2=1000</td>
+      <td bordercolor="#C0C0C0" bgcolor="#FFFFFF" width="248">Set TX delay to 2000uS and TX pacing to 1000uS. (R0=2: Bit 1 of R0 enables TX
+        delay/pacing.)</td>
+    </tr>
+    <tr>
+      <td width="248" align="center" bordercolor="#C0C0C0">R0=12<br>
+        R32=50<br>
+        R64=1000</td>
+      <td bordercolor="#C0C0C0" bgcolor="#FFFFFF" width="248">Set the pulse offset for servo 0 to 50 and the initial pulse width to 1000. (Bits 2 and
+        3 of R0 enable pulse offset and pulse width.)</td>
+    </tr>
+    <tr>
+      <td width="248" align="center" bordercolor="#C0C0C0">R0=13<br>
+        SSDEL 255<br>
+        SSCAT #0P1500T5000;</td>
+      <td bordercolor="#C0C0C0" bgcolor="#FFFFFF" width="248">Move R0 slowly to a pulse width of 1500 at startup. Assume the initial pulse width is
+        set as in the previous example. (Bit 0 of R0 enables the startup string.)</td>
+    </tr>
+    <tr>
+      <td width="248" align="center" bordercolor="#C0C0C0">SS</td>
+      <td bordercolor="#C0C0C0" bgcolor="#FFFFFF" width="248">Display the current startup string.</td>
+    </tr>
+  </table>
+  <br>
+  <hr width="95%" color="#808080">
+  <p align="center"><span class="headmd"><a name="tshoot">Troubleshooting</a></span></p>
+  <p><span class="headsm"><a name="testcont">Testing the Controller</a></span></p>
+  <p>&nbsp;The easiest way to test the controller is to use LynxTerm, our free terminal program. LynxTerm is downloadable <a href="/Product.aspx?productID=567&amp;CategoryID=15" target="_blank">here</a>.</p>
+  <p>Once installed, click on the Port drop down and select your com port. This will work with USB-to-serial port adapters. Install the jumpers for
+  115.2k baud and the two DB9 serial port enable jumpers. Plug a straight-through DB9 M/F cable from the PC to the controller.</p>
+  <p>Install two servos, one on Channel 0 and the other on Channel 1.</p>
+  <p>Power up the SSC-32 (Logic and Servo) and notice the green LED is illuminated.</p>
+  <p>Click on the terminal window so you can type the following into it. Remember that &lt;cr&gt; means to press the Enter key.<br>
+  #0 P1500 #1 P1500 &lt;cr&gt;</p>
+  <p>You should notice both servos are holding position in the center of their range. The LED is also no longer illuminated. It will now only light
+  when the controller is receiving data. Type the following:<br>
+  #0 P750 #1 P1000 T3000 &lt;cr&gt;</p>
+  <p>You should notice both servos moving clockwise, with servo 0 moving slowly and servo 1 moving a bit faster. They will arrive at their destinations at the same time even
+  though they are moving different distances.</p>
+  <p>Now to test the Query Movement Status. Type the following:<br>
+  #0 P750 &lt;cr&gt;</p>
+  <p>Then type the following line. This will make the servo move full range in 10 seconds.<br>
+  #0 P2250 T10000 &lt;cr&gt;</p>
+  <p>While the servo is moving, type the following:<br>
+  Q &lt;cr&gt;</p>
+  <p>When the servo is in motion the controller will return a &quot;+&quot;. It will return a &quot;.&quot; when it has reached its destination.</p>
+  <p>To experiment with the speed argument, try the following:<br>
+  #0 P750 S1000 &lt;cr&gt;</p>
+  <p>This will move the servo from 2250 to 750 (around 170&deg;) in 1.5 seconds.<br>
+  Travel Distance / Speed Value = Travel Time<br>
+  (2250uS-750uS) / (1000uS/Sec.) = 1.5 Sec.</p>
+  <p>Next try typing the following:<br>
+  #0 P2250 S750 &lt;cr&gt;</p>
+  <p>This will move the servo from 750 to 2250 (around 170&deg;) in 2.0 seconds.<br>
+  (2250uS-750uS) / (750uS/Sec.) = 2.0 Sec.</p>
+  <p>Speed values above around 3500 will move the servo as quickly as it can move.</p>
+  <p><span class="headsm"><a name="trouble">General Troubleshooting</a></span></p>
+  <p>If you notice the servos turn off or stop holding position when moving several servos at one time, this indicates that the SSC-32 has reset. This
+  can be verified by noticing if the green LED is on steady after the servos are instructed to move. The green LED is not a power indicator, but a
+  status indicator. When the SSC-32 is turned on, the LED will be on steady. It will remain on until it has received a serial character, then it will
+  go out and only blink when receiving serial data.</p>
+  <p>The SSC-32 has two power supply inputs. The logic supply (VL) powers the microcontroller and its support circuitry through a 5vdc regulator. The
+  servo supply (VS) powers the servos directly. In single supply mode (default) the jumpers VS1=VL will provide power to the 5vdc regulator from the
+  VS terminal. This works great for battery use, and with most wall pack use, as long as the voltage does not drop too much. However, if it does drop,
+  the voltage to the microcontroller is interrupted and the SSC-32 resets. To fix this you remove the VS1=VL jumper and connect a 9vdc battery clip to
+  the VL input. This isolates the servo and logic supplies so one cannot affect the other.</p>
+  <p>The only other thing that can cause this effect is a poor power delivery
+  system. If the wires carrying the current are too small, or connections are made with stripped and twisted wire, or cheap plastic battery holders
+  are used, the same problem may occur. 99% of problems with the SSC-32 are power supply related. If you are noticing erratic or unstable servo
+  movements, look at the power delivery system.</p>
+<p><span class="headsm"><a name="usb2s">Communicating - USB to Serial Cables</a></span></p>
+  <p>The fastest way to use the SSC-32 is with a PC that has a real serial port. If you have a desktop PC that does not have a serial port it is
+  recommended that you install a serial port card into the PC. Here is a <a href="/images/html/build126.htm">mini tutorial</a> showing the basics of
+  adding a serial port. If you're using a laptop or PC without a serial port you can use a USB to serial cable. We recommend the <a href="/Product.aspx?productID=699" target="_blank">FTDI
+  USB to serial cable</a>.<br>
+  <br>
+  Note: FTDI based USB to serial cables have properties in their drivers called Latency and Buffer. You will need to reduce the size of the buffer
+  from 4k to 1k, and the Latency from 16 to 1. As drivers and hardware change it may be necessary to experiment with these values.</p>
+  <p>If you have trouble with a USB to Serial cable, please refer to our <a href="http://www.lynxmotion.net/viewtopic.php?t=4702" target="_blank">troubleshooting
+  guide</a>.</p>
+  <hr width="95%" color="#808080">
+  <p align="center"><span class="headmd"><a name="baex">Basic Atom Programming Examples</a></span></p>
+  <p><span class="headsm"><a name="ssc32ex">Atom / SSC-32 Test Example</a></span></p>
+  <div class="code">
+    <p>' Atom / SSC-32 Test<br>
+    ' Configure the SSC-32 for 38.4k baud.
+    <p>' Note, a | means the line continues onto the next line.<br>
+    ' Note, a ' means the line is a comment, and will not be compiled.</p>
+    <p>servo0pw var word<br>
+    movetime var word</p>
+    <p>servo0pw = 1000<br>
+    movetime = 2500</p>
+    <p>start:<br>
+    servo0pw = 1000<br>
+    serout p0,i38400,[&quot;#0P&quot;,DEC servo0pw,&quot;T&quot;,DEC movetime,13]<br>
+    pause 2500<br>
+    servo0pw = 2000<br>
+    serout p0,i38400,[&quot;#0P&quot;,DEC servo0pw,&quot;T&quot;,DEC movetime,13]<br>
+    pause 2500<br>
+    goto start</p>
+  </div>
+  <p><span class="headsm"><a name="bipedex">Simple Biped Example</a></span></p>
+  <div class="code">
+    <p>' Biped example program.<br>
+    aa&nbsp; var byte '&lt;- general purpose variable.<br>
+    rax var word '&lt;- right ankle side-to-side. On pin0<br>
+    ray var word '&lt;- right ankle front-to-back. On pin1<br>
+    rkn var word '&lt;- right knee. On pin2<br>
+    rhx var word '&lt;- right hip front-to-back. On pin3<br>
+    rhy var word '&lt;- right hip side-to-side. On pin4<br>
+    lax var word '&lt;- left ankle side-to-side. On pin5<br>
+    lay var word '&lt;- left ankle front-to-back. On pin6<br>
+    lkn var word '&lt;- left knee. On pin7<br>
+    lhx var word '&lt;- left hip front-to-back. On pin8<br>
+    lhy var word '&lt;- left hip side-to-side. On pin9<br>
+    ttm var word '&lt;- time to take for the current move.</p>
+    <p>' First command to turn the servos on.<br>
+    for aa=0 to 9<br>
+    serout p0,i38400,[&quot;#&quot;, DEC2 aa\1, &quot;P&quot;, DEC 1500, 13]<br>
+    next</p>
+    <p>start:<br>
+    ' First position for step sequence, and time to move, put in your values here.<br>
+    rax=1400: ray=1400: rkn=1400: rhx=1400: rhy=1400<br>
+    lax=1400: lay=1400: lkn=1400: lhx=1400: lhy=1400<br>
+    ttm=1000<br>
+    gosub send_data<br>
+    pause ttm</p>
+    <p>' Second position for step sequence, and time to move, put in your values here.<br>
+    rax=1600: ray=1600: rkn=1600: rhx=1600: rhy=1600<br>
+    lax=1600: lay=1600: lkn=1600: lhx=1600: lhy=1600<br>
+    ttm=1000<br>
+    gosub send_data<br>
+    pause ttm</p>
+    <p>' Third...</p>
+    <p>' Forth...</p>
+    <p>' Etc...</p>
+    <p>goto start</p>
+    <p>' This sends the data to the SSC-32. The serout is all one line. Use |!<br>
+    send_data:<br>
+    serout p0,i38400,[&quot;#0P&quot;,DEC rax,&quot;#1P&quot;,DEC ray,&quot;#2P&quot;,DEC rkn,&quot;#3P&quot;,DEC |<br>
+    rhx,&quot;#4P&quot;,DEC rhy,&quot;#5P&quot;,DEC lax,&quot;#6P&quot;,DEC lay,&quot;#7P&quot;,DEC lkn,&quot;#8P&quot;,DEC |<br>
+    lhx,&quot;#9P&quot;,DEC lhy,&quot;T&quot;,DEC ttm,13]<br>
+    return
+  </div>
+  &nbsp;
+</div>
+
+</body>
+
+</html>
