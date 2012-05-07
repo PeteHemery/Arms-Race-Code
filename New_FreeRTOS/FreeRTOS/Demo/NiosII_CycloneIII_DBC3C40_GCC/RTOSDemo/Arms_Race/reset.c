@@ -108,14 +108,14 @@ void vWaitForReset(void)
         
           FILE* fp;
           fp = fopen ("/dev/uart", "w+");
-          fprintf(fp, "#0 P1500\r");  //must send normal one first before group move
+          fprintf(fp, "#4 P1550\r");  //must send normal one first before group move
           fclose(fp);
           
           fp = fopen ("/dev/uart", "w+");
           fprintf(fp, RESET_STRING);
           fclose(fp);
           
-          printf( "Resetting\n#0 P1500 #1 P1825 #2 P1618 #3 P951 #5 P1500 T2000\r\n");          
+          printf( "Reset String: %s\n", RESET_STRING);          
           usleep(1000000);
           //sleep(1);
           fclose(fp);

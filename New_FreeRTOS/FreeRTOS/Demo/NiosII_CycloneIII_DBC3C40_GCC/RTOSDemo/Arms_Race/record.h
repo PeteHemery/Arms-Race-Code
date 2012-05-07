@@ -19,6 +19,7 @@ typedef struct {
 } xInverseStruct_t;
 
 typedef struct {
+  portBASE_TYPE xServosSet;
   portBASE_TYPE xAxisSet;
   portBASE_TYPE xGripSet;
   portBASE_TYPE xTimeSet;
@@ -32,6 +33,7 @@ typedef enum {
 } xSetValueParam;
 
 typedef enum {
+    SELECT_SERVOS,
     SELECT_AXIS,
     SELECT_GRIPPER, 
     SELECT_TIME, 
@@ -39,6 +41,14 @@ typedef enum {
     SET_WAYPOINT, 
     SELECT_EXIT
   } xChoice_t;
+  
+typedef enum {
+    SELECT_BASE,
+    SELECT_SHOULDER,
+    SELECT_ELBOW,
+    SELECT_WRIST,
+    SERVO_EXIT
+  } xServoChoice_t;
 
 /* Cartesian Co-ordinate max and min values */
 #define X_MAX 4
@@ -49,9 +59,13 @@ typedef enum {
 #define Y_MIN 1
 #define Z_MIN 0
 
+
+#define SERVO_MAX 2500
+#define SERVO_MIN 500
+
 /* Grip, time and wait max and min values */
-#define GRIP_MAX 2500
-#define GRIP_MIN 500
+#define GRIP_MAX 2300
+#define GRIP_MIN 1000
 
 #define TIME_MAX 10000
 #define TIME_MIN 0
@@ -63,6 +77,11 @@ typedef enum {
 extern int vCalculateInverse(xInverseStruct_t *pxInverseStruct);
 /* Local prototypes */
 void vTaskRecord( void *pvParameters );
-void vSetAxisValues(void);
+
+portBASE_TYPE vSelectServos(void);
+void xSetServoValue(portSHORT);
+portBASE_TYPE xSetAxisValue(xInverseStruct_t *pxInverseStruct);
+portBASE_TYPE xSetAValue(xSetValueParam xValueParam, portBASE_TYPE *pxInValueIn);
+portBASE_TYPE xSetGripValue(void);
 
 #endif /*RECORD_H_*/

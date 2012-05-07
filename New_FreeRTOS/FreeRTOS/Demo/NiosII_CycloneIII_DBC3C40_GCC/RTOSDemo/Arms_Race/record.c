@@ -22,7 +22,8 @@
 #include "record.h"
 #include "arm_com.h"
 
-#define NUMBER_OF_CHOICES 6
+#define NUMBER_OF_CHOICES 7
+#define SERVO_CHOICES 5
 
 #define X_ORIG  0
 #define Y_ORIG  3
@@ -30,13 +31,10 @@
 
 #define RECORD_SPEED 700
 
-/* Local Function Prototypes */
-portBASE_TYPE xSetAxisValue(xInverseStruct_t *pxInverseStruct);
-portBASE_TYPE xSetAValue(xSetValueParam xValueParam, portBASE_TYPE *pxInValueIn);
-
 /* Global variable of Servo Values, shared with Inverse Kinematics function */
 
-  portSHORT psServoValues[6] = { 1500, 1825, 1618, 951, 1500, 1500};
+portSHORT psServoValues[6] = { 1500, 2000, 2000, 1600, 1550, 1000};
+  
 
 /**
 * @brief Recording Task.
@@ -61,12 +59,12 @@ void vTaskRecord( void *pvParameters )
   
   /* Initial values for variables */
   xInverseStruct_t xInverseStruct = {X_ORIG, Y_ORIG, Z_ORIG, ""};
-  portBASE_TYPE xGripValue = 1500;
   portBASE_TYPE xTimeValue = 1000;
   portBASE_TYPE xWaitValue = 1000;
   /* Menu choices */
   portCHAR *pcChoices[] = 
   {
+    "Servo Values",
     "Axis values",
     "Gripper value",
     "Time value",
@@ -74,7 +72,7 @@ void vTaskRecord( void *pvParameters )
     "Set Waypoint",
     "Exit"
   };
-  xChoice_t xChoice = SELECT_AXIS;
+  xChoice_t xChoice = SELECT_SERVOS;
 
   /* Get file name */
   portBASE_TYPE xFileNameFound = pdFALSE;
@@ -154,11 +152,22 @@ void vTaskRecord( void *pvParameters )
         case ENTER:
           switch (xChoice)
           {
+            case SELECT_SERVOS:
+              xWayPointFlags.xServosSet = vSelectServos();
+              
+              /*Mutually Exclusive settings of Servos and Axis values*/
+              if (xWayPointFlags.xServosSet == 1) 
+                xWayPointFlags.xAxisSet = 0;
+              break;
+              
             case SELECT_AXIS:
               xWayPointFlags.xAxisSet = xSetAxisValue(&xInverseStruct);
+              if (xWayPointFlags.xAxisSet == 1)
+                xWayPointFlags.xServosSet = 0;
               break;
+              
             case SELECT_GRIPPER:
-              xWayPointFlags.xGripSet = xSetAValue(GRIP_VALUE, &xGripValue);
+              xWayPointFlags.xGripSet = xSetGripValue();
               break;
             case SELECT_TIME:
               xWayPointFlags.xTimeSet = xSetAValue(TIME_VALUE, &xTimeValue);
@@ -171,13 +180,21 @@ void vTaskRecord( void *pvParameters )
               printf("%s\n",pcChoices[xChoice]);
              
               bzero(pcWayPointString,OUTPUT_MAX);
+              if (xWayPointFlags.xServosSet == 1)
+              {
+                sprintf(pcWayPointString,"#0 P%d #1 P%d #2 P%d #3 P%d ",
+                                              psServoValues[0],
+                                              psServoValues[1],
+                                              psServoValues[2],
+                                              psServoValues[3]);
+              }
               if (xWayPointFlags.xAxisSet == 1)
               {
                 strcat(pcWayPointString,xInverseStruct.pcOutput);
               }
               if (xWayPointFlags.xGripSet == 1)
               {
-                sprintf(pcWayPointTemp,"#5 P%ld ",xGripValue);
+                sprintf(pcWayPointTemp,"#5 P%d ",psServoValues[5]);
                 strcat(pcWayPointString,pcWayPointTemp);
               }
               if (xWayPointFlags.xTimeSet == 1)
@@ -224,7 +241,7 @@ void vTaskRecord( void *pvParameters )
                 vPrintToLCD(2,"Waypoint Set!");
               }
               /* Reset menu selection choice */
-              xChoice = SELECT_AXIS;
+              xChoice = SELECT_SERVOS;
               /* Wait while message is displayed */
               vTaskDelay(3000 / portTICK_RATE_MS);
               break;
@@ -252,7 +269,8 @@ void vTaskRecord( void *pvParameters )
             default:
               break;
           }
-          printf("xAxisSet\t%ld\txGripSet\t%ld\txTimeSet\t%ld\txWaitSet\t%ld\n",
+          printf("xServosSet\t%ld\txAxisSet\t%ld\txGripSet\t%ld\txTimeSet\t%ld\txWaitSet\t%ld\n",
+          xWayPointFlags.xServosSet,
           xWayPointFlags.xAxisSet,
           xWayPointFlags.xGripSet,
           xWayPointFlags.xTimeSet,
@@ -260,6 +278,18 @@ void vTaskRecord( void *pvParameters )
           break;
         case CANCEL:
           xSystemState = MENU_SELECT;
+           
+           /* Reset Arm Position */ 
+          bzero(pcBuffer,STRING_MAX);
+          sprintf(pcBuffer,RESET_STRING); 
+    
+          /* Send updated servo values to the arm */
+          xStatus = xQueueSendToBack( xArmComQueue, &pcBuffer, xTicksToWait);
+          if( xStatus != pdPASS )
+          {
+            printf( "Could not send to the queue.\r\n");
+          }
+          
           xTaskCreate(vTaskMenu, "Menu", 2000, NULL, 1, &xMenuHandle);
           vTaskDelete(NULL);
           break;
@@ -298,6 +328,244 @@ void vTaskRecord( void *pvParameters )
     taskYIELD();
   }
 }
+
+
+portBASE_TYPE vSelectServos(void)
+{
+  /* Messages */
+  portSHORT sReceivedValue;
+  portBASE_TYPE xKeyPadQueueStatus;
+  const portTickType xTicksToWait = 1000 / portTICK_RATE_MS;
+    
+  /* Menu choices */
+  portCHAR *pcChoices[] = 
+  {
+    "Base",
+    "Shoulder",
+    "Elbow",
+    "Wrist",
+    "Exit"
+  };
+  xServoChoice_t xChoice = SELECT_BASE;
+
+  portBASE_TYPE xServosSet = pdFALSE;
+    
+  vPrintToLCD(1,"Select Servo:");
+  vPrintToLCD(2,pcChoices[xChoice]);
+
+  for(;;)
+  {
+    if( uxQueueMessagesWaiting( xKeyPadQueue ) != 0)
+    {
+      printf( "Queue should have been empty!\r\n" );
+    }
+    xKeyPadQueueStatus = xQueueReceive( xKeyPadQueue, &sReceivedValue, xTicksToWait );
+    if( xKeyPadQueueStatus == pdPASS )
+    {
+      printf( "Received = %d\r\n", sReceivedValue );
+      switch (sReceivedValue)
+      {
+
+        case RESET:
+          break;
+        case PLAY:
+          break;
+        case PAUSE:
+          break;
+        case STOP:
+          break;
+          
+        case ENTER:
+          switch (xChoice)
+          {
+            case SELECT_BASE:
+            case SELECT_SHOULDER:
+            case SELECT_ELBOW:
+            case SELECT_WRIST:
+              xServosSet = pdTRUE; 
+              xSetServoValue((portSHORT)xChoice);
+              break;
+                            
+            case SERVO_EXIT:
+              printf("%s\n",pcChoices[xChoice]);
+              return xServosSet;
+              //break;
+                  
+            default:
+              break;
+          }
+          printf("xServosSet\t%ld\n", xServosSet);
+          break;
+        case CANCEL:
+          return xServosSet;
+          //break;
+          
+        case XDOWN:
+        case DOWN:
+        case XRIGHT:
+        case RIGHT:
+          if (++xChoice >= SERVO_CHOICES)
+          {
+            xChoice = 0;
+          }
+          break;
+          
+        case XUP:
+        case UP:
+        case XLEFT:
+        case LEFT:
+          --xChoice;
+          if (xChoice < 0 || xChoice > SERVO_CHOICES)
+          {
+            xChoice = SERVO_CHOICES - 1;
+          }
+          break; 
+        default:
+        
+          break;
+      }
+      vPrintToLCD(1,"Select Servo:");
+      vPrintToLCD(2,pcChoices[xChoice]);
+    }
+    else
+    {
+      //printf( "Could not receive from the queue.\r\n");
+    }
+    taskYIELD();
+  }
+}
+
+/**
+* @brief Set Servo value.
+*
+*   This function is used to set the servo values of the arm.
+*
+* @param [in] void.
+* @param [out] void. 
+* @return Void.
+*/
+void xSetServoValue(portSHORT pcServoNumber)
+{
+  portSHORT sReceivedValue;
+  portBASE_TYPE xKeyPadQueueStatus;
+  const portTickType xTicksToWait = 1000 / portTICK_RATE_MS;
+  portCHAR pcBuffer[STRING_MAX] = {0};
+  portBASE_TYPE xStatus = pdFALSE;
+ 
+  printf("Servo %d:\n",pcServoNumber);
+  sprintf(pcBuffer,"Servo %d:",pcServoNumber);
+  vPrintToLCD(1,pcBuffer);
+  bzero(pcBuffer,STRING_MAX);
+  sprintf(pcBuffer,"%d",psServoValues[pcServoNumber]);
+  vPrintToLCD(2,pcBuffer);
+  
+
+  for(;;)
+  {
+    if( uxQueueMessagesWaiting( xKeyPadQueue ) != 0)
+    {
+      printf( "Queue should have been empty!\r\n" );
+    }
+    xKeyPadQueueStatus = xQueueReceive( xKeyPadQueue, &sReceivedValue, xTicksToWait );
+    if( xKeyPadQueueStatus == pdPASS )
+    {
+      printf( "Received = %d\r\n", sReceivedValue );
+      switch (sReceivedValue)
+      {
+
+        case RESET:
+          break;
+        case PLAY:
+          break;
+        case PAUSE:
+          break;
+        case STOP:
+          break;
+
+        case ENTER:
+        case CANCEL:
+          return;
+          
+        case XUP:
+        case XRIGHT:
+          
+          psServoValues[pcServoNumber] += 500;
+        
+        /* Limit the values to the upper max */
+          if ((psServoValues[pcServoNumber]) >= SERVO_MAX)
+            psServoValues[pcServoNumber] = SERVO_MAX;
+          printf("Servo %d Value+500\n",pcServoNumber);
+
+          bzero(pcBuffer,STRING_MAX);
+          sprintf(pcBuffer,"%d",psServoValues[pcServoNumber]);
+          break;
+          
+        case XDOWN:
+        case XLEFT:
+          psServoValues[pcServoNumber] -= 500;
+         
+            /* Limit the values to the minimum.
+             * Since enums are unsigned ints,
+             *  need to check for greater than max
+             *  since (0 - 1) = 4,294,967,295 */
+          if (psServoValues[pcServoNumber] < SERVO_MIN || psServoValues[pcServoNumber] > SERVO_MAX)
+            psServoValues[pcServoNumber] = SERVO_MIN; 
+          printf("Servo %d Value-500\n",pcServoNumber);
+          bzero(pcBuffer,STRING_MAX);
+          sprintf(pcBuffer,"%d",psServoValues[pcServoNumber]);
+          break;
+          
+        case UP:
+        case RIGHT:
+          
+          psServoValues[pcServoNumber] += 50;
+        
+        /* Limit the values to the upper max */
+          if ((psServoValues[pcServoNumber]) >= SERVO_MAX)
+            psServoValues[pcServoNumber] = SERVO_MAX;
+          printf("Servo %d Value+50\n",pcServoNumber);
+
+          bzero(pcBuffer,STRING_MAX);
+          sprintf(pcBuffer,"%d",psServoValues[pcServoNumber]);
+          break;
+          
+        case DOWN:
+        case LEFT:
+          psServoValues[pcServoNumber] -= 50;
+         
+            /* Limit the values to the minimum.
+             * Since enums are unsigned ints,
+             *  need to check for greater than max
+             *  since (0 - 1) = 4,294,967,295 */
+          if (psServoValues[pcServoNumber] < SERVO_MIN || psServoValues[pcServoNumber] > SERVO_MAX)
+            psServoValues[pcServoNumber] = SERVO_MIN; 
+          printf("Servo %d Value-50\n",pcServoNumber);
+          bzero(pcBuffer,STRING_MAX);
+          sprintf(pcBuffer,"%d",psServoValues[pcServoNumber]);
+          break;
+          
+        default:
+          break;
+      }
+      vPrintToLCD(2,pcBuffer);
+    
+      bzero(pcBuffer,STRING_MAX);
+      sprintf(pcBuffer,"#%d P%d T%d\r",pcServoNumber,psServoValues[pcServoNumber],RECORD_SPEED);
+      /* Send updated servo values to the arm */
+      xStatus = xQueueSendToBack( xArmComQueue, &pcBuffer, xTicksToWait);
+      if( xStatus != pdPASS )
+      {
+        printf( "Could not send to the queue.\r\n");
+      }
+    }
+    else
+    {
+      //printf( "Could not receive from the queue.\r\n");
+    }
+    taskYIELD();
+  }
+}
+
 
 
 /**
@@ -500,17 +768,11 @@ portBASE_TYPE xSetAValue(xSetValueParam xValueParam, portBASE_TYPE *pxInValue)
   portBASE_TYPE xKeyPadQueueStatus;
   const portTickType xTicksToWait = 1000 / portTICK_RATE_MS;
   portCHAR pcBuffer[STRING_MAX] = {0};
-  portBASE_TYPE xStatus = pdFALSE;
   
   sprintf(pcBuffer,"%ld",*pxInValue);
   
   switch(xValueParam)
   {
-    case GRIP_VALUE:
-      printf("Grip Value\n");
-      vPrintToLCD(1,"Grip Value");
-      vPrintToLCD(2,pcBuffer);
-      break;
     case TIME_VALUE:
       printf("Time Value\n");
       vPrintToLCD(1,"Time Value");
@@ -559,11 +821,6 @@ portBASE_TYPE xSetAValue(xSetValueParam xValueParam, portBASE_TYPE *pxInValue)
           switch(xValueParam)
           {
             /* Limit the values to the upper max */
-            case GRIP_VALUE:
-              if ((*pxInValue) >= GRIP_MAX)
-                (*pxInValue) = GRIP_MAX;
-              printf("%ld\tGripValue+100;\n",*pxInValue);
-              break;
             case TIME_VALUE:
               if ((*pxInValue) >= TIME_MAX)
                 (*pxInValue) = TIME_MAX;
@@ -590,11 +847,6 @@ portBASE_TYPE xSetAValue(xSetValueParam xValueParam, portBASE_TYPE *pxInValue)
              * Since enums are unsigned ints,
              *  need to check for greater than max
              *  since (0 - 1) = 4,294,967,295 */
-            case GRIP_VALUE:
-              if ((*pxInValue) < GRIP_MIN || (*pxInValue) > GRIP_MAX)
-                (*pxInValue) = GRIP_MIN; 
-              printf("%ld\tGripValue-100;\n",*pxInValue);
-              break;
             case TIME_VALUE:
               if ((*pxInValue) < TIME_MIN || (*pxInValue) > TIME_MAX)
                 (*pxInValue) = TIME_MIN; 
@@ -618,11 +870,6 @@ portBASE_TYPE xSetAValue(xSetValueParam xValueParam, portBASE_TYPE *pxInValue)
           switch(xValueParam)
           {
             /* Limit the values to the upper max */
-            case GRIP_VALUE:
-              if ((*pxInValue) >= GRIP_MAX)
-                (*pxInValue) = GRIP_MAX;
-              printf("%ld\tGripValue+10;\n",*pxInValue);
-              break;
             case TIME_VALUE:
               if ((*pxInValue) >= TIME_MAX)
                 (*pxInValue) = TIME_MAX;
@@ -649,11 +896,6 @@ portBASE_TYPE xSetAValue(xSetValueParam xValueParam, portBASE_TYPE *pxInValue)
              * Since enums are unsigned ints,
              *  need to check for greater than max
              *  since (0 - 1) = 4,294,967,295 */
-            case GRIP_VALUE:
-              if ((*pxInValue) < GRIP_MIN || (*pxInValue) > GRIP_MAX)
-                (*pxInValue) = GRIP_MIN; 
-              printf("%ld\tGripValue-10;\n",*pxInValue);
-              break;
             case TIME_VALUE:
               if ((*pxInValue) < TIME_MIN || (*pxInValue) > TIME_MAX)
                 (*pxInValue) = TIME_MIN; 
@@ -676,17 +918,132 @@ portBASE_TYPE xSetAValue(xSetValueParam xValueParam, portBASE_TYPE *pxInValue)
       }
       vPrintToLCD(2,pcBuffer);
       
-      if ( xValueParam == GRIP_VALUE)
+    }
+    else
+    {
+      //printf( "Could not receive from the queue.\r\n");
+    }
+    taskYIELD();
+  }
+}
+
+
+
+
+portBASE_TYPE xSetGripValue(void)
+{
+  portSHORT sReceivedValue;
+  portBASE_TYPE xKeyPadQueueStatus;
+  const portTickType xTicksToWait = 1000 / portTICK_RATE_MS;
+  portCHAR pcBuffer[STRING_MAX] = {0};
+  portBASE_TYPE xStatus = pdFALSE;
+  
+  sprintf(pcBuffer,"%d",psServoValues[5]);
+
+  printf("Grip Value\n");
+  vPrintToLCD(1,"Grip Value");
+  vPrintToLCD(2,pcBuffer);
+
+
+  for(;;)
+  {
+    if( uxQueueMessagesWaiting( xKeyPadQueue ) != 0)
+    {
+      printf( "Queue should have been empty!\r\n" );
+    }
+    xKeyPadQueueStatus = xQueueReceive( xKeyPadQueue, &sReceivedValue, xTicksToWait );
+    if( xKeyPadQueueStatus == pdPASS )
+    {
+      printf( "Received = %d\r\n", sReceivedValue );
+      switch (sReceivedValue)
       {
-        bzero(pcBuffer,STRING_MAX);
-        sprintf(pcBuffer,"#5 P%ld\r",*pxInValue);
-        /* Send updated servo values to the arm */
-        xStatus = xQueueSendToBack( xArmComQueue, &pcBuffer, xTicksToWait);
-        if( xStatus != pdPASS )
-        {
-          printf( "Could not send to the queue.\r\n");
-        }
+
+        case RESET:
+          break;
+        case PLAY:
+          break;
+        case PAUSE:
+          break;
+        case STOP:
+          break;
+      /* Pressing Enter or Cancel exits this function
+       * Return value determines if the value has been set or not */
+        case ENTER:
+          return 1;
+        case CANCEL:
+          return 0;
+          
+        case XUP:
+        case XRIGHT:
+          psServoValues[5] += 300;
+
+        /* Limit the values to the upper max */
+
+          if (psServoValues[5] >= GRIP_MAX)
+            psServoValues[5] = GRIP_MAX;
+          printf("%d\tGripValue+300\n",psServoValues[5]);
+
+          bzero(pcBuffer,STRING_MAX);
+          sprintf(pcBuffer,"%d",psServoValues[5]);
+          break;
+          
+        case XDOWN:
+        case XLEFT:
+          psServoValues[5] -= 300;
+        /* Limit the values to the minimum.
+         * Since enums are unsigned ints,
+         *  need to check for greater than max
+         *  since (0 - 1) = 4,294,967,295 */
+          if (psServoValues[5] < GRIP_MIN || psServoValues[5] > GRIP_MAX)
+            psServoValues[5] = GRIP_MIN; 
+          printf("%d\tGripValue-300\n",psServoValues[5]);
+      
+          bzero(pcBuffer,STRING_MAX);
+          sprintf(pcBuffer,"%d",psServoValues[5]);
+          break;
+          
+        case UP:
+        case RIGHT:
+          psServoValues[5] += 100;
+            /* Limit the values to the upper max */
+
+          if (psServoValues[5] >= GRIP_MAX)
+            psServoValues[5] = GRIP_MAX;
+          printf("%d\tGripValue+100\n",psServoValues[5]);
+
+          bzero(pcBuffer,STRING_MAX);
+          sprintf(pcBuffer,"%d",psServoValues[5]);
+          break;
+          
+        case DOWN:
+        case LEFT:
+          psServoValues[5] -= 100;
+        /* Limit the values to the minimum.
+         * Since enums are unsigned ints,
+         *  need to check for greater than max
+         *  since (0 - 1) = 4,294,967,295 */
+          if (psServoValues[5] < GRIP_MIN || psServoValues[5] > GRIP_MAX)
+            psServoValues[5] = GRIP_MIN; 
+          printf("%d\tGripValue-100\n",psServoValues[5]);
+  
+          bzero(pcBuffer,STRING_MAX);
+          sprintf(pcBuffer,"%d",psServoValues[5]);
+          break;
+          
+        default:
+          break;
       }
+      vPrintToLCD(2,pcBuffer);
+
+      bzero(pcBuffer,STRING_MAX);
+      sprintf(pcBuffer,"#5 P%d T%d\r",psServoValues[5],RECORD_SPEED);
+      /* Send updated servo values to the arm */
+      xStatus = xQueueSendToBack( xArmComQueue, &pcBuffer, xTicksToWait);
+      if( xStatus != pdPASS )
+      {
+        printf( "Could not send to the queue.\r\n");
+      }
+
     }
     else
     {
