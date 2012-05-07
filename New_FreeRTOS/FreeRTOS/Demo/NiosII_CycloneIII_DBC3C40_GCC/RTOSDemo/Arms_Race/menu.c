@@ -20,6 +20,7 @@
 #include "LCD.h"
 #include "sd_card.h"
 #include "record.h"
+#include "arm_com.h"
 
 #define NUMBER_OF_CHOICES 2
 #define PLAY_TASK_STACK_SIZE (FILE_NAME_MAX * NUMBER_OF_PROGS_MAX) + 2000

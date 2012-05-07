@@ -34,4 +34,7 @@ extern void vTaskMenu( void *pvParameters );
 extern void vTaskRecord( void *pvParameters );
 extern void vTaskPlay( void *pvParameters );
 
+
+#define RESET_STRING "#0 P1500 #1 P1825 #2 P1618 #3 P951 #5 P1500 T2000\r"
+
 #endif /*SYSTEM_STATE_H_*/

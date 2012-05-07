@@ -37,5 +37,6 @@ void vTaskReadFileContents(void *pvParameters);
 portBASE_TYPE xGetFileLines(portCHAR *pcFileName);
 portSHORT psSDCardAppendFile(portCHAR *pcFileName, portCHAR *pcString, portBASE_TYPE xLen);
 portSHORT sCreateFile(portCHAR *pcFileName);
+portSHORT sFindNewFilename(portCHAR *pcFileName);
 
 #endif /*SD_CARD_H_*/

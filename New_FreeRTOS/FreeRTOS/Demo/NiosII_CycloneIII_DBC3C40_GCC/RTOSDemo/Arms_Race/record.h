@@ -41,12 +41,12 @@ typedef enum {
   } xChoice_t;
 
 /* Cartesian Co-ordinate max and min values */
-#define X_MAX 100
-#define Y_MAX 100
+#define X_MAX 4
+#define Y_MAX 14
 #define Z_MAX 100
 
-#define X_MIN 0
-#define Y_MIN -100
+#define X_MIN -4
+#define Y_MIN 1
 #define Z_MIN 0
 
 /* Grip, time and wait max and min values */
@@ -60,7 +60,7 @@ typedef enum {
 #define WAIT_MIN 0
 
 /* Global prototypes */
-extern void vCalculateInverse(xInverseStruct_t *pxInverseStruct);
+extern int vCalculateInverse(xInverseStruct_t *pxInverseStruct);
 /* Local prototypes */
 void vTaskRecord( void *pvParameters );
 void vSetAxisValues(void);

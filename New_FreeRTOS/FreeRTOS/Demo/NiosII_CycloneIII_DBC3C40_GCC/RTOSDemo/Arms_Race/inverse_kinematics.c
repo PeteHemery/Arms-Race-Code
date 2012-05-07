@@ -1,6 +1,7 @@
 /* Standard includes. */
 #include <stddef.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
 #include <math.h>
@@ -18,33 +19,20 @@
 #include "record.h"
 
 /* Johns Variables */
+/* Arm dimensions( mm ) */
+#define BASE_HGT 67.31      //base hight 2.65"
+#define HUMERUS 146.05      //shoulder-to-elbow "bone" 5.75"
+#define ARMLENGTH 187.325        //elbow-to-wrist "bone" 7.375"
+#define GRIPPER 100.00          //gripper (incl.heavy duty wrist rotatemechanism) length 3.94"
 
-#define EL_WR 10.794 //length between elbow and wrist.
-#define SH_EL 9.525  //length between shoulder and elbo.
-#define WR_END 8.5725 // length between the wrist and end effector. 
-/*
-#define EL_WR 1270 //length between elbow and wrist.
-#define SH_EL 1210  //length between shoulder and elbo.
-#define WR_END 860 // length between the wrist and end effector. 
-*/
-float pi = 3.14159265;
+#define pi 3.14159265
 
-float xt;
-float I;
-float X;
-float Z;
-float c;
-float J2;
-float theta;
-float ang;
-float J1;
-float x1;
-float Z1;
-float d;
-float J3;
-float base;
+extern portSHORT psServoValues[6];
 
-float theta1, theta2, theta3, Base;
+float X, Y, Z;
+
+// orientation of the gripper
+float gripper_angle = 10.0 * (pi/180.0); 
 
 float servovalue[4];
 
@@ -60,64 +48,99 @@ float servovalue[4];
 * @return Void.
 */
 
-void vCalculateInverse(xInverseStruct_t *pxInverseStruct)
+int vCalculateInverse(xInverseStruct_t *pxInverseStruct)
 {
-  float x;
-  float y;
-  float z;
+  //input for z and x,y plane
+
   float rounding;
   int i;
-  portCHAR pcTestBuffer[6] = {0};
+  portCHAR pcTestBuffer[20] = {0};
   
-  x = pxInverseStruct->X;
-  y = pxInverseStruct->Y;
-  z = pxInverseStruct->Z;
+  X = pxInverseStruct->X;
+  Y = pxInverseStruct->Y;
+  Z = pxInverseStruct->Z;
 
-  xt = x; //x translation
-  I = sqrt((pow(x,2))+(pow(y,2))); 
-  X = I;
-  Z = z + WR_END;
-  c = sqrt(pow(X,2)+(pow(Z,2)));
-  J2 = acos((pow(EL_WR,2)+(pow(SH_EL,2))-(pow(c,2)))/(2*EL_WR*SH_EL));
-  theta = acos((pow(c,2)+(pow(SH_EL,2))-(pow(EL_WR,2)))/(2*SH_EL*c));
-  ang = atan(Z/X) + theta;
-  J1 = atan (Z/X) + theta;
-  x1 = SH_EL*cos(ang);
-  Z1 = SH_EL*sin(ang);
-  d = sqrt((pow((X-x1),2))+(pow((Z-WR_END-Z1),2)));
-  J3 = acos((pow(EL_WR,2)+(pow(WR_END,2))-(pow(d,2)))/(2*EL_WR*WR_END));
-  base = atan(y/xt);
-  
-  theta1 = 180 / pi * J1;
-  theta2 = 180 / pi * J2;
-  theta3 = 180 / pi * J3;
-  Base =   180 / pi * base;
-  /*
-  printf("Theta 1\t%0.0f\n", roundf(theta1*10.0f)/10.0f);
-  printf("Theta 2\t%0.0f\n", roundf(theta2*10.0f)/10.0f);
-  printf("Theta 3\t%0.0f\n", roundf(theta3*10.0f)/10.0f);
-  printf("Base\t%0.0f\n", roundf(Base*10.0f)/10.0f);
-  printf("\n");
-  */
 
-  servovalue[0] = 1500.0 - ((Base) * 11.11 ) + 500;
-  servovalue[1] = 1500.0 + (( theta1 - 90.0 ) * 11.11 ) + 500;
-  servovalue[2] = 1500.0 -  (( theta2 - 90.0 ) * 11.11 ) + 500;
-  servovalue[3] = 1500.0 - ( theta3  * 11.11 ) + 500;
+// angle of the base running from -X to +X, the rotation of Z plane
+float base_angle = atan2(Y, X);  
+// the radial distance from 0 0 0 to X Y 0, i e. from center out. 
+float radialdist = sqrt((X*X) + (Y*Y));
+
+//solving RZ function the orientation of the wrist 
+//solving r
+float radial1 = radialdist - (sin(gripper_angle) * GRIPPER);
+//solving z
+float Z1 = Z - BASE_HGT + (cos(gripper_angle) * GRIPPER);
+// now the RZ function is calculated the elbow angle can now be solved
+// by the following. 
+float H = sqrt((Z1 * Z1) * (radial1 * radial1));
+// H being the hypotenuse 
+float elbo_angle = (asin(H/ARMLENGTH) * 2.0);
+
+// now the elbo angle is known the shoulder angle can be calculated 
+// using the following calculations. 
+// float Z2 = atan2(Z1,radial1);
+//float Zelbo = ((pi - elbo_angle)/2);
+
+ float shoulder_angle = atan2(Z1,radial1) + ((M_PI - elbo_angle)/2.0);
+//float shoulder = shoulder_angle / 2; 
+// the wrist angle can then be calculated assuming the other 
+// angles summed. 
+
+float wrist_angle = M_PI + gripper_angle - elbo_angle - shoulder_angle;
+
+ float B = base_angle * (180.0 / M_PI);
+ float S = shoulder_angle * (180.0 / M_PI);
+ float E = elbo_angle * (180.0 / M_PI);
+ //float E = -(180.0 - elbo_angle) * (180.0 / M_PI);
+ float W = wrist_angle * (180.0 / M_PI);
+
+  servovalue[0] = 1500.0 - ((B - 90.0) * 11.11);
+  servovalue[1] = 1500.0 + ((S - 90.0) * 6.6);
+  servovalue[2] = 1500.0 - ((E - 90.0) * 6.6);
+  servovalue[3] = 1500.0 + ((W - 90.0) * 11.11);
   
+  
+  int valid_set = 0, valid_clear = 0;
+
   /* NaN stands for Not a Number.
    * If this is produced when printing the float, don't print it */ 
   for(i=0; i<4; i++)
   {
     rounding = roundf(servovalue[i]*10.0f)/10.0f;
     sprintf(pcTestBuffer,"%0.0f",rounding);
-    if (strcmp(pcTestBuffer,"NaN") != 0)
+    if (strcmp(pcTestBuffer,"nan") != 0 && rounding > 0 && rounding <= 2500)
     {
       sprintf(pcTestBuffer,"#%d P%0.0f ",i,rounding);
       strcat(pxInverseStruct->pcOutput,pcTestBuffer);
+      
+      valid_set = 1;
+    }
+    else
+    {
+      valid_clear = 1;
     }
   }
+  
+  if (valid_set && valid_clear == 0)
+  {
+    printf("Valid_set:  ");
+    for(i=0; i<4; i++)
+    {
+      sprintf(pcTestBuffer,"%0.0f",servovalue[i]);
+      psServoValues[i] = atoi(pcTestBuffer);
+      printf("S%d %d\n",i+1, psServoValues[i]);
+    }
+  
+    printf ("base = %f shoulder = %f elbo = %f wrist = %f\n", B, S, E, W);
+    printf ("H %f\n", H);
+    
+    
+    return 1;
+  }
+  printf("Invalid Output detected!\n");
+  
 
   //printf("OUTPUT = %s\n",pxInverseStruct->pcOutput);
-  return;
+  return 0;
 }

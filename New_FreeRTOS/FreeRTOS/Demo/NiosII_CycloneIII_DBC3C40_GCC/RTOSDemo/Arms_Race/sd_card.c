@@ -336,6 +336,42 @@ portSHORT sCreateFile(portCHAR *pcFileName)
 }
 
 /**
+* @brief Find New Filename.
+*
+*   This function checks the SD for relevant file names and
+*   tries to create the file name specified in pcFileName.
+*   If the file already exists then return value is -1, else
+*   0 on successful creation. Used during record. 
+*
+* @param [in] pcFileName file name to try and create.
+* @return portSHORT 0 on success, -1 on error.
+*/
+portSHORT sFindNewFilename(portCHAR *pcFileName)
+{
+  portSHORT psHandler;
+  portCHAR pcBufferName[FILE_NAME_MAX] = {0};
+  
+  /* Must open root before able to access SD Card */
+  psHandler = alt_up_sd_card_find_first("/.", pcBufferName);
+  
+  /* Attempt to create file */
+  if ((psHandler = alt_up_sd_card_fopen(pcFileName, false)) != -1)
+  {
+    /* File opened - close it */
+    alt_up_sd_card_fclose(psHandler);
+    
+    printf("%s exists\n",pcFileName);
+    
+    return pdFALSE;
+  }
+  else
+  {
+    printf("free filename found: %s\n",pcFileName);
+    return pdTRUE;
+  }
+}
+
+/**
 * @brief SD Card Append File.
 *
 *   This function writes the characters contains in pcString to the end

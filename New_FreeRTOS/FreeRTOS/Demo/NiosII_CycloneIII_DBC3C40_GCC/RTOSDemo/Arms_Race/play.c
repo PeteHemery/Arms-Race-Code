@@ -29,6 +29,25 @@ portBASE_TYPE xSetLoopCount(void);
 void vPlayProgram(portCHAR *pcFileName, portBASE_TYPE xLoopCount);
 
 
+void vResetArm(void)
+{
+  const portTickType xTicksToWait = 1000 / portTICK_RATE_MS;            
+  portBASE_TYPE xStatus = pdFALSE;
+  portCHAR pcBuffer[STRING_MAX] = {0};
+
+   /* Reset Arm Position */ 
+  bzero(pcBuffer,STRING_MAX);
+  sprintf(pcBuffer,RESET_STRING); 
+
+  /* Send updated servo values to the arm */
+  xStatus = xQueueSendToBack( xArmComQueue, &pcBuffer, xTicksToWait);
+  if( xStatus != pdPASS )
+  {
+    printf( "Could not send to the queue.\r\n");
+  }
+              
+}
+
 /**
 * @brief Task Play.
 *
@@ -128,6 +147,7 @@ void vTaskPlay( void *pvParameters )
           vPrintToLCD(1,"Play Finished");
           vTaskDelay(3000 / portTICK_RATE_MS);
           xSystemState = MENU_SELECT;
+          vResetArm();
           xTaskCreate(vTaskMenu, "Menu", 2000, NULL, 1, &xMenuHandle);
           vTaskDelete(NULL);
           break;
@@ -135,6 +155,7 @@ void vTaskPlay( void *pvParameters )
         case CANCEL:
           vPrintToLCD(1,"Cancalled");
           xSystemState = MENU_SELECT;
+          vResetArm();
           xTaskCreate(vTaskMenu, "Menu", 2000, NULL, 1, &xMenuHandle);
           vTaskDelete(NULL);
           break;

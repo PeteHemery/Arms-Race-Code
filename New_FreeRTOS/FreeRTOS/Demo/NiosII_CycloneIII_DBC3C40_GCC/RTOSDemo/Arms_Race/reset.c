@@ -88,8 +88,6 @@ void vWaitForReset(void)
   printf("Press Reset to Begin\n");
   vPrintToLCD(1,"Press Reset");
   vPrintToLCD(2,"to begin");
-          FILE* fp;
-          fp = fopen ("/dev/uart", "w+");
   
   
   while(xResetPressed == 0)
@@ -104,16 +102,29 @@ void vWaitForReset(void)
       switch (sReceivedValue)
       {
         case RESET:
+        {
+          
         /* TODO send park value */
-          fprintf(fp, "#0 P1000\r");
-          printf( "#0 P1000\r\n");          
-          usleep(1000000);
+        
+          FILE* fp;
+          fp = fopen ("/dev/uart", "w+");
+          fprintf(fp, "#0 P1500\r");  //must send normal one first before group move
           fclose(fp);
-          printf("Reset received\n");
+          
+          fp = fopen ("/dev/uart", "w+");
+          fprintf(fp, RESET_STRING);
+          fclose(fp);
+          
+          printf( "Resetting\n#0 P1500 #1 P1825 #2 P1618 #3 P951 #5 P1500 T2000\r\n");          
+          usleep(1000000);
+          //sleep(1);
+          fclose(fp);
+          //printf("Reset received\n");
           xResetPressed = 1;
           xSystemState = RESETTING;
           //vTaskReset();
           break;
+        }
         default:
           break;
       }

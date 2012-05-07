@@ -24,10 +24,19 @@
 
 #define NUMBER_OF_CHOICES 6
 
+#define X_ORIG  0
+#define Y_ORIG  3
+#define Z_ORIG  4
+
+#define RECORD_SPEED 700
+
 /* Local Function Prototypes */
 portBASE_TYPE xSetAxisValue(xInverseStruct_t *pxInverseStruct);
 portBASE_TYPE xSetAValue(xSetValueParam xValueParam, portBASE_TYPE *pxInValueIn);
 
+/* Global variable of Servo Values, shared with Inverse Kinematics function */
+
+  portSHORT psServoValues[6] = { 1500, 1825, 1618, 951, 1500, 1500};
 
 /**
 * @brief Recording Task.
@@ -48,8 +57,10 @@ void vTaskRecord( void *pvParameters )
   
   /* Track which variables have been set */
   xWayPoint_t xWayPointFlags = {0};
+  portBASE_TYPE xFileCreated = pdFALSE;
+  
   /* Initial values for variables */
-  xInverseStruct_t xInverseStruct = {5, 3, 2, ""};
+  xInverseStruct_t xInverseStruct = {X_ORIG, Y_ORIG, Z_ORIG, ""};
   portBASE_TYPE xGripValue = 1500;
   portBASE_TYPE xTimeValue = 1000;
   portBASE_TYPE xWaitValue = 1000;
@@ -69,11 +80,13 @@ void vTaskRecord( void *pvParameters )
   portBASE_TYPE xFileNameFound = pdFALSE;
   portBASE_TYPE xProgNumber = 1;
   portCHAR pcFileName[FILE_NAME_MAX] = {0};
+  portCHAR pcBuffer[STRING_MAX] = {0};
   /* Waypoint String */
   portCHAR pcWayPointString[OUTPUT_MAX] = {0};
   portCHAR pcWayPointTemp[20] = {0};
   portBASE_TYPE xLen = 0;
 
+  portBASE_TYPE xStatus = pdFALSE;
   
   /* Check if SD Card is connected */
   if (xSDConnected == pdFALSE)
@@ -94,7 +107,8 @@ void vTaskRecord( void *pvParameters )
           fp = fopen ("/dev/uart", "w+");
     sprintf(pcFileName,PROGRAM_NAME,xProgNumber);
     printf("filename: %s\n",pcFileName);
-    xFileNameFound = sCreateFile(pcFileName);
+    //xFileNameFound = sCreateFile(pcFileName);
+    xFileNameFound = sFindNewFilename(pcFileName);
     if (xFileNameFound == pdFALSE)
     {
       if (++xProgNumber == 999)
@@ -193,6 +207,12 @@ void vTaskRecord( void *pvParameters )
               }
               /* Get the string length and write to the SD card */
               xLen = strlen(pcWayPointString);
+              
+              if (xFileCreated == pdFALSE)
+              {
+                xFileCreated = sCreateFile(pcFileName);
+              }
+              
               if ((psSDCardAppendFile(pcFileName, pcWayPointString, xLen)) != pdTRUE)
               {
                 printf("Could not write to %s!\n",pcFileName);
@@ -212,6 +232,18 @@ void vTaskRecord( void *pvParameters )
             case SELECT_EXIT:
               printf("%s\n",pcChoices[xChoice]);
               printf("TODO Must end in reset position\n");
+               
+               /* Reset Arm Position */ 
+              bzero(pcBuffer,STRING_MAX);
+              sprintf(pcBuffer,RESET_STRING); 
+        
+              /* Send updated servo values to the arm */
+              xStatus = xQueueSendToBack( xArmComQueue, &pcBuffer, xTicksToWait);
+              if( xStatus != pdPASS )
+              {
+                printf( "Could not send to the queue.\r\n");
+              }
+  
               
               xSystemState = MENU_SELECT;
               xTaskCreate(vTaskMenu, "Menu", 2000, NULL, 1, &xMenuHandle);
@@ -298,7 +330,11 @@ portBASE_TYPE xSetAxisValue(xInverseStruct_t *xInverseStruct)
   printf("psX=%d psY=%d psZ=%d\npcOutput=%s\n",xInverseStruct->X,
                                                xInverseStruct->Y,
                                                xInverseStruct->Z,
-                                               xInverseStruct->pcOutput);  
+                                               xInverseStruct->pcOutput);
+  bzero(pcBuffer,STRING_MAX);
+  sprintf(pcBuffer,"%s T%d\r",xInverseStruct->pcOutput,RECORD_SPEED);
+  strcpy(xInverseStruct->pcOutput,pcBuffer);
+  
   for(;;)
   {
     if( uxQueueMessagesWaiting( xKeyPadQueue ) != 0)
@@ -383,8 +419,8 @@ portBASE_TYPE xSetAxisValue(xInverseStruct_t *xInverseStruct)
           break;
           
       /* Modify the X axis */
-        case XRIGHT:
-        case RIGHT:
+        case XLEFT:
+        case LEFT:
           xInverseStruct->X++;
           if (xInverseStruct->X >= X_MAX)
           {
@@ -397,8 +433,8 @@ portBASE_TYPE xSetAxisValue(xInverseStruct_t *xInverseStruct)
           vPrintToLCD(2,pcBuffer);
           break;
           
-        case XLEFT:
-        case LEFT:
+        case XRIGHT:
+        case RIGHT:
           xInverseStruct->X--;
           if (xInverseStruct->X < X_MIN || xInverseStruct->X > X_MAX)
           {
@@ -415,20 +451,23 @@ portBASE_TYPE xSetAxisValue(xInverseStruct_t *xInverseStruct)
           break;
       }
       bzero(xInverseStruct->pcOutput,OUTPUT_MAX);
-      vCalculateInverse(xInverseStruct);
+      
       printf("X=%d Y=%d Z=%d\npcOutput=%s\n",xInverseStruct->X,
                                              xInverseStruct->Y,
                                              xInverseStruct->Z,
                                              xInverseStruct->pcOutput);
-      bzero(pcBuffer,STRING_MAX);
-      strcpy(pcBuffer,xInverseStruct->pcOutput);
-      strcat(pcBuffer," T600\r");
       
-      /* Send updated servo values to the arm */
-      xStatus = xQueueSendToBack( xArmComQueue, &pcBuffer, xTicksToWait);
-      if( xStatus != pdPASS )
+      if (vCalculateInverse(xInverseStruct))
       {
-        printf( "Could not send to the queue.\r\n");
+        bzero(pcBuffer,STRING_MAX);
+        sprintf(pcBuffer,"%s T%d\r",xInverseStruct->pcOutput, RECORD_SPEED);
+        
+        /* Send updated servo values to the arm */
+        xStatus = xQueueSendToBack( xArmComQueue, &pcBuffer, xTicksToWait);
+        if( xStatus != pdPASS )
+        {
+          printf( "Could not send to the queue.\r\n");
+        }
       }
     }
     else
@@ -516,6 +555,65 @@ portBASE_TYPE xSetAValue(xSetValueParam xValueParam, portBASE_TYPE *pxInValue)
           
         case XUP:
         case XRIGHT:
+          (*pxInValue) += 100;
+          switch(xValueParam)
+          {
+            /* Limit the values to the upper max */
+            case GRIP_VALUE:
+              if ((*pxInValue) >= GRIP_MAX)
+                (*pxInValue) = GRIP_MAX;
+              printf("%ld\tGripValue+100;\n",*pxInValue);
+              break;
+            case TIME_VALUE:
+              if ((*pxInValue) >= TIME_MAX)
+                (*pxInValue) = TIME_MAX;
+              printf("%ld\tTimeValue+100;\n",*pxInValue);
+              break;
+            case WAIT_VALUE:
+              if ((*pxInValue) >= WAIT_MAX)
+                (*pxInValue) = WAIT_MAX;
+              printf("%ld\tWaitValue+100;\n",*pxInValue);
+              break;
+            default:
+              break;
+          }
+          bzero(pcBuffer,STRING_MAX);
+          sprintf(pcBuffer,"%ld",*pxInValue);
+          break;
+          
+        case XDOWN:
+        case XLEFT:
+          (*pxInValue) -= 100;
+          switch(xValueParam)
+          {
+            /* Limit the values to the minimum.
+             * Since enums are unsigned ints,
+             *  need to check for greater than max
+             *  since (0 - 1) = 4,294,967,295 */
+            case GRIP_VALUE:
+              if ((*pxInValue) < GRIP_MIN || (*pxInValue) > GRIP_MAX)
+                (*pxInValue) = GRIP_MIN; 
+              printf("%ld\tGripValue-100;\n",*pxInValue);
+              break;
+            case TIME_VALUE:
+              if ((*pxInValue) < TIME_MIN || (*pxInValue) > TIME_MAX)
+                (*pxInValue) = TIME_MIN; 
+              printf("%ld\tTimeValue-100;\n",*pxInValue);
+              break;
+            case WAIT_VALUE:
+              if ((*pxInValue) < WAIT_MIN || (*pxInValue) > WAIT_MAX)
+                (*pxInValue) = WAIT_MIN;
+              printf("%ld\tWaitValue-100;\n",*pxInValue);
+              break;
+            default:
+              break;
+          }
+          bzero(pcBuffer,STRING_MAX);
+          sprintf(pcBuffer,"%ld",*pxInValue);
+          break;
+          
+        case UP:
+        case RIGHT:
           (*pxInValue) += 10;
           switch(xValueParam)
           {
@@ -542,8 +640,8 @@ portBASE_TYPE xSetAValue(xSetValueParam xValueParam, portBASE_TYPE *pxInValue)
           sprintf(pcBuffer,"%ld",*pxInValue);
           break;
           
-        case XDOWN:
-        case XLEFT:
+        case DOWN:
+        case LEFT:
           (*pxInValue) -= 10;
           switch(xValueParam)
           {
@@ -565,65 +663,6 @@ portBASE_TYPE xSetAValue(xSetValueParam xValueParam, portBASE_TYPE *pxInValue)
               if ((*pxInValue) < WAIT_MIN || (*pxInValue) > WAIT_MAX)
                 (*pxInValue) = WAIT_MIN;
               printf("%ld\tWaitValue-10;\n",*pxInValue);
-              break;
-            default:
-              break;
-          }
-          bzero(pcBuffer,STRING_MAX);
-          sprintf(pcBuffer,"%ld",*pxInValue);
-          break;
-          
-        case UP:
-        case RIGHT:
-          (*pxInValue)++;
-          switch(xValueParam)
-          {
-            /* Limit the values to the upper max */
-            case GRIP_VALUE:
-              if ((*pxInValue) >= GRIP_MAX)
-                (*pxInValue) = GRIP_MAX;
-              printf("%ld\tGripValue++;\n",*pxInValue);
-              break;
-            case TIME_VALUE:
-              if ((*pxInValue) >= TIME_MAX)
-                (*pxInValue) = TIME_MAX;
-              printf("%ld\tTimeValue++;\n",*pxInValue);
-              break;
-            case WAIT_VALUE:
-              if ((*pxInValue) >= WAIT_MAX)
-                (*pxInValue) = WAIT_MAX;
-              printf("%ld\tWaitValue++;\n",*pxInValue);
-              break;
-            default:
-              break;
-          }
-          bzero(pcBuffer,STRING_MAX);
-          sprintf(pcBuffer,"%ld",*pxInValue);
-          break;
-          
-        case DOWN:
-        case LEFT:
-          (*pxInValue)--;
-          switch(xValueParam)
-          {
-            /* Limit the values to the minimum.
-             * Since enums are unsigned ints,
-             *  need to check for greater than max
-             *  since (0 - 1) = 4,294,967,295 */
-            case GRIP_VALUE:
-              if ((*pxInValue) < GRIP_MIN || (*pxInValue) > GRIP_MAX)
-                (*pxInValue) = GRIP_MIN; 
-              printf("%ld\tGripValue--;\n",*pxInValue);
-              break;
-            case TIME_VALUE:
-              if ((*pxInValue) < TIME_MIN || (*pxInValue) > TIME_MAX)
-                (*pxInValue) = TIME_MIN; 
-              printf("%ld\tTimeValue--;\n",*pxInValue);
-              break;
-            case WAIT_VALUE:
-              if ((*pxInValue) < WAIT_MIN || (*pxInValue) > WAIT_MAX)
-                (*pxInValue) = WAIT_MIN;
-              printf("%ld\tWaitValue--;\n",*pxInValue);
               break;
             default:
               break;
