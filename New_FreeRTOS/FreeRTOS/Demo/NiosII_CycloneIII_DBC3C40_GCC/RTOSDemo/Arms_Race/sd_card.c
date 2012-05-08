@@ -172,6 +172,17 @@ void vTaskReadFileContents(void *pvParameters)
         printf("Could not open file!\n");
         break;
       }
+      else
+      {
+        if (xSystemState == PLAYING)  //No Outside Intervention
+        {
+          if (ArmControlFlag == PAUSE_NOW)
+          {
+            while (ArmControlFlag == PAUSE_NOW);
+            i--;
+          }
+        }
+      }
     }
     xPlaySettings->xFinished = pdTRUE;
   }
@@ -188,11 +199,6 @@ void vTaskReadFileContents(void *pvParameters)
       {
         /* Stop was pressed */
         printf("Continuous playback interrupted\n");
-        /*
-        xSystemState = WAITING_FOR_RESET;
-        xTaskCreate(vTaskMenu, "Menu", 2000, NULL, 1, &xMenuHandle);
-        vTaskDelete(NULL);
-        */
         break;
       }
       else
