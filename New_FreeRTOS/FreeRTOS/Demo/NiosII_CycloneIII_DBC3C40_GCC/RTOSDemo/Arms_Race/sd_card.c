@@ -287,6 +287,8 @@ portBASE_TYPE xGetFileLines(portCHAR *pcFileName)
           if(ArmControlFlag == STOP_NOW)
           {
             printf("Emergency Stop!\n");
+            vPrintToLCD(1,"Emergency Stop!");
+            vPrintToLCD(2,"Press Reset");
             alt_up_sd_card_fclose(psHandler);
             return -1;
           }
