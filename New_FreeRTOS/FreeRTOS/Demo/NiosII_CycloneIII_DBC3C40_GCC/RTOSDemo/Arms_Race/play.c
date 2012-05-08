@@ -388,10 +388,28 @@ void vPlayProgram(portCHAR *pcFileName, portBASE_TYPE xLoopCount)
     if( xKeyPadQueueStatus == pdPASS )
     {
       printf( "Received = %d\r\n", sReceivedValue );
-      if (sReceivedValue == PLAY)
-        break;
+      switch(sReceivedValue)
+      {
+        case PLAY:
+          break;
+          
+        case CANCEL:
+        case STOP:
+          return;
+        
+        case RESET:
+          xSystemState = WAITING_FOR_RESET;
+          xTaskCreate(vTaskMenu, "Menu", 2000, NULL, 1, &xMenuHandle);
+          vTaskDelete(NULL);
+         
+        default:
+          xKeyPadQueueStatus = pdFALSE;
+          continue;
+      }
     }
   }
+  
+  ArmControlFlag = PLAY_NOW;
   
   xTaskCreate(vTaskReadFileContents,
               "Read File Contents",
@@ -417,13 +435,25 @@ void vPlayProgram(portCHAR *pcFileName, portBASE_TYPE xLoopCount)
       {
         case PLAY:
           ArmControlFlag = PLAY_NOW;
+          vPrintToLCD(2,"Playing");
           break;
         case PAUSE:
           ArmControlFlag = PAUSE_NOW;
+          vPrintToLCD(2,"Paused");
           break;
         case STOP:
+          vPrintToLCD(1,"EMERGENCY");
+          vPrintToLCD(2,"STOP");
           ArmControlFlag = STOP_NOW;
+          xSystemState = WAITING_FOR_RESET;
           xPlaySettings.xFinished = pdTRUE;
+          xTaskCreate(vTaskMenu, "Menu", 2000, NULL, 1, &xMenuHandle);
+          vTaskDelete(NULL);
+          break;
+        case RESET:
+          xSystemState = WAITING_FOR_RESET;
+          xTaskCreate(vTaskMenu, "Menu", 2000, NULL, 1, &xMenuHandle);
+          vTaskDelete(NULL);
           break;
         default:
           break;

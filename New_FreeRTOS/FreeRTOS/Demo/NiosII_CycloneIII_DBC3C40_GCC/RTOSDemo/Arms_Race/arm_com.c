@@ -85,6 +85,9 @@ void vTaskArmCom(void *pvParameters)
             xFinishedFlag = pdTRUE;
             ArmControlFlag = WAITING_NOW;
             printf("STOP command received\n");
+            fclose(fp);
+            vTaskDelete(NULL);
+            
             break;
           case PAUSE_NOW:
             /* Send stop command */

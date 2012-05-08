@@ -25,6 +25,7 @@
 #include "sd_card.h"
 #include "LCD.h"
 #include "arm_com.h"
+#include "system_state.h"
 
 portBASE_TYPE xSDConnected = 0;
 
@@ -154,7 +155,7 @@ void vTaskReadFileContents(void *pvParameters)
   portCHAR pcBuffer[5] = {0};
   
   xPlaySettings = (xPlaySettings_TYPE *) pvParameters;
- 
+   
   /* Check loop count is within sane limits */
   if (xPlaySettings->xLoopCount >= LOOP_MIN &&
       xPlaySettings->xLoopCount < LOOP_MAX)
@@ -180,13 +181,27 @@ void vTaskReadFileContents(void *pvParameters)
     /* Continuously send all lines in the file */
     while(ArmControlFlag == PLAY_NOW || ArmControlFlag == PAUSE_NOW)
     {
-      vPrintToLCD(1,"Loop Count:");
-      vPrintToLCD(2,"Continuous");
+      vPrintToLCD(1,"Continuous Mode:");
+      vPrintToLCD(2,"Playing");
+        
       if (xGetFileLines(xPlaySettings->pcFileName) != 0)
       {
         /* Stop was pressed */
         printf("Continuous playback interrupted\n");
+        /*
+        xSystemState = WAITING_FOR_RESET;
+        xTaskCreate(vTaskMenu, "Menu", 2000, NULL, 1, &xMenuHandle);
+        vTaskDelete(NULL);
+        */
         break;
+      }
+      else
+      {
+        if (xSystemState == PLAYING)  //No Outside Intervention
+        {
+          ArmControlFlag = PLAY_NOW;
+          continue;
+        }
       }
     }
   } 
@@ -223,7 +238,7 @@ portBASE_TYPE xGetFileLines(portCHAR *pcFileName)
     /* Opened the file */
     printf("Opened %s\n",pcFileName);
     /* Read file char by char */
-    while ( (pcRead = alt_up_sd_card_read(psHandler)) != -1)
+    while ( ((pcRead = alt_up_sd_card_read(psHandler)) != -1) && xSystemState != WAITING_FOR_RESET)
     {
       /* Print the characer from the file */
       printf("%c", pcRead);
@@ -272,6 +287,7 @@ portBASE_TYPE xGetFileLines(portCHAR *pcFileName)
           if(ArmControlFlag == STOP_NOW)
           {
             printf("Emergency Stop!\n");
+            alt_up_sd_card_fclose(psHandler);
             return -1;
           }
           
