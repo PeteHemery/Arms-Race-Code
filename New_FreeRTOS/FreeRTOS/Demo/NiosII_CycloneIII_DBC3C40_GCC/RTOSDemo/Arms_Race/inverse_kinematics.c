@@ -32,7 +32,7 @@ extern portSHORT psServoValues[6];
 float X, Y, Z;
 
 // orientation of the gripper
-float gripper_angle = 10.0 * (pi/180.0); 
+float gripper_angle = 0;//1 * (180.0/pi); 
 
 float servovalue[4];
 
@@ -73,7 +73,42 @@ float radial1 = radialdist - (sin(gripper_angle) * GRIPPER);
 float Z1 = Z - BASE_HGT + (cos(gripper_angle) * GRIPPER);
 // now the RZ function is calculated the elbow angle can now be solved
 // by the following. 
-float H = sqrt((Z1 * Z1) * (radial1 * radial1));
+ float H = (sqrt((Z1 * Z1) * (radial1 * radial1))/2);
+// H beeing the hypotenuse 
+float elbo_angle = (asin(H/ARMLENGTH) * 2);
+
+// now the elbo angle is known the shoulder angle can be calculated 
+// using the following calculations. 
+// float Z2 = atan2(Z1,radial1);
+//float Zelbo = ((pi - elbo_angle)/2);
+
+ float shoulder_angle = atan2(Z1,radial1) + ((pi - elbo_angle)/2);
+//float shoulder = shoulder_angle / 2; 
+// the wrist angle can then be calculated assuming the other 
+// angles summed. 
+
+float wrist_angle = pi + gripper_angle - elbo_angle - shoulder_angle;
+
+ float B = base_angle * 180 / pi;
+ float S = shoulder_angle * 180 / pi;
+ float E = elbo_angle * 180 / pi;
+ float W = wrist_angle * 180 / pi;
+
+
+/*
+// angle of the base running from -X to +X, the rotation of Z plane
+float base_angle = atan2(Y, X);  
+// the radial distance from 0 0 0 to X Y 0, i e. from center out. 
+float radialdist = sqrt((X*X) + (Y*Y));
+
+//solving RZ function the orientation of the wrist 
+//solving r
+float radial1 = radialdist - (sin(gripper_angle) * GRIPPER);
+//solving z
+float Z1 = Z - BASE_HGT + (cos(gripper_angle) * GRIPPER);
+// now the RZ function is calculated the elbow angle can now be solved
+// by the following. 
+float H = (sqrt((Z1 * Z1) * (radial1 * radial1))/2.0);
 // H being the hypotenuse 
 float elbo_angle = (asin(H/ARMLENGTH) * 2.0);
 
@@ -94,11 +129,13 @@ float wrist_angle = M_PI + gripper_angle - elbo_angle - shoulder_angle;
  float E = elbo_angle * (180.0 / M_PI);
  //float E = -(180.0 - elbo_angle) * (180.0 / M_PI);
  float W = wrist_angle * (180.0 / M_PI);
+ 
+ */
 
-  servovalue[0] = 1500.0 - ((B - 90.0) * 11.11);
+  servovalue[0] = 1500.0 - ((B) * 11.11);
   servovalue[1] = 1500.0 + ((S - 90.0) * 6.6);
   servovalue[2] = 1500.0 - ((E - 90.0) * 6.6);
-  servovalue[3] = 1500.0 + ((W - 90.0) * 11.11);
+  servovalue[3] = 1500.0 + ((W) * 11.11);
   
   
   int valid_set = 0, valid_clear = 0;
@@ -129,7 +166,7 @@ float wrist_angle = M_PI + gripper_angle - elbo_angle - shoulder_angle;
     {
       sprintf(pcTestBuffer,"%0.0f",servovalue[i]);
       psServoValues[i] = atoi(pcTestBuffer);
-      printf("S%d %d\n",i+1, psServoValues[i]);
+      printf("S%d %d\n",i, psServoValues[i]);
     }
   
     printf ("base = %f shoulder = %f elbo = %f wrist = %f\n", B, S, E, W);

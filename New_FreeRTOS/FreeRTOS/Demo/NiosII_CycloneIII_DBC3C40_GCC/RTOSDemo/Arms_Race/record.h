@@ -51,13 +51,13 @@ typedef enum {
   } xServoChoice_t;
 
 /* Cartesian Co-ordinate max and min values */
-#define X_MAX 4
-#define Y_MAX 14
-#define Z_MAX 100
+#define X_MAX 200
+#define Y_MAX 100
+#define Z_MAX 50
 
-#define X_MIN -4
-#define Y_MIN 1
-#define Z_MIN 0
+#define X_MIN 1
+#define Y_MIN 0
+#define Z_MIN -1
 
 
 #define SERVO_MAX 2500
