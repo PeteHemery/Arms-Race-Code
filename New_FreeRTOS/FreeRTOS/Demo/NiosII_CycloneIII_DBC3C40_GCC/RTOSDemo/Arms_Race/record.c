@@ -636,24 +636,24 @@ portBASE_TYPE xSetAxisValue(xInverseStruct_t *xInverseStruct)
           
       /* Modify the Z axis */    
         case XUP:
-          xInverseStruct->Z+=10;
+          xInverseStruct->Z++;
           if (xInverseStruct->Z >= Z_MAX)
           {
             xInverseStruct->Z = Z_MAX;
           }
-          printf("%d\tZ+=10;\n",xInverseStruct->Z);
+          printf("%d\tZ++;\n",xInverseStruct->Z);
           bzero(pcBuffer,STRING_MAX);
           sprintf(pcBuffer,"%d",xInverseStruct->Z);
           vPrintToLCD(1,"Z Axis");
           vPrintToLCD(2,pcBuffer);
           break;
         case XDOWN:
-          xInverseStruct->Z-=10;
+          xInverseStruct->Z--;
           if (xInverseStruct->Z < Z_MIN || xInverseStruct->Z > Z_MAX)
           {
             xInverseStruct->Z = Z_MIN;
           }
-          printf("%d\tZ-=10;\n",xInverseStruct->Z);
+          printf("%d\tZ--;\n",xInverseStruct->Z);
           bzero(pcBuffer,STRING_MAX);
           sprintf(pcBuffer,"%d",xInverseStruct->Z);
           vPrintToLCD(1,"Z Axis");
@@ -662,24 +662,24 @@ portBASE_TYPE xSetAxisValue(xInverseStruct_t *xInverseStruct)
       
       /* Modify the Y axis */
         case UP:
-          xInverseStruct->Y+=10;
+          xInverseStruct->Y++;
           if (xInverseStruct->Y >= Y_MAX)
           {
             xInverseStruct->Y = Y_MAX;
           }
-          printf("%d\tY+=10;\n",xInverseStruct->Y);
+          printf("%d\tY++;\n",xInverseStruct->Y);
           bzero(pcBuffer,STRING_MAX);
           sprintf(pcBuffer,"%d",xInverseStruct->Y);
           vPrintToLCD(1,"Y Axis");
           vPrintToLCD(2,pcBuffer);
           break;
         case DOWN:
-          xInverseStruct->Y-=10;
+          xInverseStruct->Y--;
             if (xInverseStruct->Y < Y_MIN || xInverseStruct->Y > Y_MAX)
           {
             xInverseStruct->Y = Y_MIN;
           }
-          printf("%d\tY-=10;\n",xInverseStruct->Y);
+          printf("%d\tY--;\n",xInverseStruct->Y);
           bzero(pcBuffer,STRING_MAX);
           sprintf(pcBuffer,"%d",xInverseStruct->Y);
           vPrintToLCD(1,"Y Axis");
@@ -689,12 +689,12 @@ portBASE_TYPE xSetAxisValue(xInverseStruct_t *xInverseStruct)
       /* Modify the X axis */
         case XLEFT:
         case LEFT:
-          xInverseStruct->X+=10;
+          xInverseStruct->X++;
           if (xInverseStruct->X >= X_MAX)
           {
             xInverseStruct->X = X_MAX;
           }
-          printf("%d\tX+=10;\n",xInverseStruct->X);
+          printf("%d\tX++;\n",xInverseStruct->X);
           bzero(pcBuffer,STRING_MAX);
           sprintf(pcBuffer,"%d",xInverseStruct->X);
           vPrintToLCD(1,"X Axis");
@@ -703,12 +703,12 @@ portBASE_TYPE xSetAxisValue(xInverseStruct_t *xInverseStruct)
           
         case XRIGHT:
         case RIGHT:
-          xInverseStruct->X-=10;
+          xInverseStruct->X--;
           if (xInverseStruct->X < X_MIN || xInverseStruct->X > X_MAX)
           {
             xInverseStruct->X = X_MIN;
           }
-          printf("%d\tX-=10;\n",xInverseStruct->X);
+          printf("%d\tX--;\n",xInverseStruct->X);
           bzero(pcBuffer,STRING_MAX);
           sprintf(pcBuffer,"%d",xInverseStruct->X);
           vPrintToLCD(1,"X Axis");

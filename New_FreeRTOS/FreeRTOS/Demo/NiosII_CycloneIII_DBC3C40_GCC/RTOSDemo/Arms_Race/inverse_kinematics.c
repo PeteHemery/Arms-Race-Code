@@ -20,10 +20,10 @@
 
 /* Johns Variables */
 /* Arm dimensions( mm ) */
-#define BASE_HGT 67.31      //base hight 2.65"
-#define HUMERUS 146.05      //shoulder-to-elbow "bone" 5.75"
-#define ARMLENGTH 187.325        //elbow-to-wrist "bone" 7.375"
-#define GRIPPER 100.00          //gripper (incl.heavy duty wrist rotatemechanism) length 3.94"
+#define BASE_HGT 38.00      //base hight 1.5"
+#define HUMERUS 152.00      //shoulder-to-elbow "bone" 6"
+#define ARMLENGTH 152.00        //elbow-to-wrist "bone" 6"
+#define GRIPPER 102.00           //gripper (incl.heavy duty wrist rotatemechanism) length 4"
 
 #define pi 3.14159265
 
